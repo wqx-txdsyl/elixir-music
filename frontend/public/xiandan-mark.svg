@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="168 168 688 704" role="img" aria-labelledby="title desc">
+  <title id="title">Elixir</title>
+  <desc id="desc">透明背景，黑色线条将丹丸、声波与音符连成一个符号。</desc>
+  <g fill="none" stroke="#000000" stroke-width="48" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M627 276C591 260 551 252 512 252C353 252 224 381 224 540C224 699 353 828 512 828C671 828 800 699 800 540C800 468 773 403 728 353L704 328"/>
+    <path d="M228 577C302 577 324 462 400 462C475 462 503 577 584 577C666 577 704 527 704 452V216C729 235 758 239 779 257"/>
+  </g>
+</svg>

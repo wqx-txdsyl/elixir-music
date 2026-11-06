@@ -1,0 +1,7 @@
+Elixir independent application icon
+Generated with built-in image_gen,2026-11-01.
+
+Prompt:
+Use case: logo-brand. Asset: final production Windows desktop application icon for an independent music player named Elixir. Create ONE polished standalone app icon, not a mockup, not a presentation sheet. A distinctive bold continuous lowercase e-like loop made from a flowing sound ribbon, suggesting both liquid elixir and an audio wave through negative space. Confident, simple silhouette that remains recognizable at 16 and 32 pixels. Restrained luminous turquoise mark on a deep midnight blue rounded-square tile. Almost flat graphic treatment with only very subtle material depth, sharp clean antialiased contours, carefully balanced geometry, generous internal padding, straight-on square composition. Transparent alpha outside the rounded-square tile; no external shadow. No words, no letter labels, no tiny detail, no grids, no decorative sparkles, no borders, no additional objects. Entirely original identity: do not use or combine Spotify, QQ Music, NetEase, or other existing brand symbols. The single icon should occupy most of a square high resolution canvas with equal clean transparent margins.
+
+Original art unchanged. ICO contains packaging-sized raster representations for Windows.

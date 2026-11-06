@@ -1,0 +1,87 @@
+{
+  "name": "elixir-music",
+  "version": "0.2.6",
+  "description": "纯净听歌聚合桌面平台",
+  "main": "desktop/main.cjs",
+  "author": "Elixir",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "start": "node desktop/start.cjs",
+    "pack": "powershell -ExecutionPolicy Bypass -File scripts/build_desktop.ps1",
+    "dist": "powershell -ExecutionPolicy Bypass -File scripts/build_desktop.ps1 -Sign",
+    "prepare:playback": "python scripts/prepare_ecs.py",
+    "prepare:legacy-spotify": "python scripts/prepare_librespot.py"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "electron": "44.9.3",
+    "electron-builder": "^26.0.0",
+    "vite": "8.3.5",
+    "playwright-core": "^1.64.1"
+  },
+  "build": {
+    "appId": "local.musicplatform.desktop",
+    "productName": "Elixir",
+    "directories": {
+      "output": "release/elixir"
+    },
+    "files": [
+      "desktop/main.cjs",
+      "desktop/runtime-paths.cjs",
+      "desktop/lyrics-preferences.cjs",
+      "desktop/background-window.cjs",
+      "desktop/preload.cjs",
+      "package.json",
+      "desktop/icon.png",
+      "desktop/spotify-player.cjs",
+      "desktop/icon.ico"
+    ],
+    "extraResources": [
+      {
+        "from": "dist/web",
+        "to": "web"
+      },
+      {
+        "from": "resources/backend",
+        "to": "backend",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "desktop/branding/runtime",
+        "to": "branding",
+        "filter": [
+          "*.png",
+          "*.ico",
+          "branding.json"
+        ]
+      }
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "desktop/icon.ico",
+      "signExecutable": false
+    },
+    "portable": {
+      "artifactName": "Elixir-${version}-Windows.exe"
+    },
+    "executableName": "Elixir",
+    "electronVersion": "44.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wqx-txdsyl/elixir-music.git"
+  },
+  "homepage": "https://github.com/wqx-txdsyl/elixir-music",
+  "bugs": {
+    "url": "https://github.com/wqx-txdsyl/elixir-music/issues"
+  }
+}

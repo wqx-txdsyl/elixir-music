@@ -1,0 +1,188 @@
+/* Aurora: a bento grid of glass cards with gradient edges; the long shelves sit in glass panels. */
+.home-aurora .home-greeting { margin: 4px 0 22px; }
+.home-aurora .home-greeting h1 {
+  width: fit-content;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -.6px;
+  color: transparent;
+  background: var(--aurora-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.home-aurora .home-greeting p { color: var(--muted); }
+
+.home-bento {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-areas: "hero hero stats recent" "hero hero quick recent" "artists artists lists lists";
+  grid-auto-rows: minmax(158px, auto);
+  gap: 14px;
+}
+.home-bento-cell,
+.home-aurora .home-section {
+  position: relative;
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: 22px;
+  background: linear-gradient(160deg, #ffffff10, #ffffff05) padding-box, linear-gradient(140deg, #b6a8ff4d, #ffffff0d 42%, #ffffff08 60%, #6fe7da40) border-box;
+  backdrop-filter: var(--glass);
+  box-shadow: 0 18px 50px rgb(0 0 0 / .22);
+}
+.home-bento-cell { padding: 16px; color: var(--text); }
+.home-bento-cell .home-recent-head { padding: 2px 4px 8px; }
+.home-bento-cell h3 { margin: 0; font-size: 13px; font-weight: 600; opacity: 1; color: var(--subtle); }
+.home-bento-meta { margin: 0; padding: 4px; font-size: 12px; line-height: 1.7; color: var(--muted); }
+
+.home-bento-hero {
+  grid-area: hero;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 26px;
+  color: #fff;
+  box-shadow: 0 26px 70px -18px #a594ff55, 0 18px 50px rgb(0 0 0 / .25);
+}
+.home-bento-hero::before { filter: blur(56px) saturate(1.5) brightness(.72); }
+.home-bento-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(90% 80% at 100% 0%, #6fe7da2e, transparent 60%), linear-gradient(180deg, rgb(11 13 24 / .05), rgb(11 13 24 / .55));
+}
+.home-bento-hero .home-hero-main { flex-direction: column; align-items: flex-start; gap: 20px; width: 100%; }
+.home-bento-hero .home-hero-art { width: 150px; border-radius: 16px; box-shadow: 0 18px 40px rgb(0 0 0 / .4); }
+.home-bento-hero .home-hero-art .music-art { border-radius: 16px; }
+.home-bento-hero .home-hero-copy { width: 100%; }
+.home-bento-hero .home-hero-state { padding: 3px 10px; border-radius: 12px; background: #ffffff1a; opacity: 1; }
+.home-bento-hero h2 { font-size: 30px; }
+.home-bento-hero .home-hero-actions { margin-top: 18px; }
+.home-bento-hero .home-hero-loading { position: absolute; inset: 0; min-height: 0; border-radius: 0; }
+.home-bento-hero .home-hero-empty { display: block; min-height: 0; padding: 0; background: none; overflow: visible; }
+.home-bento-hero .home-hero-empty::before,
+.home-bento-hero .home-hero-empty::after { display: none; }
+
+.home-bento-stats {
+  grid-area: stats;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  text-align: left;
+  transition: transform .2s;
+}
+.home-bento-stats::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  bottom: -50px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #6fe7da40, transparent 70%);
+  pointer-events: none;
+}
+.home-bento-stats:hover,
+.home-bento-link:hover,
+.home-bento-faces button:hover { transform: translateY(-2px); }
+.home-bento-label { font-size: 13px; font-weight: 600; color: var(--subtle); }
+.home-bento-big {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1.5px;
+  color: transparent;
+  background: var(--aurora-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.home-bento-big small { font-size: 15px; font-weight: 500; letter-spacing: 0; color: var(--subtle); -webkit-text-fill-color: var(--subtle); }
+.home-bento-stats .home-bento-meta { padding: 0; }
+
+.home-bento-quick { grid-area: quick; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
+.home-bento-link {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: center;
+  column-gap: 9px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 14px;
+  text-align: left;
+  background: #ffffff08;
+  transition: transform .2s, background .2s;
+}
+.home-bento-link:hover { background: #ffffff12; }
+.home-bento-link svg { grid-row: span 2; align-self: center; color: var(--accent); }
+.home-bento-link:nth-child(even) svg { color: var(--accent-2); }
+.home-bento-link strong,
+.home-bento-link small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.home-bento-link strong { font-size: 13px; font-weight: 600; }
+.home-bento-link small { font-size: 11px; color: var(--muted); }
+
+.home-bento-recent { grid-area: recent; padding: 14px 8px; }
+.home-bento-recent .home-recent-head { padding: 2px 10px 8px; }
+.home-bento-recent .home-recent > button { padding: 7px 10px; border-radius: 12px; }
+
+.home-bento-artists { grid-area: artists; }
+.home-bento-faces {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  grid-template-rows: auto;
+  grid-auto-rows: 0;
+  overflow: hidden;
+  gap: 0 8px;
+}
+.home-bento-faces button { display: flex; flex-direction: column; align-items: center; min-width: 0; padding: 4px 2px; transition: transform .2s; }
+.home-bento-faces .music-art { width: 64px; box-shadow: 0 0 0 2px #ffffff14, 0 10px 24px rgb(0 0 0 / .3); }
+.home-bento-faces button:hover .music-art { box-shadow: 0 0 0 2px #b6a8ff99, 0 10px 28px #a594ff44; }
+.home-bento-faces strong,
+.home-bento-faces small { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.home-bento-faces strong { margin-top: 9px; font-size: 12.5px; font-weight: 500; }
+.home-bento-faces small { margin-top: 2px; font-size: 11px; color: var(--muted); }
+
+.home-bento-lists { grid-area: lists; }
+.home-bento-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; }
+.home-bento-rows > button { border-radius: 12px; }
+
+/* Shelves and picks in glass panels. */
+.home-aurora .home-section { margin-top: 18px; padding: 18px 20px 20px; }
+.home-aurora .home-section-head { margin-bottom: 12px; }
+.home-aurora .home-section-head h2 { font-size: 18px; font-weight: 650; }
+.home-aurora .home-card .music-art { border-radius: 14px; }
+.home-aurora .home-card.round .music-art { border-radius: 50%; }
+.home-aurora .home-card:hover .music-art { box-shadow: 0 12px 30px #a594ff33; }
+.home-aurora .home-card:hover strong,
+.home-aurora .home-card.now strong { color: var(--text); }
+.home-aurora .home-card-play { background: var(--aurora-gradient); color: #121028; }
+.home-aurora .home-card-badge { background: rgb(11 13 24 / .55); backdrop-filter: blur(8px); }
+.home-aurora .home-pick-chip { background: #ffffff08; border-color: #ffffff18; }
+.home-aurora .home-pick-chip.chosen { background: var(--aurora-gradient); color: #121028; }
+.home-aurora .home-track:hover,
+.home-aurora .home-recent > button:hover,
+.home-aurora .home-bento-rows > button:hover { background: #ffffff0f; }
+
+@container home (max-width: 980px) {
+  .home-bento-quick { grid-template-columns: 1fr; gap: 4px; padding: 8px; }
+  .home-bento-link { padding: 4px 10px; border-radius: 10px; }
+  .home-bento-link small { display: none; }
+  .home-bento-link svg { grid-row: auto; }
+}
+@container home (max-width: 760px) {
+  .home-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "hero hero" "stats quick" "recent lists" "artists artists"; }
+  .home-bento-hero .home-hero-main { flex-direction: row; align-items: flex-end; }
+  .home-bento-hero .home-hero-art { width: 130px; }
+  .home-bento-rows { grid-template-columns: 1fr; }
+  .home-bento-quick { grid-template-columns: 1fr 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-bento-stats,
+  .home-bento-link,
+  .home-bento-faces button { transition: none; }
+}

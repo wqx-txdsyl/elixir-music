@@ -1,0 +1,149 @@
+/* Page header shared by likes, history, ranking, library, playlists, my music, accounts and settings. */
+.page-hero{position:relative;display:flex;align-items:flex-end;gap:28px;margin:6px 0 24px;min-width:0}
+.page-hero-art{width:180px;height:180px;flex-shrink:0;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--hero-tint);box-shadow:0 14px 34px #0f1b3a26;overflow:hidden}
+.page-hero-art>.cover{width:100%;height:100%;border-radius:0}
+.page-hero-art>.cover img{width:100%;height:100%;object-fit:cover}
+.page-hero-art>svg{filter:drop-shadow(0 6px 14px #0003)}
+.page-hero-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:9px;padding-bottom:4px}
+.page-hero-eyebrow{font-size:12px;color:var(--muted);letter-spacing:.6px}
+.app .page-hero h1{font-size:36px;line-height:1.2;font-weight:700;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.page-hero-meta{margin:0;color:var(--subtle);font-size:13px;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:75ch}
+.page-hero-stats{display:flex;gap:30px;margin:4px 0 0}
+.page-hero-stats>div{display:flex;flex-direction:column-reverse;gap:3px}
+.page-hero-stats dd{margin:0;font-size:22px;font-weight:650;color:var(--text);font-variant-numeric:tabular-nums}
+.page-hero-stats dt{font-size:11px;color:var(--muted)}
+.page-hero-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.page-hero.compact{align-items:center}
+.page-hero.compact .page-hero-art{width:96px;height:96px;border-radius:22px}
+.page-hero.compact .page-hero-actions{position:absolute;right:var(--hero-pad,0px);top:50%;transform:translateY(-50%);margin:0}
+.hero-likes{--hero-tint:linear-gradient(135deg,#ff9aa4,#e8344a)}
+.hero-history{--hero-tint:linear-gradient(135deg,#8d9bff,#4252cf)}
+.hero-ranking{--hero-tint:linear-gradient(135deg,#ffcf70,#ef6a3a)}
+.hero-library{--hero-tint:linear-gradient(135deg,#5fdcc0,#17858a)}
+.hero-music{--hero-tint:linear-gradient(135deg,#cf9bff,#7445d6)}
+.hero-playlist{--hero-tint:linear-gradient(135deg,#9fb4cf,#55657d)}
+.hero-accounts{--hero-tint:linear-gradient(135deg,#86bcff,#376bd6)}
+.hero-settings{--hero-tint:linear-gradient(135deg,#b4bccb,#5f6a7e)}
+/* The table toolbar follows the hero directly, so the old heading spacing is not needed. */
+.page-hero+.history-filters{margin-top:0}
+
+.theme-qqmusic .page-hero{padding:26px;border-radius:16px;background:linear-gradient(115deg,#ffffff0d,#ffffff03 70%);border:1px solid #ffffff08}
+.theme-qqmusic .page-hero-art{border-radius:10px;box-shadow:0 14px 34px #0006}
+.theme-qqmusic .page-hero.compact{padding:20px 26px}
+.theme-qqmusic .page-hero-stats dd{color:var(--accent)}
+
+.theme-spotify .page-hero{padding:46px 24px 24px;margin:0 0 22px;border-radius:8px;background:linear-gradient(180deg,var(--band) 0,color-mix(in srgb,var(--band) 35%,#121212) 100%);gap:24px}
+.theme-spotify .page-hero-art{width:200px;height:200px;border-radius:4px;box-shadow:0 8px 40px #0008}
+.theme-spotify .page-hero.compact{padding:34px 24px 22px}
+.theme-spotify .page-hero.compact .page-hero-art{border-radius:50%;width:104px;height:104px}
+.theme-spotify .page-hero{--hero-pad:24px}
+.theme-spotify .page-hero-eyebrow{color:#fff;font-size:12px;font-weight:600;letter-spacing:0}
+.app.theme-spotify .page-hero h1{font-size:56px;font-weight:800;letter-spacing:-2px;line-height:1.08;padding-bottom:4px}
+.theme-spotify .page-hero.compact h1{font-size:44px}
+.theme-spotify .page-hero-meta{color:#ffffffc0}
+.theme-spotify .hero-likes{--band:#4f3aa8;--hero-tint:linear-gradient(135deg,#450af5,#8e8ee5 60%,#c4efd9)}
+.theme-spotify .hero-history{--band:#245c74}
+.theme-spotify .hero-ranking{--band:#8a4a1c}
+.theme-spotify .hero-library{--band:#1d6650}
+.theme-spotify .hero-music{--band:#5a2f8f}
+.theme-spotify .hero-playlist{--band:#505050}
+.theme-spotify .hero-accounts{--band:#24456f}
+.theme-spotify .hero-settings{--band:#3c3c3c}
+
+.theme-aurora .page-hero{padding:24px;border-radius:24px;background:linear-gradient(120deg,#ffffff0e,#ffffff04 65%);border:1px solid #ffffff14;box-shadow:inset 0 1px 0 #ffffff10}
+.theme-aurora .page-hero-art{border-radius:20px;box-shadow:0 18px 50px #0007,0 0 0 1px #ffffff1c,0 0 60px -10px color-mix(in srgb,var(--accent) 50%,transparent)}
+.app.theme-aurora .page-hero h1{background:linear-gradient(90deg,#fff,#cbc2ff 70%,#8fe9df);-webkit-background-clip:text;background-clip:text;color:transparent}
+.theme-aurora .page-hero.compact{padding:20px 24px}
+.theme-aurora .page-hero-stats dd{background:var(--aurora-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Sticky in-page index (settings). */
+.section-page{display:grid;grid-template-columns:150px minmax(0,1fr);gap:34px;align-items:start}
+.section-nav{position:sticky;top:0;display:flex;flex-direction:column;gap:3px;padding-top:4px}
+.section-nav button{text-align:left;padding:9px 14px;border-radius:9px;font-size:13px;color:var(--subtle)}
+.section-nav button:hover{background:var(--hover);color:var(--text)}
+.section-nav button[aria-current]{background:var(--accent-tint);color:var(--accent);font-weight:600}
+.theme-spotify .section-nav button[aria-current]{background:#ffffff14;color:#fff}
+.theme-aurora .section-nav button[aria-current]{background:linear-gradient(90deg,#a594ff33,#5fe3d612);color:#fff}
+.section-body{min-width:0}
+.section-body .settings-section{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:22px 26px;margin-bottom:16px;scroll-margin-top:12px}
+.section-body .settings-section>h2{font-size:16px;font-weight:650;margin:0 0 4px}
+.section-body .setting-row{padding:14px 0;border-top:1px solid var(--line)}
+.section-body .settings-section>h2+.setting-row{border-top:0}
+.section-body .theme-options{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:16px}
+.section-body .about-section{display:flex;align-items:center;gap:18px}
+.section-body .about-section>div{flex:1}
+.theme-netease .section-body .settings-section{box-shadow:0 4px 18px #1a2a4a0a}
+.theme-aurora .section-body .settings-section{background:#ffffff07;border-color:#ffffff12;border-radius:20px}
+
+/* Accounts: one card per platform with a brand band. */
+.app .accounts-page .account-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.app .accounts-page .account-card{flex-direction:column;align-items:stretch;gap:0;padding:0;overflow:hidden;border-radius:16px;min-height:272px}
+.accounts-page .account-band{height:92px;position:relative;background:var(--brand)}
+.accounts-page .account-band::after{content:'';position:absolute;inset:0;background:radial-gradient(60% 120% at 90% 0,#ffffff40,transparent 70%)}
+.accounts-page .account-band .platform-avatar{position:absolute;left:22px;bottom:-30px;width:64px;height:64px;border-radius:18px;box-shadow:0 0 0 4px var(--panel-solid,#fff),0 8px 20px #0002;z-index:1}
+.accounts-page .account-netease{--brand:linear-gradient(120deg,#ff6b73,#d71f32)}
+.accounts-page .account-qqmusic{--brand:linear-gradient(120deg,#46dc95,#13a05c)}
+.accounts-page .account-spotify{--brand:linear-gradient(120deg,#1ed760,#0d5c2b)}
+.accounts-page .account-content{padding:42px 22px 8px}
+.accounts-page .account-content h2{font-size:18px}
+.accounts-page .account-content small{margin-top:8px}
+.app .accounts-page .account-actions{flex-direction:row;flex-wrap:wrap;align-items:center;align-self:stretch;gap:6px 12px;min-width:0;margin-top:auto;padding:12px 22px 20px}
+.accounts-page .account-card:not(.connected-card) .account-actions .button{width:100%}
+.theme-qqmusic .accounts-page,.theme-spotify .accounts-page{--panel-solid:#1f1f1f}
+.theme-qqmusic .accounts-page{--panel-solid:#202638}
+.theme-aurora .accounts-page{--panel-solid:#1b1d33}
+.theme-aurora .accounts-page .account-card{background:#ffffff08;border-color:#ffffff14;border-radius:22px}
+
+/* My music: summary tiles and playlist covers as a grid. */
+.app .page-hero~.library-summary{gap:16px;margin:4px 0 30px}
+.page-hero~.library-summary>button{position:relative;overflow:hidden;border-radius:14px;padding:20px 22px;min-height:118px;color:#fff;background:var(--tile);box-shadow:0 10px 26px #0f1b3a1c;transition:transform .18s,box-shadow .18s}
+.page-hero~.library-summary>button:hover{background:var(--tile);transform:translateY(-2px);box-shadow:0 14px 30px #0f1b3a2a}
+.page-hero~.library-summary>button:nth-child(1){--tile:linear-gradient(135deg,#ff8f9a,#e2384c)}
+.page-hero~.library-summary>button:nth-child(2){--tile:linear-gradient(135deg,#5fd6bd,#1a8a8b)}
+.page-hero~.library-summary>button:nth-child(3){--tile:linear-gradient(135deg,#9aa6ff,#4a55cf)}
+.page-hero~.library-summary svg,.page-hero~.library-summary span{color:#ffffffd9}
+.page-hero~.library-summary strong{font-size:17px}
+.page-hero~.library-summary>button::after{content:'';position:absolute;right:-30px;bottom:-40px;width:130px;height:130px;border-radius:50%;background:#ffffff1c}
+.page-hero~.library-playlists{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:24px 20px;margin-top:6px}
+.page-hero~.library-playlists>div{flex-direction:column;align-items:stretch;border:0;padding:0;gap:10px}
+.page-hero~.library-playlists>div>button:first-child{flex-direction:column;align-items:stretch;gap:11px}
+.page-hero~.library-playlists .music-art{width:100%;min-width:0;border-radius:10px;transition:transform .18s,box-shadow .18s}
+.page-hero~.library-playlists>div>button:first-child:hover .music-art{transform:translateY(-3px);box-shadow:0 12px 26px #0f1b3a33}
+.page-hero~.library-playlists strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.theme-spotify .page-hero~.library-playlists .music-art{border-radius:6px}
+.theme-aurora .page-hero~.library-playlists .music-art{border-radius:16px}
+
+/* Ranking: artists with covers and a relative bar. */
+.artist-ranking-row.ranked{grid-template-columns:35px 44px minmax(140px,1fr) minmax(90px,.8fr) 80px 130px;gap:16px}
+.artist-ranking-row .cover{width:44px;height:44px;border-radius:50%}
+.artist-ranking-row .cover img{border-radius:50%}
+.artist-ranking-row>.rank{font-size:15px;font-weight:650;text-align:center}
+.artist-ranking-row:nth-child(-n+3)>.rank{color:var(--accent)}
+.artist-ranking-bar{height:6px;border-radius:9px;background:var(--line);overflow:hidden}
+.artist-ranking-bar>i{display:block;height:100%;width:var(--w);border-radius:inherit;background:var(--accent)}
+.theme-aurora .artist-ranking-bar>i{background:var(--aurora-gradient)}
+
+@media(max-width:1150px){
+  .page-hero{gap:20px}
+  .page-hero-art{width:132px;height:132px}
+  .app .page-hero h1{font-size:28px}
+  .app.theme-spotify .page-hero h1{font-size:40px}
+  .theme-spotify .page-hero-art{width:150px;height:150px}
+  .page-hero-stats{gap:20px}
+  .page-hero-stats dd{font-size:19px}
+  .page-hero.compact .page-hero-actions{position:static;transform:none}
+  .section-page{grid-template-columns:minmax(0,1fr);gap:12px}
+  .section-nav{position:static;flex-direction:row;overflow-x:auto}
+  .section-body .theme-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+
+  .artist-ranking-row.ranked{grid-template-columns:28px 40px minmax(110px,1fr) 70px 70px 100px;gap:10px}
+}
+.section-anchor{scroll-margin-top:12px}
+@media(max-width:900px){.app .accounts-page .account-list{grid-template-columns:minmax(0,1fr)}.app .accounts-page .account-card{min-height:0}}
+.theme-qqmusic .page-hero{--hero-pad:26px}
+.theme-aurora .page-hero{--hero-pad:24px}
+.page-hero-art.editable{position:relative}
+.page-hero-art-action{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#fff;font-size:13px;font-weight:500;background:#0008;opacity:0;transition:opacity .16s}
+.page-hero-art.editable:hover .page-hero-art-action,.page-hero-art-action:focus-visible{opacity:1}
+.page-hero-art-action:disabled{opacity:0!important}

@@ -1,0 +1,194 @@
+/* NetEase: a banner carousel up top, square list covers in rows, compact numbered songs. */
+.home-netease .home-greeting {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+  margin: 2px 0 16px;
+}
+.home-netease .home-greeting h1 { font-size: 24px; font-weight: 700; letter-spacing: 0; }
+.home-netease .home-greeting p { margin: 0; font-size: 12px; color: var(--muted); }
+.home-netease .home-section { margin-top: 30px; }
+.home-netease .home-section-head { margin-bottom: 14px; }
+.home-netease .home-section-head h2 { font-size: 20px; font-weight: 700; }
+.home-netease .home-text-button:hover:not(:disabled) { color: var(--accent); }
+
+.home-banner {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  height: 236px;
+  border-radius: 12px;
+  color: #fff;
+  background: #2a1214;
+}
+.home-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(70% 120% at 30% 50%, rgb(0 0 0 / .08), rgb(0 0 0 / .5)), linear-gradient(90deg, rgb(0 0 0 / .3), transparent 60%);
+}
+.home-banner.home-hero-loading { background: var(--hover); }
+.home-banner-slide {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  height: 100%;
+  padding: 0 76px 14px;
+  animation: home-banner-in .45s ease-out;
+}
+@keyframes home-banner-in { from { opacity: 0; transform: translateX(14px); } }
+.home-banner-art {
+  flex: none;
+  width: 176px;
+  padding: 0;
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgb(0 0 0 / .4);
+  transition: transform .18s;
+}
+.home-banner-art .music-art { border-radius: 8px; }
+.home-banner-art:hover { transform: scale(1.02); }
+.home-banner-copy { min-width: 0; }
+.home-banner-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 11px 0 11px 0;
+  font-size: 12px;
+  background: var(--accent);
+}
+.home-banner h2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 12px 0 6px;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.home-banner-copy > p {
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  opacity: .86;
+}
+.home-banner-copy > p span { margin-left: 14px; opacity: .72; }
+.home-banner .home-hero-actions { margin-top: 20px; }
+.home-banner-step {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: #fff;
+  background: rgb(0 0 0 / .32);
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity .18s, background .18s;
+}
+.home-banner-step.prev { left: 18px; }
+.home-banner-step.next { right: 18px; }
+.home-banner:hover .home-banner-step,
+.home-banner-step:focus-visible { opacity: 1; }
+.home-banner-step:hover { background: rgb(0 0 0 / .55); }
+.home-banner-peek {
+  position: absolute;
+  top: 50%;
+  right: 96px;
+  width: 260px;
+  height: 150px;
+  transform: translateY(-58%);
+}
+.home-banner-peek button {
+  position: absolute;
+  top: 0;
+  right: calc((var(--n) - 1) * 62px);
+  width: 150px;
+  padding: 0;
+  border-radius: 8px;
+  box-shadow: 0 14px 34px rgb(0 0 0 / .4);
+  opacity: calc(1 - (var(--n) - 1) * .22);
+  transform: scale(calc(1 - (var(--n) - 1) * .1)) rotate(calc((var(--n) - 2) * 5deg));
+  transform-origin: right center;
+  transition: transform .2s, opacity .2s;
+}
+.home-banner-peek button:hover { opacity: 1; transform: translateY(-4px) scale(calc(1 - (var(--n) - 1) * .1)); }
+.home-banner-peek .music-art { border-radius: 8px; }
+.home-banner-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  display: flex;
+  gap: 6px;
+  transform: translateX(-50%);
+}
+.home-banner-dots button {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border-radius: 4px;
+  background: rgb(255 255 255 / .45);
+  transition: width .2s, background .2s;
+}
+.home-banner-dots button[aria-current] { width: 20px; background: var(--accent); }
+
+/* Square covers in rows; the system lists get red icon covers. */
+.home-netease .home-cover-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px 20px; }
+.home-netease .home-cover-grid .home-card strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.55;
+}
+.home-netease .home-card .music-art { border-radius: 8px; transition: filter .18s; }
+.home-netease .home-card.round .music-art { border-radius: 50%; }
+.home-netease .home-card:hover .music-art { filter: brightness(.92); }
+.home-netease .home-card-badge {
+  left: auto;
+  right: 0;
+  top: 0;
+  padding: 3px 9px 12px 22px;
+  border-radius: 0 8px 0 0;
+  background: linear-gradient(200deg, rgb(0 0 0 / .4), transparent 70%);
+}
+.home-netease .home-card-icon svg { width: 34%; height: 34%; }
+.home-netease .home-netease-lists .home-card.icon:nth-child(1) .home-card-icon { background: linear-gradient(145deg, #ff6a6a, #d8242d); }
+.home-netease .home-netease-lists .home-card.icon:nth-child(2) .home-card-icon { background: linear-gradient(145deg, #ff9a6e, #e0453a); }
+.home-netease .home-netease-lists .home-card.icon:nth-child(3) .home-card-icon { background: linear-gradient(145deg, #ff7fae, #d43668); }
+.home-netease .home-netease-lists .home-card.icon:nth-child(4) .home-card-icon { background: linear-gradient(145deg, #8a8f9e, #4b4f5c); }
+
+/* Compact song rows with thin dividers, like the NetEase new songs block. */
+.home-netease .home-rank { column-gap: 28px; }
+.home-netease .home-rank-row { border-radius: 4px; padding: 7px 10px 7px 2px; }
+.home-netease .home-rank li { border-bottom: 1px solid var(--line); }
+.home-netease .home-rank-no { font-size: 14px; font-weight: 500; }
+.home-netease .home-rank-art .music-art { border-radius: 4px; }
+
+@container home (max-width: 1000px) {
+  .home-banner-peek { display: none; }
+}
+@container home (max-width: 820px) {
+  .home-banner { height: 210px; }
+  .home-banner-slide { gap: 24px; padding: 0 56px 12px; }
+  .home-banner-art { width: 146px; }
+  .home-banner h2 { font-size: 24px; }
+  .home-netease .home-cover-grid { gap: 20px 14px; }
+}
+@container home (max-width: 640px) {
+  .home-netease .home-cover-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-banner-slide { animation: none; }
+}

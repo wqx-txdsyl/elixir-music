@@ -1,0 +1,68 @@
+/* Spotify: filter pills, compact tiles, shelves of cards with a green play button on hover. */
+.home-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 18px; }
+.home-filters button {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #fff;
+  background: #ffffff14;
+  transition: background .15s;
+}
+.home-filters button:hover { background: #ffffff24; }
+.home-filters button.chosen { color: #000; background: #fff; }
+.home-spotify .home-greeting { margin: 0 0 16px; }
+.home-spotify .home-greeting h1 { font-size: 32px; font-weight: 750; letter-spacing: -1px; }
+.home-spotify .home-greeting p { margin-top: 4px; font-size: 12px; color: var(--muted); }
+.home-spotify .home-section { margin-top: 30px; }
+.home-spotify .home-section-head { margin-bottom: 8px; }
+.home-spotify .home-section-head h2 { font-size: 22px; font-weight: 750; letter-spacing: -.4px; }
+.home-spotify .home-text-button { font-size: 13px; font-weight: 600; color: var(--muted); }
+.home-spotify .home-text-button:hover:not(:disabled) { color: #fff; text-decoration: underline; }
+.home-spotify .home-text-button svg { display: none; }
+
+.home-spotify .home-shortcuts { gap: 8px 10px; margin-top: 0; }
+.home-spotify .home-shortcut { border: 0; border-radius: 5px; background: #ffffff12; transition: background .15s; }
+.home-spotify .home-shortcut:hover { background: #ffffff24; }
+.home-spotify .home-shortcut-main { height: 60px; gap: 12px; }
+.home-spotify .home-shortcut-art { width: 60px; color: #fff; background: #333; box-shadow: 0 6px 16px rgb(0 0 0 / .4); }
+.home-spotify .home-shortcut-likes .home-shortcut-art { background: linear-gradient(135deg, #450af5, #8e8ee5 60%, #c4efd9); }
+.home-spotify .home-shortcut-history .home-shortcut-art { background: linear-gradient(135deg, #1e3264, #5b7bd6); }
+.home-spotify .home-shortcut-ranking .home-shortcut-art { background: linear-gradient(135deg, #e13300, #f59b23); }
+.home-spotify .home-shortcut-library .home-shortcut-art { background: linear-gradient(135deg, #006450, #1ed760); }
+.home-spotify .home-shortcut-art .home-now-bars { left: 50%; bottom: 50%; height: 16px; transform: translate(-50%, 50%); }
+.home-spotify .home-shortcut-text strong { font-size: 13px; font-weight: 700; }
+.home-spotify .home-shortcut-text small { margin-top: 2px; font-size: 11px; }
+.home-spotify .home-shortcut.now strong { color: var(--accent); }
+.home-spotify .home-shortcut-play { color: #000; }
+.home-quick-loading i { height: 60px; border-radius: 5px; background: var(--hover); animation: workspace-pulse 1.2s ease-in-out infinite alternate; }
+
+.home-spotify .home-hero-empty { margin-top: 18px; border-radius: 8px; background: linear-gradient(135deg, #1f6f43, #121212 85%); }
+.home-spotify .home-hero-empty::before { display: none; }
+
+.home-spotify .home-shelf { gap: 2px; grid-auto-columns: 182px; margin: 0 -10px; }
+.home-spotify .home-cover-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px 2px; margin: 0 -10px; }
+.home-spotify .home-card { padding: 10px; border-radius: 8px; transition: background .2s; }
+.home-spotify .home-card:hover { background: #ffffff12; }
+.home-spotify .home-card:hover strong { color: inherit; }
+.home-spotify .home-card.now strong { color: var(--accent); }
+.home-spotify .home-card .music-art { border-radius: 6px; box-shadow: 0 8px 24px rgb(0 0 0 / .45); }
+.home-spotify .home-card.round .music-art { border-radius: 50%; }
+.home-spotify .home-card strong { margin-top: 10px; font-size: 14px; font-weight: 600; }
+.home-spotify .home-card small { font-size: 12.5px; }
+.home-spotify .home-card-play { width: 46px; height: 46px; color: #000; box-shadow: 0 8px 18px rgb(0 0 0 / .45); }
+.home-spotify .home-card-play svg { width: 20px; height: 20px; }
+.home-spotify .home-card-play:hover { transform: scale(1.05); }
+.home-spotify .home-card-badge { border-radius: 4px; background: rgb(0 0 0 / .6); }
+
+.home-spotify .home-pick-chip { height: 32px; border: 0; border-radius: 16px; background: #ffffff14; color: #fff; }
+.home-spotify .home-pick-chip:hover { background: #ffffff24; }
+.home-spotify .home-pick-chip.chosen { color: #000; background: #fff; }
+.home-spotify .home-pick-actions .button.primary { border-radius: 20px; }
+.home-spotify .home-rank-row:hover,
+.home-spotify .home-track:hover { background: #ffffff12; }
+
+@container home (max-width: 900px) {
+  .home-spotify .home-shortcuts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home-spotify .home-shelf { grid-auto-columns: 168px; }
+}

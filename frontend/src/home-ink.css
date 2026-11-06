@@ -1,0 +1,115 @@
+/* The Ink home is a record sleeve on a shop counter, followed by a listening journal. */
+.home-ink { max-width: 1320px; margin: 0 auto; }
+.ink-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+.home-ink .home-greeting { margin: 0; }
+.home-ink .home-greeting h1 { font-size: 26px; font-weight: 550; letter-spacing: -.7px; }
+.home-ink .home-greeting p { font-size: 12px; margin-top: 7px; }
+.home-ink .home-greeting p>span:first-child { display: none; }
+.ink-heading>.home-text-button { margin-bottom: 3px; }
+
+.ink-session {
+  position: relative; display: grid; grid-template-columns: minmax(0,1fr) minmax(280px,.9fr);
+  gap: 26px; padding: 34px 38px 0; min-height: 324px;
+  background: #e8ebdf; border: 1px solid #d1d7c5; border-radius: 5px;
+  overflow: hidden;
+}
+.ink-session-copy { align-self: center; padding-bottom: 22px; position: relative; z-index: 1; }
+.ink-session-state { display: inline-flex; align-items: center; gap: 9px; color: var(--accent); font-size: 12px; font-weight: 600; }
+.ink-session-state .home-now-bars { position: static; padding: 0; background: none; height: 13px; }
+.ink-session-title { display: block; text-align: left; padding: 0; margin: 15px 0 10px; max-width: 100%; }
+.ink-session-title h2 { font-size: clamp(32px,3.9vw,58px); font-weight: 650; line-height: 1.22; letter-spacing: -1.8px; text-wrap: balance; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ink-session-title:hover { color: var(--accent); }
+.ink-session-artist { font-size: 17px; color: #464d3e; margin: 0; }
+.ink-session-album { font-size: 12px; color: #5e6854; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ink-session .home-hero-actions { margin-top: 25px; gap: 20px; }
+.ink-session .button.primary { min-height: 38px; padding: 9px 22px; font-size: 13px; }
+.ink-detail-link { display: inline-flex; align-items: center; gap: 4px; padding: 6px 0; font-size: 12px; color: var(--subtle); }
+.ink-detail-link:hover { color: var(--accent); }
+.ink-session-footer { grid-column: 1/-1; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #c9d0bb; padding: 12px 0; font-size: 11px; color: #5e6854; font-variant-numeric: tabular-nums; }
+
+/* Decorative grooves never replace the real, clickable album cover. */
+.ink-record { position: relative; width: 100%; max-width: 390px; aspect-ratio: 1.45; align-self: center; justify-self: end; padding: 0; margin-bottom: 2px; }
+.ink-record-sleeve { position: absolute; width: 72%; aspect-ratio: 1; left: 0; top: 0; z-index: 1; border-radius: 2px; box-shadow: 0 14px 20px #343e2826; transform: rotate(-6deg); transition: transform .3s; }
+.ink-record-sleeve .music-art { width: 100%; height: 100%; border-radius: 2px; border: 1px solid #00000018; }
+.ink-record-disc { position: absolute; right: -1%; top: 1%; width: 69%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; background: repeating-radial-gradient(circle at center,#252824 0,#252824 2px,#363b32 3px,#252824 4px); box-shadow: 2px 10px 22px #28351d30; transition: transform .4s; }
+.ink-record-disc>span { position: relative; width: 33%; aspect-ratio: 1; border-radius: 50%; overflow: hidden; border: 6px solid #a84a38; }
+.ink-record-disc>span .music-art { border-radius: 50%; width: 100%; height: 100%; }
+.ink-record-disc>span::after { content: ''; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 7px; height: 7px; border: 3px solid #dbddce; background: #33392a; border-radius: 50%; }
+.ink-record:hover .ink-record-sleeve { transform: rotate(-3deg) translateX(-4px); }
+.ink-record:hover .ink-record-disc { transform: translateX(5px); }
+.ink-session.is-playing .ink-record-disc>span { animation: ink-label-turn 24s linear infinite; }
+@keyframes ink-label-turn { to { transform: rotate(360deg); } }
+
+.ink-shortcuts { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); margin: 20px 0 30px; border-bottom: 1px solid var(--line); padding-bottom: 20px; gap: 10px; }
+.ink-shortcuts>button { min-width: 0; display: grid; grid-template-columns: 22px minmax(0,1fr) 14px; align-items: center; gap: 4px 9px; text-align: left; padding: 11px 8px; border-radius: 3px; }
+.ink-shortcuts>button:hover { background: var(--hover); }
+.ink-shortcuts strong { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ink-shortcuts svg:first-child { grid-row: span 2; color: var(--subtle); }
+.ink-shortcuts small { grid-column: 2; color: var(--muted); font-size: 11px; }
+.ink-shortcuts svg:last-child { grid-column: 3; grid-row: 1/3; color: var(--muted); }
+.ink-journal { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(240px,.8fr); gap: 30px; border-bottom: 1px solid var(--line); padding-bottom: 28px; }
+.ink-journal .home-section { margin: 0; padding: 0; }
+.ink-recent { border-left: 1px solid var(--line); padding-left: 28px; }
+.home-ink .home-section-head { margin-bottom: 18px; }
+.home-ink .home-section-head h2,.home-ink .home-recent-head h3 { font-size: 18px; font-weight: 600; letter-spacing: -.4px; }
+.home-ink .home-recent { background: none; border: 0; padding: 0; color: var(--text); }
+.home-ink .home-recent-head { margin-bottom: 12px; padding: 0 0 6px; }
+.home-ink .home-recent>button { padding: 8px 0; gap: 12px; border-radius: 3px; }
+.home-ink .home-recent>button:hover { background: var(--hover); }
+.home-ink .home-recent-art { width: 38px; height: 38px; border-radius: 2px; }
+.home-ink .home-recent strong { font-size: 12px; font-weight: 550; }
+.home-ink .home-recent small { color: var(--muted); font-size: 11px; }
+.home-ink .home-recent .home-text-button { color: var(--muted); }
+.home-ink .home-cover-grid { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 18px; }
+.home-ink .home-card { border-radius: 0; padding: 0; }
+.home-ink .home-card-art,.home-ink .home-card-art>.music-art { border-radius: 3px; }
+.home-ink .home-card:not(.round) .music-art { box-shadow: 0 5px 10px #27341c12; }
+.home-ink .home-card>strong { font-size: 13px; font-weight: 550; margin-top: 10px; }
+.home-ink .home-card>small { font-size: 11px; color: var(--muted); }
+.home-ink .home-card-play { background: var(--accent); color: white; }
+.home-ink .home-card-badge { background: #f4f4f0ed; color: var(--subtle); border-radius: 2px; }
+.home-ink .home-shelf { grid-auto-columns: 152px; gap: 24px; }
+.home-ink .home-card.round .music-art { border-radius: 50%; }
+.home-ink .home-section { margin-top: 30px; }
+.home-ink .ink-journal .home-section { margin: 0; }
+.home-ink .home-recent-head h3 { color: var(--text); opacity: 1; }
+.home-ink .home-text-button:hover { color: var(--accent); }
+.home-ink .home-rank { gap: 0 28px; }
+.home-ink .home-rank-row { border-radius: 3px; }
+.home-ink .home-rank-no { color: var(--accent); font-variant-numeric: tabular-nums; }
+.home-ink .home-rank-row:hover { background: var(--hover); }
+.home-ink .home-pick-chip { border-radius: 4px; }
+.home-ink .home-pick-chip.chosen { background: #252824; border-color: #252824; color: #fff; }
+.home-ink .home-hero-empty { background: #e8ebdf; color: var(--text); border-radius: 5px; }
+.home-ink .home-hero-empty::before,.home-ink .home-hero-empty::after { display: none; }
+.home-ink .home-hero-empty .home-hero-copy>p { color: var(--subtle); }
+.home-ink .home-hero-empty .home-ghost { color: var(--text); border-color: #c9d0bb; }
+.ink-empty-list { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--subtle); border: 1px dashed #bbc3ad; padding: 24px 16px; border-radius: 4px; grid-column: 1/-1; }
+.ink-empty-list:hover { color: var(--accent); border-color: var(--accent); }
+
+@container home (max-width:980px) {
+  .ink-session { padding: 28px 28px 0; gap: 18px; grid-template-columns: minmax(0,1fr) minmax(240px,.9fr); min-height: 295px; }
+  .ink-session-title h2 { font-size: 40px; }
+  .ink-journal { grid-template-columns: minmax(0,1.2fr) minmax(220px,.8fr); gap: 22px; }
+  .ink-recent { padding-left: 22px; }
+  .home-ink .home-cover-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@container home (max-width:680px) {
+  .ink-heading { align-items: center; }
+  .home-ink .home-greeting h1 { font-size: 24px; }
+  .ink-heading>.home-text-button { display: none; }
+  .ink-session { grid-template-columns: minmax(0,1fr) minmax(150px,.75fr); padding: 22px 22px 0; gap: 14px; min-height: 268px; }
+  .ink-session-title h2 { font-size: 30px; letter-spacing: -.8px; }
+  .ink-session-artist { font-size: 14px; }
+  .ink-session .home-hero-actions { gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  .ink-detail-link { font-size: 11px; }
+  .ink-shortcuts { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px 12px; margin-bottom: 24px; }
+  .ink-journal { grid-template-columns: 1fr; gap: 26px; }
+  .ink-recent { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 22px; }
+  .home-ink .home-cover-grid { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 14px; }
+  .home-ink .home-shelf { grid-auto-columns: 136px; gap: 18px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .ink-record-sleeve,.ink-record-disc { transition: none; }
+  .ink-session.is-playing .ink-record-disc>span { animation: none; }
+}

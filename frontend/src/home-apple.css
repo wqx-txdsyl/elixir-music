@@ -1,0 +1,45 @@
+/* Apple Music home: large title, tall "Top Picks" cards, then square-artwork shelves. */
+.home-apple { max-width: 1480px; margin: 0 auto; }
+.apple-title { margin: 8px 0 22px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.apple-title h1 { margin: 0; font-size: 34px; font-weight: 700; letter-spacing: -.6px; }
+.apple-title p { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+.home-apple .home-section { margin-bottom: 34px; }
+.home-apple .home-section-head { margin-bottom: 12px; padding-bottom: 0; }
+.home-apple .home-section-head h2 { font-size: 21px; font-weight: 700; letter-spacing: -.3px; }
+.home-apple .home-text-button { color: var(--accent); font-size: 13px; }
+.home-apple .home-text-button:hover:not(:disabled) { color: var(--accent); text-decoration: underline; }
+.home-apple .home-arrow { border: 0; background: var(--chip); color: var(--subtle); }
+.home-apple .home-shelf { grid-auto-columns: 170px; gap: 20px; }
+.home-apple .home-card .music-art { border-radius: 8px; box-shadow: 0 1px 2px #0000001a, inset 0 0 0 1px #0000000d; }
+.home-apple .home-card.round .music-art { border-radius: 50%; }
+.home-apple .home-card strong { font-size: 13px; font-weight: 500; }
+.home-apple .home-card.now strong { color: var(--accent); }
+.home-apple .home-card-play { background: #fffffff0; color: var(--accent); box-shadow: 0 4px 14px #0003; }
+.home-apple .home-card-icon { background: linear-gradient(140deg, #ff6b81, #fa2d48 55%, #c41537); }
+
+/* Top Picks */
+.home-apple .apple-picks-shelf .home-shelf { grid-auto-columns: 226px; gap: 18px; }
+.apple-picks.home-hero-loading { height: 360px; border-radius: 12px; }
+.apple-pick { display: flex; flex-direction: column; min-width: 0; padding: 0; text-align: left; scroll-snap-align: start; }
+.apple-pick-eyebrow { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 0 7px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apple-pick.now .apple-pick-eyebrow { color: var(--accent); }
+.apple-pick-art { position: relative; display: block; aspect-ratio: 1; border-radius: 10px 10px 0 0; overflow: hidden; background: var(--chip); }
+.apple-pick-art .music-art { width: 100%; height: 100%; border-radius: 0; }
+.apple-pick-art .home-now-bars { position: absolute; left: 12px; bottom: 12px; }
+.apple-pick-icon { display: grid; place-items: center; width: 100%; height: 100%; color: #fff; background: linear-gradient(140deg, #ff6b81, #fa2d48 55%, #c41537); }
+/* The caption strip is the artwork itself, blurred and darkened, like Apple's coloured footers. */
+.apple-pick-caption {
+  position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: center; gap: 3px;
+  min-height: 78px; padding: 12px 14px; border-radius: 0 0 10px 10px; overflow: hidden; color: #fff;
+  background: #6e6e73;
+}
+.apple-pick-caption::before {
+  content: ""; position: absolute; inset: -60px; z-index: -1;
+  background: var(--pick-cover) center bottom / cover, #6e6e73;
+  filter: blur(26px) saturate(1.4) brightness(.72);
+}
+.apple-pick.icon .apple-pick-caption, .apple-pick.icon .apple-pick-caption::before { background: #b3172d; }
+.apple-pick-caption strong { font-size: 14px; font-weight: 650; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.apple-pick-caption small { font-size: 12px; color: #ffffffbf; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apple-pick:hover .apple-pick-art { filter: brightness(.94); }
+.apple-pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 10px; }

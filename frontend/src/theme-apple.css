@@ -1,0 +1,129 @@
+/* Apple Music: white (or system dark) canvas, translucent grey sidebar, rose accent,
+   and the player as an "LCD" strip across the top of the window. */
+:root[data-theme=apple] {
+  --bg: #ffffff; --sidebar: #f5f5f7; --panel: #ffffff; --panel-solid: #ffffff;
+  --text: #1d1d1f; --muted: #8e8e93; --subtle: #6e6e73; --line: #0000001a; --hover: #0000000b;
+  --accent: #fa2d48; --accent-tint: #fa2d4814; --accent-text: #fff;
+  --lcd: #f2f2f4; --zebra: #f7f7f9; --chip: #0000000d;
+  --side-width: 240px; --player-height: 62px; --radius: 8px;
+  --shadow: 0 12px 40px #0000002a;
+  font-family: "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme=apple] {
+    --bg: #1e1e1e; --sidebar: #262627; --panel: #2c2c2e; --panel-solid: #2c2c2e;
+    --text: #f5f5f7; --muted: #8e8e93; --subtle: #aeaeb2; --line: #ffffff17; --hover: #ffffff0e;
+    --accent: #fa3e56; --accent-tint: #fa3e5626;
+    --lcd: #2a2a2c; --zebra: #ffffff07; --chip: #ffffff14;
+    --shadow: 0 16px 50px #000a;
+    color-scheme: dark;
+  }
+}
+
+/* Player across the top, sidebar and content below. */
+.app.theme-apple { grid-template-rows: var(--player-height) minmax(0, 1fr); }
+.theme-apple .sidebar { grid-row: 2; grid-column: 1; padding: 6px 12px 0; background: var(--sidebar); border-right: 1px solid var(--line); }
+.theme-apple .workspace { grid-row: 2; grid-column: 2; }
+.theme-apple .player {
+  grid-row: 1; grid-column: 1 / -1;
+  grid-template-columns: minmax(230px, 1fr) minmax(380px, 620px) minmax(230px, 1fr);
+  grid-template-areas: "controls lcd right";
+  gap: 22px; padding: 0 152px 0 22px;
+  border-top: 0; border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--sidebar) 70%, var(--bg));
+  -webkit-app-region: drag;
+}
+.theme-apple .player :is(button, input, a) { -webkit-app-region: no-drag; }
+.theme-apple .player-center { display: contents; }
+.theme-apple .player-controls { grid-area: controls; justify-content: flex-start; gap: 16px; height: auto; }
+.theme-apple .player-controls .icon-button { color: var(--subtle); }
+.theme-apple .player-controls .icon-button:hover:not(:disabled) { color: var(--text); }
+.theme-apple .player-controls .icon-button.active { color: var(--accent); }
+.theme-apple .play-main { width: 34px; height: 34px; background: none; color: var(--text); box-shadow: none; }
+.theme-apple .play-main svg { width: 26px; height: 26px; }
+.theme-apple .play-main:hover { transform: scale(1.08); background: none; }
+/* The LCD: artwork flush left, centred title and artist, a hairline progress bar along the bottom. */
+.theme-apple .now-playing {
+  grid-area: lcd; position: relative; height: 46px; gap: 0; padding-right: 10px;
+  background: var(--lcd); border: 1px solid var(--line); border-radius: 6px; overflow: hidden;
+}
+.theme-apple .now-cover { width: 46px; height: 46px; flex: none; }
+.theme-apple .now-cover .cover { border-radius: 0; }
+.theme-apple .now-title { flex: 1; max-width: none; text-align: center; padding: 0 12px 7px; }
+.theme-apple .now-title button { display: block; margin: 0 auto; font-size: 12.5px; font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.theme-apple .now-title span { margin-top: 1px; font-size: 11.5px; }
+.theme-apple .now-playing > .icon-button { flex: none; }
+/* The progress row overlays the LCD box; only the slider itself takes clicks so title and heart stay usable. */
+.theme-apple .progress-row {
+  grid-area: lcd; align-self: center; z-index: 1; gap: 0; position: relative;
+  height: 46px; align-items: flex-end; padding: 0 1px 1px 47px; font-size: 9px; pointer-events: none;
+}
+.theme-apple .progress-row input { pointer-events: auto; }
+.theme-apple .progress-row span { position: absolute; bottom: 8px; opacity: 0; transition: opacity .15s; pointer-events: none; }
+.theme-apple .progress-row span:first-child { left: 56px; }
+.theme-apple .progress-row span:last-child { right: 40px; }
+.theme-apple .player:has(.now-playing:hover, .progress-row:hover) .progress-row span { opacity: 1; }
+.theme-apple .progress-row input { height: 3px; border-radius: 0; }
+.theme-apple .progress-row input::-webkit-slider-thumb { opacity: 0; }
+.theme-apple .progress-row:hover input::-webkit-slider-thumb { opacity: 1; }
+.theme-apple .player-right { grid-area: right; justify-content: flex-end; gap: 12px; }
+.theme-apple .player-right .icon-button { color: var(--subtle); }
+.theme-apple .volume-slider { width: 92px; }
+.theme-apple .player-divider { display: none; }
+.theme-apple .quality-popover { bottom: auto; top: calc(100% + 10px); }
+.theme-apple .queue-panel { top: calc(var(--player-height) + 12px); bottom: 16px; border-radius: 12px; }
+.theme-apple .toast { bottom: 26px; }
+.theme-apple .caption-spacer { display: none; }
+
+/* Sidebar */
+.app.theme-apple .platform-brand { height: 54px; font-size: 18px; padding: 0 8px; }
+.theme-apple .sidebar nav { gap: 1px; }
+.theme-apple .nav-item { height: 32px; padding: 0 9px; gap: 9px; border-radius: 6px; font-size: 13px; color: var(--text); }
+.theme-apple .nav-item svg { width: 18px; height: 18px; color: var(--accent); }
+.theme-apple .nav-item:hover { background: var(--hover); }
+.theme-apple .nav-item.selected { background: var(--chip); color: var(--text); font-weight: 500; }
+.theme-apple .nav-item.selected svg { color: var(--accent); }
+.theme-apple .library-heading { padding: 18px 9px 5px; font-size: 11px; font-weight: 600; letter-spacing: 0; color: var(--muted); }
+.theme-apple .playlist-navigation .nav-item svg { color: var(--subtle); }
+.theme-apple .appearance-button { border-radius: 7px; }
+
+/* Top bar under the player: back/forward and search. */
+.theme-apple .topbar { height: 58px; padding: 0 40px; gap: 14px; }
+.theme-apple .search-box { height: 32px; max-width: 300px; border-radius: 8px; background: var(--chip); border: 1px solid transparent; color: var(--muted); }
+.theme-apple .search-box:focus-within { border-color: color-mix(in srgb, var(--accent) 60%, transparent); background: var(--panel); }
+.theme-apple .search-box input::placeholder { color: var(--muted); }
+.theme-apple .topbar-navigation .icon-button { color: var(--subtle); border: 0; background: none; }
+.theme-apple .main-scroll { padding: 6px 40px 48px; }
+
+/* Controls: rounded rectangles, filled accent for the main action. */
+.theme-apple .button { border-radius: 8px; min-height: 34px; font-weight: 600; }
+.theme-apple .button.primary { background: var(--accent); color: #fff; box-shadow: none; }
+.theme-apple .button.primary:hover:not(:disabled) { filter: brightness(1.07); transform: none; }
+.theme-apple .button.quiet { background: var(--chip); border-color: transparent; color: var(--accent); }
+.theme-apple .button.quiet:hover:not(:disabled) { background: color-mix(in srgb, var(--chip) 100%, var(--text) 6%); }
+.theme-apple :is(.select-trigger, .track-filter, .modal, .select-options, .more-menu-popover, .quality-popover) { border-radius: 8px; }
+
+/* Song lists: compact rows with light zebra striping. */
+.theme-apple .track-row { height: 54px; border-radius: 6px; }
+.theme-apple .track-row:nth-child(odd) { background: var(--zebra); }
+.theme-apple .track-row:hover { background: var(--hover); }
+.theme-apple .track-row.current .song-title { color: var(--accent); }
+.theme-apple .track-name .cover { border-radius: 4px; }
+.theme-apple .table-header { font-size: 11px; color: var(--muted); }
+.theme-apple .source-tag { border-color: var(--line); color: var(--subtle); background: none; }
+
+/* Page headers: big artwork with a soft shadow, bold title, accent subtitle. */
+.theme-apple .page-hero { gap: 30px; margin: 10px 0 26px; }
+.theme-apple .page-hero-art { width: 230px; height: 230px; border-radius: 10px; box-shadow: 0 12px 34px #00000030; }
+.theme-apple .page-hero.compact .page-hero-art { width: 92px; height: 92px; border-radius: 22px; }
+.app.theme-apple .page-hero h1 { font-size: 32px; font-weight: 700; letter-spacing: -.4px; }
+.theme-apple .page-hero-eyebrow { color: var(--accent); font-size: 14px; font-weight: 600; letter-spacing: 0; }
+.theme-apple .hero-likes { --hero-tint: linear-gradient(140deg, #ff6b81, #fa2d48 55%, #c41537); }
+.theme-apple .hero-playlist, .theme-apple .hero-library, .theme-apple .hero-history { --hero-tint: linear-gradient(140deg, #a7a7ad, #6e6e73); }
+
+/* Settings preview tile */
+.preview-apple { background: #fff; }
+.preview-apple .preview-sidebar { background: #f2f2f4; border-right: 1px solid #e3e3e6; }
+.preview-apple .preview-player { top: 0; bottom: auto; height: 15px; background: #f5f5f7; border-top: 0; border-bottom: 1px solid #e3e3e6; }
+.preview-apple .preview-main b:first-child { background: #fa2d48; }

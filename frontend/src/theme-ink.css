@@ -1,0 +1,126 @@
+/* Ink: a record shop's paper sleeves and black shelving. No glass, no cover glow.
+   Surfaces use 4/8px corners; round controls are reserved for playback. */
+:root[data-theme=ink] {
+  --bg: #f4f4f0;
+  --sidebar: #202221;
+  --panel: #fafaf7;
+  --text: #252824;
+  --muted: #687060;
+  --subtle: #565b53;
+  --line: #dcded6;
+  --hover: #e9ebe3;
+  --accent: #b73729;
+  --accent-tint: #b7372910;
+  --accent-text: #fff;
+  --side-width: 220px;
+  --player-height: 94px;
+  --shadow: 0 16px 50px #22251f20;
+  color-scheme: light;
+}
+.app.theme-ink { background: var(--bg); gap: 0; padding: 0; }
+.theme-ink .sidebar {
+  --text: #f2f3ed; --subtle: #c3c7bb; --muted: #a0a69a;
+  --line: #ffffff1d; --hover: #ffffff0b; --panel: #2b2e29;
+  --accent: #f0b2a7; --accent-tint: #ffffff0b;
+  padding: 0 15px; background: #202221;
+}
+.app.theme-ink .platform-brand { height: 90px; gap: 12px; font-weight: 600; letter-spacing: -.8px; padding-left: 12px; }
+.app.theme-ink .platform-brand img { filter: invert(1); width: 30px; height: 30px; }
+.theme-ink .sidebar nav { gap: 3px; }
+.theme-ink .sidebar .nav-item { height: 44px; font-size: 13px; border-radius: 4px; padding-left: 14px; }
+.theme-ink .sidebar .nav-item.selected { background: #f1f2eb; color: #252824; font-weight: 600; }
+.theme-ink .sidebar .nav-item.selected svg { color: #b73729; }
+.theme-ink .playlist-heading { margin-top: 32px; padding: 0 14px 14px; }
+.theme-ink .playlist-navigation .nav-item { height: 38px; font-size: 12px; }
+.theme-ink .appearance-button { border-radius: 4px; background: #ffffff06; }
+.theme-dot.dot-ink { background: #b73729; border: 1px solid #c5c9bc; }
+.theme-ink .sidebar .theme-popover { --accent: #f0b2a7; box-shadow: 0 12px 35px #0004; }
+.theme-ink .theme-popover button[aria-checked=true] { background: #ffffff0a; }
+.theme-ink .sidebar-bottom { padding-top: 18px; }
+
+.theme-ink .workspace { background: var(--bg); }
+.theme-ink .topbar { height: 76px; padding: 0 32px; gap: 18px; border-bottom: 1px solid var(--line); }
+.theme-ink .topbar-navigation .icon-button { border: 0; }
+.theme-ink .search-box { background: #e9ebe3; border: 1px solid transparent; border-radius: 5px; max-width: 440px; height: 38px; color: var(--subtle); }
+.theme-ink .search-box:focus-within { border-color: var(--accent); background: var(--panel); }
+.theme-ink .search-box input::placeholder { color: #73786d; }
+.theme-ink .topbar-account button { font-size: 12px; }
+.theme-ink .main-scroll { padding: 26px 38px 48px; }
+.theme-ink .button { border-radius: 5px; font-weight: 550; }
+.theme-ink .button.primary { background: var(--accent); color: #fff; box-shadow: none; }
+.theme-ink .button.primary:hover { background: #9b2c20; }
+.theme-ink .button.quiet { background: transparent; border-color: #cdd1c5; }
+.theme-ink .button.quiet:hover { background: var(--hover); border-color: #9ba28f; }
+.theme-ink :is(.cover,.music-art,.select-trigger,.select-options,.list-disclosure,.modal) { border-radius: 5px; }
+.theme-ink :is(button,input,summary):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.theme-ink .source-tabs { gap: 28px; }
+.theme-ink .source-tabs button.active { color: var(--accent); }
+.theme-ink .source-tag { border-radius: 2px; }
+.theme-ink .track-row { border-radius: 3px; height: 65px; }
+.theme-ink .track-row:nth-child(odd) { background: transparent; }
+.theme-ink .track-row:hover { background: #e9ebe3; }
+.theme-ink .track-row.current { background: #b7372909; }
+.theme-ink .table-header { border-bottom: 1px solid #bfc4b6; font-variant-numeric: tabular-nums; }
+.theme-ink .track-name .cover { border-radius: 3px; }
+.theme-ink .page-hero { padding: 8px 0 24px; border-bottom: 1px solid #bfc4b6; gap: 28px; }
+.theme-ink .page-hero-art { background: #252824; border-radius: 4px; box-shadow: 7px 7px 0 #dde0d5; }
+.theme-ink .page-hero-art>svg { color: #f0f1e9; filter: none; }
+.app.theme-ink .page-hero h1 { font-size: clamp(28px,3vw,42px); font-weight: 650; letter-spacing: -1.2px; }
+.theme-ink .page-hero.compact .page-hero-art { border-radius: 5px; width: 78px; height: 78px; }
+.theme-ink .page-hero-eyebrow { color: var(--accent); }
+.theme-ink .page-hero-stats dd { font-variant-numeric: tabular-nums; }
+.theme-ink .section-body .settings-section { background: transparent; border-radius: 0; border: 0; border-bottom: 1px solid var(--line); padding: 16px 0 24px; }
+.theme-ink .section-nav button { border-radius: 3px; }
+.theme-ink .account-card { border-radius: 6px; background: var(--panel); }
+.theme-ink .accounts-page { --panel-solid: #fafaf7; }
+.theme-ink .page-hero~.library-summary>button { --tile: #e5e8dd; color: var(--text); border: 1px solid #d3d8c8; box-shadow: none; border-radius: 5px; }
+.theme-ink .page-hero~.library-summary :is(svg,span) { color: var(--subtle); }
+.theme-ink .page-hero~.library-summary>button::after { display: none; }
+.theme-ink .page-hero~.library-playlists .music-art { border-radius: 4px; }
+.theme-ink .modal { background: #fafaf7; border: 1px solid var(--line); box-shadow: 0 28px 90px #20251f33; }
+.theme-ink .queue-panel { background: var(--panel); border-left: 1px solid var(--line); border-radius: 5px; }
+.theme-ink .select-options { background: #fafaf7; }
+
+/* A quiet transport strip, separate from the dark record shelves. */
+.theme-ink .player { background: #fafaf7; border-top: 1px solid #cbd0c0; padding: 0 28px; }
+.theme-ink .now-cover { width: 56px; height: 56px; border-radius: 3px; }
+.theme-ink .now-cover .cover { border-radius: 3px; }
+.theme-ink .play-main { width: 38px; height: 38px; background: #252824; color: #fafaf7; }
+.theme-ink .play-main:hover { background: var(--accent); }
+.theme-ink .progress-row { font-variant-numeric: tabular-nums; }
+.theme-ink .progress-row input { background: linear-gradient(to right,var(--accent) var(--range),#d9ddcf var(--range)); }
+.theme-ink .player-divider { background: #d9ddcf; }
+.theme-ink .quality-popover { background: var(--panel); }
+
+/* The lyrics page stays in paper and ink, with a single red current line. */
+.theme-ink .detail-view { background: #f4f4f0; }
+.theme-ink .detail-toolbar { border-bottom: 1px solid var(--line); }
+.theme-ink .large-cover { border-radius: 4px; box-shadow: 8px 8px 0 #dde0d5; }
+.theme-ink .large-cover>.cover { border-radius: 4px; }
+.theme-ink .detail-art>h1 { font-weight: 650; letter-spacing: -.7px; }
+.theme-ink .lyric-lines button { color: #7a7e73; font-weight: 550; }
+.theme-ink .lyric-lines button.current { color: var(--accent); text-shadow: none; }
+.theme-ink .metadata-box { border-color: #cbd0c0; }
+
+/* Five choices fit on a wide settings page, and wrap without shrinking previews. */
+.section-body .theme-options { grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); }
+.preview-ink { background: #f4f4f0; }
+.preview-ink .preview-sidebar { background: #202221; }
+.preview-ink .preview-sidebar b { background: #ffffff30; }
+.preview-ink .preview-sidebar b:first-child { background: #f1f2eb; }
+.preview-ink .preview-main>b { background: #b73729; }
+.preview-ink .preview-main>span i { background: #dde0d5; border-radius: 1px; }
+.preview-ink .preview-main>span i:nth-child(2) { background: #343930; }
+.preview-ink .preview-player { background: #fafaf7; border-color: #cbd0c0; }
+.preview-ink .preview-player::after { background: #b73729; }
+@media(max-width:1150px) {
+  :root[data-theme=ink] { --side-width: 195px; }
+  .theme-ink .main-scroll { padding: 20px 24px 36px; }
+  .theme-ink .topbar { padding: 0 22px; }
+  .theme-ink .player { padding: 0 18px; }
+}
+@media(max-width:900px) {
+  :root[data-theme=ink] { --side-width: 180px; }
+  .theme-ink .main-scroll { padding: 18px 20px 30px; }
+  .theme-ink .topbar { padding: 0 16px; gap: 10px; }
+}

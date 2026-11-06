@@ -1,0 +1,27 @@
+/* Spectrum around or under the cover on the lyric page. */
+.detail-cover-stage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  /* Full column width keeps the cover's own percentage max-width working as before. */
+  width: 100%;
+}
+.detail-cover-stage.has-ring { margin: 40px 0 6px; }
+.visualizer { display: block; pointer-events: none; }
+/* Centred on the cover; the 44px overhang must match RING_MARGIN in Visualizer.jsx. */
+.visualizer-ring {
+  position: absolute;
+  top: -44px;
+  left: 50%;
+  height: calc(100% + 88px);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+}
+.visualizer-strip {
+  width: min(100%, 340px);
+  height: 56px;
+  margin-top: 22px;
+  flex-shrink: 0;
+}
+.theme-spotify .visualizer-strip { height: 48px; }

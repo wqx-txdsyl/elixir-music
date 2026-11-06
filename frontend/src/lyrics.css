@@ -1,0 +1,24 @@
+/* Unsynced provider lyrics use the same typography as the timed lyric view. */
+.plain-lyrics {
+  margin: 0;
+  padding: 45px 12px 90px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: inherit;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 2.4;
+  color: var(--subtle);
+}
+.theme-spotify .plain-lyrics {
+  padding-top: 40px;
+  font-size: 25px;
+  font-weight: 750;
+  color: #a9b3ac;
+}
+/* Timing controls have no effect when the provider supplies no timestamps. */
+.lyrics-scroll:has(.plain-lyrics) > .lyric-offset { display: none; }
+@media (max-width: 1150px) {
+  .plain-lyrics { font-size: 17px; }
+  .theme-spotify .plain-lyrics { font-size: 21px; }
+}

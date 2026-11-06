@@ -1,0 +1,228 @@
+[
+  {
+    "id": "qqmusic:0044ZUy23cRpe0",
+    "source": "qqmusic",
+    "source_id": "0044ZUy23cRpe0",
+    "title": "六月飞霜",
+    "artist": "陈奕迅",
+    "album": "Stranger Under My Skin",
+    "album_id": "000Iv0BM0vOHkK",
+    "cover": "https://y.gtimg.cn/music/photo_new/T002R500x500M000000Iv0BM0vOHkK.jpg",
+    "duration_ms": 262000,
+    "availability": "unavailable",
+    "source_url": "https://y.qq.com/n/ryqq/songDetail/0044ZUy23cRpe0",
+    "songid": "804989",
+    "songmid": "0044ZUy23cRpe0",
+    "media_mid": "001R5FZW1F7tSd",
+    "artist_ids": [
+      "003Nz2So3XXYek"
+    ],
+    "published_at": "2011-02-22",
+    "requires_membership": false,
+    "credits": {
+      "company": "Cinepoly Records Co. Ltd.",
+      "genre": "Pop",
+      "intro": "《六月飞霜》这首歌反省现实中扭曲却又盛行的价值观。林夕写过很多与时政有关的歌词，也写过许多与佛理有关的歌词，同时又写过不少与老庄有关的歌词，但绝大部分的歌词主题都只是仅仅局限于其中一点，而这首歌曲恰恰把它们都集中到了一起。林夕写在歌词中的“当习惯符合大家讲的真理都得到赞赏”、“一辈子血汗注入拍卖场”、“如何凭财力去扭转天亮”这些言论很是发人深省，这首歌的歌名和歌词都显得有些阴沉，并且晦涩难懂，歌词犹如一记响亮的耳光，打在了麻木的世人脸上。",
+      "lan": "粤语"
+    },
+    "catalog_origin": "historical",
+    "confirmed_detail": "2026-10-25",
+    "sources": [
+      "https://y.qq.com/n/ryqq/albumDetail/000Iv0BM0vOHkK",
+      "https://y.qq.com/n/ryqq/songDetail/0044ZUy23cRpe0"
+    ],
+    "catalog_note": "歌曲身份已由 QQ 详情核验；QQ 当前已清空歌曲专辑关联，封面与专辑来自同批原专辑目录和原始唱片曲目关联。",
+    "aliases": [
+      "六月飛霜",
+      "Snow In June",
+      "Eason Chan"
+    ]
+  },
+  {
+    "id": "qqmusic:0043WNC62FM0o8",
+    "source": "qqmusic",
+    "source_id": "0043WNC62FM0o8",
+    "title": "痴情司",
+    "artist": "何韵诗",
+    "album": "",
+    "album_id": "",
+    "cover": "",
+    "duration_ms": 293000,
+    "availability": "unavailable",
+    "source_url": "https://y.qq.com/n/ryqq/songDetail/0043WNC62FM0o8",
+    "songid": "1251474",
+    "songmid": "0043WNC62FM0o8",
+    "media_mid": "002NGXjH2bkyXQ",
+    "artist_ids": [
+      "002uUOxg1Mu0rc"
+    ],
+    "published_at": "2011-09-28",
+    "requires_membership": false,
+    "credits": {
+      "company": "East Asia Music (Holdings) Limited",
+      "genre": "Pop",
+      "lan": "国语"
+    },
+    "catalog_origin": "historical",
+    "confirmed_detail": "2026-10-25",
+    "sources": [
+      "https://www.ptt.cc/bbs/HOCC/M.1334158488.A.FFB.html",
+      "https://y.qq.com/n/ryqq/songDetail/0043WNC62FM0o8"
+    ],
+    "catalog_note": "历史标识经 QQ 音乐详情接口实时核验；当前搜索不返回原唱记录，部分专辑资料已清除。",
+    "aliases": [
+      "何韻詩",
+      "Denise Ho",
+      "HOCC",
+      "癡情司"
+    ]
+  },
+  {
+    "id": "qqmusic:003ZSEMn2U9ePG",
+    "source": "qqmusic",
+    "source_id": "003ZSEMn2U9ePG",
+    "title": "禁色",
+    "artist": "达明一派",
+    "album": "",
+    "album_id": "",
+    "cover": "",
+    "duration_ms": 249000,
+    "availability": "unavailable",
+    "source_url": "https://y.qq.com/n/ryqq/songDetail/003ZSEMn2U9ePG",
+    "songid": "102361508",
+    "songmid": "003ZSEMn2U9ePG",
+    "media_mid": "001V1S0w1Jub57",
+    "artist_ids": [
+      "001UycKq02FURu"
+    ],
+    "published_at": "1988-06-21",
+    "requires_membership": false,
+    "credits": {
+      "company": "Universal Music Ltd.",
+      "genre": "Pop",
+      "lan": "粤语"
+    },
+    "catalog_origin": "historical",
+    "confirmed_detail": "2026-10-25",
+    "sources": [
+      "https://gist.github.com/zsqzp/21cdc55084777a7e41cec90ba4c6c16f",
+      "https://y.qq.com/n/ryqq/songDetail/003ZSEMn2U9ePG"
+    ],
+    "catalog_note": "历史标识经 QQ 音乐详情接口实时核验；当前搜索不返回原唱记录，部分专辑资料已清除。",
+    "aliases": [
+      "達明一派",
+      "Tat Ming Pair"
+    ]
+  },
+  {
+    "id": "qqmusic:002xySZn07Iwhg",
+    "source": "qqmusic",
+    "source_id": "002xySZn07Iwhg",
+    "title": "这么远‧那么近",
+    "artist": "黄耀明 / 张国荣",
+    "album": "Cross Over",
+    "album_id": "004RsG4W0wkvGi",
+    "cover": "https://y.gtimg.cn/music/photo_new/T002R500x500M000004RsG4W0wkvGi.jpg",
+    "duration_ms": 292000,
+    "availability": "unavailable",
+    "source_url": "https://y.qq.com/n/ryqq/songDetail/002xySZn07Iwhg",
+    "songid": "96112",
+    "songmid": "002xySZn07Iwhg",
+    "media_mid": "002BXAuY1Z6OeE",
+    "artist_ids": [
+      "003byBrn0mMqzh",
+      "0001v4XU1cZxPy"
+    ],
+    "published_at": "2002-07-20",
+    "requires_membership": false,
+    "credits": {
+      "company": "Universal Music Ltd.",
+      "genre": "Pop",
+      "lan": "粤语"
+    },
+    "catalog_origin": "historical",
+    "confirmed_detail": "2026-10-25",
+    "sources": [
+      "https://y.qq.com/n/ryqq/albumDetail/004RsG4W0wkvGi",
+      "https://y.qq.com/n/ryqq/songDetail/002xySZn07Iwhg"
+    ],
+    "catalog_note": "从 Cross Over 尚存目录的同批记录定位，QQ 歌曲详情实时核验；歌曲的专辑字段已清除，专辑与封面为目录关联。",
+    "aliases": [
+      "黃耀明",
+      "Anthony Wong"
+    ]
+  },
+  {
+    "id": "qqmusic:002CUAGa0z8Hee",
+    "source": "qqmusic",
+    "source_id": "002CUAGa0z8Hee",
+    "title": "如果你知我苦衷",
+    "artist": "黄耀明",
+    "album": "Cross Over",
+    "album_id": "004RsG4W0wkvGi",
+    "cover": "https://y.gtimg.cn/music/photo_new/T002R500x500M000004RsG4W0wkvGi.jpg",
+    "duration_ms": 223000,
+    "availability": "unavailable",
+    "source_url": "https://y.qq.com/n/ryqq/songDetail/002CUAGa0z8Hee",
+    "songid": "96114",
+    "songmid": "002CUAGa0z8Hee",
+    "media_mid": "001lusBh4HdcSD",
+    "artist_ids": [
+      "003byBrn0mMqzh"
+    ],
+    "published_at": "2002-07-20",
+    "requires_membership": false,
+    "credits": {
+      "genre": "Pop",
+      "lan": "粤语"
+    },
+    "catalog_origin": "historical",
+    "confirmed_detail": "2026-10-25",
+    "sources": [
+      "https://y.qq.com/n/ryqq/albumDetail/004RsG4W0wkvGi",
+      "https://y.qq.com/n/ryqq/songDetail/002CUAGa0z8Hee"
+    ],
+    "catalog_note": "从 Cross Over 尚存目录的同批记录定位，QQ 歌曲详情实时核验；歌曲的专辑字段已清除，专辑与封面为目录关联。",
+    "aliases": [
+      "黃耀明",
+      "Anthony Wong"
+    ]
+  },
+  {
+    "id": "qqmusic:001A8BLE2AY7f7",
+    "source": "qqmusic",
+    "source_id": "001A8BLE2AY7f7",
+    "title": "夜有所梦",
+    "artist": "黄耀明 / 张国荣",
+    "album": "Cross Over",
+    "album_id": "004RsG4W0wkvGi",
+    "cover": "https://y.gtimg.cn/music/photo_new/T002R500x500M000004RsG4W0wkvGi.jpg",
+    "duration_ms": 274000,
+    "availability": "unavailable",
+    "source_url": "https://y.qq.com/n/ryqq/songDetail/001A8BLE2AY7f7",
+    "songid": "96116",
+    "songmid": "001A8BLE2AY7f7",
+    "media_mid": "002WAGK00iV3nL",
+    "artist_ids": [
+      "003byBrn0mMqzh",
+      "0001v4XU1cZxPy"
+    ],
+    "published_at": "2002-07-20",
+    "requires_membership": false,
+    "credits": {
+      "genre": "Pop",
+      "lan": "粤语"
+    },
+    "catalog_origin": "historical",
+    "confirmed_detail": "2026-10-25",
+    "sources": [
+      "https://y.qq.com/n/ryqq/albumDetail/004RsG4W0wkvGi",
+      "https://y.qq.com/n/ryqq/songDetail/001A8BLE2AY7f7"
+    ],
+    "catalog_note": "从 Cross Over 尚存目录的同批记录定位，QQ 歌曲详情实时核验；歌曲的专辑字段已清除，专辑与封面为目录关联。",
+    "aliases": [
+      "黃耀明",
+      "Anthony Wong"
+    ]
+  }
+]

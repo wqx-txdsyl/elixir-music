@@ -1,0 +1,110 @@
+/* Aurora: Elixir's own style. Floating glass panels over a dark sky tinted by the current cover. */
+:root[data-theme=aurora] {
+  --bg: #0b0d18;
+  --sidebar: transparent;
+  --panel: #ffffff0b;
+  --text: #eef0ff;
+  --muted: #8a8fb2;
+  --subtle: #b4b8d6;
+  --line: #ffffff14;
+  --hover: #ffffff10;
+  --accent: #a594ff;
+  --accent-2: #5fe3d6;
+  --accent-tint: #a594ff24;
+  --accent-text: #14102e;
+  --side-width: 240px;
+  --player-height: 92px;
+  --shadow: 0 24px 80px #0009;
+  --glass: blur(26px) saturate(1.35);
+  --aurora-gradient: linear-gradient(120deg, #b6a8ff, #6fe7da);
+  color-scheme: dark;
+}
+.app.theme-aurora {
+  position: relative;
+  isolation: isolate;
+  padding: 10px;
+  gap: 10px;
+  background:
+    radial-gradient(55% 45% at 6% 0%, #4b2fa860, transparent 70%),
+    radial-gradient(45% 40% at 100% 6%, #0f8f8f48, transparent 70%),
+    radial-gradient(65% 55% at 62% 112%, #b0307a38, transparent 70%),
+    #0b0d18;
+}
+/* The playing cover, blurred into the sky. */
+.app.theme-aurora::before {
+  content: '';
+  position: absolute;
+  inset: -10%;
+  z-index: -1;
+  background: var(--now-cover) center / cover no-repeat;
+  filter: blur(90px) saturate(1.6);
+  opacity: .26;
+  pointer-events: none;
+}
+
+/* Panels */
+.theme-aurora .sidebar,
+.theme-aurora .workspace,
+.theme-aurora .player {
+  border: 1px solid #ffffff12;
+  border-radius: 20px;
+  background: #ffffff07;
+  backdrop-filter: var(--glass);
+}
+.theme-aurora .sidebar { padding: 0 14px; }
+.theme-aurora .workspace { overflow: hidden; }
+.theme-aurora .player { background: #15172bc7; border-top: 1px solid #ffffff12; box-shadow: 0 18px 50px #0006; }
+.theme-aurora .topbar { height: 74px; padding: 0 22px; }
+.theme-aurora .main-scroll { padding: 8px 32px 45px; }
+.theme-aurora .search-box { background: #ffffff0a; border: 1px solid #ffffff14; border-radius: 14px; color: #9aa0c4; max-width: 440px; }
+.theme-aurora .search-box input::placeholder { color: #7f85aa; }
+.theme-aurora .topbar-account button { background: #ffffff0a; border: 1px solid #ffffff12; border-radius: 30px; padding: 4px 13px 4px 5px; }
+
+/* Navigation */
+.theme-aurora .nav-item { border-radius: 12px; font-size: 13px; }
+.theme-aurora .nav-item.selected { background: linear-gradient(90deg, #a594ff3a, #5fe3d612); color: #fff; box-shadow: inset 0 0 0 1px #ffffff14; font-weight: 500; }
+.theme-aurora .nav-item.selected svg { color: var(--accent); }
+.theme-aurora .appearance-button { border-color: #ffffff14; background: #ffffff06; border-radius: 12px; }
+.app.theme-aurora .platform-brand img { filter: invert(1); }
+.theme-dot.dot-aurora { background: linear-gradient(120deg, #b6a8ff, #6fe7da); }
+
+/* Controls */
+.theme-aurora .button.primary { background: var(--aurora-gradient); color: #121028; font-weight: 600; box-shadow: 0 6px 22px #a594ff3a; }
+.theme-aurora .button.primary:hover { filter: brightness(1.06); }
+.theme-aurora .button.quiet { border-color: #ffffff1c; background: #ffffff08; }
+.theme-aurora .play-main { background: var(--aurora-gradient); color: #121028; }
+.theme-aurora .progress-row input { background: linear-gradient(to right, #a594ff, #5fe3d6 var(--range), #ffffff1c var(--range)); }
+.theme-aurora .page-heading h1 { font-size: 34px; font-weight: 700; letter-spacing: -.6px; background: linear-gradient(90deg, #fff, #cbc2ff 70%, #8fe9df); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.theme-aurora .track-row:hover { background: #ffffff0d; }
+.theme-aurora .modal { background: #1a1c31f0; border-color: #ffffff18; backdrop-filter: var(--glass); border-radius: 20px; }
+.theme-aurora .queue-panel { background: #17192ee8; border: 1px solid #ffffff14; border-radius: 20px; backdrop-filter: var(--glass); }
+.theme-aurora .toast { background: #1e2038f0; border: 1px solid #ffffff18; backdrop-filter: var(--glass); }
+
+/* Lyric page */
+.theme-aurora .detail-view {
+  top: 10px;
+  left: calc(var(--side-width) + 20px);
+  right: 10px;
+  bottom: calc(var(--player-height) + 20px);
+  border: 1px solid #ffffff12;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(160deg, #2b2264f2, #0d0f1ef5 62%);
+  backdrop-filter: var(--glass);
+}
+.theme-aurora .large-cover { border-radius: 22px; box-shadow: 0 24px 70px #0008, 0 0 0 1px #ffffff14; }
+.theme-aurora .large-cover > .cover { border-radius: 22px; }
+.theme-aurora .lyric-lines button { color: #9ea3c7; }
+.theme-aurora .lyric-lines button.current { color: #fff; text-shadow: 0 0 26px #a594ff80; }
+.theme-aurora .detail-tabs button.active:after { background: var(--aurora-gradient); }
+
+/* Settings preview */
+.preview-aurora { background: radial-gradient(70% 60% at 0 0, #4b2fa8aa, transparent), radial-gradient(60% 60% at 100% 0, #0f8f8f88, transparent), #0b0d18; padding: 5px 5px 21px; gap: 5px; }
+.preview-aurora .preview-sidebar { background: #ffffff10; border-radius: 5px; padding-top: 17px; }
+.preview-aurora .preview-sidebar b { background: #ffffff2a; }
+.preview-aurora .preview-sidebar b:first-child { background: #a594ff; }
+.preview-aurora .preview-main { background: #ffffff08; border-radius: 5px; }
+.preview-aurora .preview-main > b { background: #ffffff30; }
+.preview-aurora .preview-main > span i { background: #a594ff55; }
+.preview-aurora .preview-player { background: #ffffff12; border-color: transparent; left: 5px; right: 5px; bottom: 4px; border-radius: 5px; }
+.preview-aurora .preview-player:after { background: var(--aurora-gradient); }

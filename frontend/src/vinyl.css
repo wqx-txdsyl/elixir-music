@@ -1,0 +1,75 @@
+/* NetEase lyric page: the record turns while the song plays and keeps its angle when paused. */
+.vinyl-deck {
+  position: relative;
+  flex-shrink: 0;
+  max-width: 90%;
+}
+.vinyl-deck > .vinyl-cover {
+  position: relative;
+  max-width: 100%;
+  height: auto;
+  animation: vinyl-spin 24s linear infinite paused;
+}
+.vinyl-deck > .vinyl-cover.spinning { animation-play-state: running; }
+/* Spindle hole. */
+.vinyl-deck > .vinyl-cover::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #e9ebef;
+  box-shadow: 0 0 0 2px #171b22;
+  transform: translate(-50%, -50%);
+}
+@keyframes vinyl-spin { to { transform: rotate(1turn); } }
+
+/* The element itself is the pivot; ::before is the arm and ::after the head shell.
+   Angles assume the square deck: 20deg puts the needle on the grooves, -4deg parks it beside the record. */
+.tonearm {
+  position: absolute;
+  top: -6%;
+  right: -11%;
+  width: 9%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fafbfc 0 26%, #cfd3d9 29% 56%, #9ba2ac 60%);
+  box-shadow: 0 4px 10px #0003;
+  transform: rotate(-4deg);
+  transition: transform .8s cubic-bezier(.3, .75, .25, 1);
+  z-index: 2;
+  pointer-events: none;
+}
+.tonearm.engaged { transform: rotate(20deg); }
+.tonearm::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22%;
+  height: 600%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #aab1bb, #f4f5f7 45%, #9ea5af);
+  box-shadow: 1px 2px 5px #0002;
+  transform: translateX(-50%);
+}
+.tonearm::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 630%;
+  width: 62%;
+  height: 100%;
+  border-radius: 3px 3px 6px 6px;
+  background: linear-gradient(90deg, #3a3f47, #5b616b 50%, #33383f);
+  box-shadow: 0 3px 6px #0004;
+  transform: translateX(-50%);
+}
+/* The parked arm hangs past the record; clip it instead of scrolling sideways on narrow windows. */
+.theme-netease .detail-art { overflow-x: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  .vinyl-deck > .vinyl-cover { animation: none; }
+  .tonearm { transition: none; }
+}

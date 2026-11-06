@@ -1,0 +1,140 @@
+/* Quality picker in the player bar. */
+.quality-menu { position: relative; display: inline-flex; }
+.quality-popover {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  width: 196px;
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  transform: translateX(-50%);
+}
+.quality-popover > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: left;
+}
+.quality-popover > button:hover { background: var(--hover); }
+.quality-popover > button[aria-checked=true] { color: var(--accent); font-weight: 600; }
+.quality-popover > small { padding: 6px 10px 4px; font-size: 11px; line-height: 1.6; color: var(--muted); }
+
+/* "词" toggles the desktop lyric window, as in the NetEase and QQ players. */
+.desktop-lyrics-toggle {
+  min-width: 26px;
+  height: 26px;
+  padding: 0 4px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--subtle);
+}
+.desktop-lyrics-toggle:hover { color: var(--text); background: var(--hover); }
+.desktop-lyrics-toggle.active { color: var(--accent); }
+
+/* Queue drag and drop. */
+.queue-item[draggable=true] { cursor: grab; }
+.queue-item[draggable=true]:active { cursor: grabbing; }
+.queue-item.drop-target { box-shadow: inset 0 2px 0 var(--accent); }
+
+/* Translations sit under each original lyric line. */
+.lyric-lines button .lyric-translation {
+  display: block;
+  margin-top: 4px;
+  font-size: .72em;
+  font-weight: 400;
+  opacity: .72;
+}
+.lyric-offset .lyric-translate {
+  padding: 0 5px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  line-height: 18px;
+  opacity: .5;
+}
+.lyric-offset .lyric-translate.active { opacity: 1; }
+
+/* Spotify keeps its round home button and shows back / forward beside it. */
+.theme-spotify .topbar-navigation > .icon-button.nav-back,
+.theme-spotify .topbar-navigation > .icon-button.nav-forward {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0000004d;
+  color: #fff;
+}
+.topbar-navigation > .icon-button:disabled { opacity: .35; }
+
+/* Word-timed lyrics: sung words take the accent, the current word fills left to right. */
+.lyric-lines button.current.has-words { color: var(--subtle); }
+.lyric-word.sung { color: var(--accent); }
+.lyric-word.singing {
+  background: linear-gradient(90deg, var(--accent) 50%, var(--subtle) 50%) right / 200% 100% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: lyric-word-fill var(--word-duration) linear var(--word-delay) forwards;
+}
+@keyframes lyric-word-fill { to { background-position: left; } }
+@media (prefers-reduced-motion: reduce) { .lyric-word.singing { animation: none; color: var(--accent); background: none; } }
+
+/* Search: content type on the left, platform as a compact segment on the right. */
+.search-filters {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 24px;
+  flex-wrap: wrap;
+  margin: 8px 0 22px;
+  border-bottom: 1px solid var(--line);
+}
+.search-filters .music-type-tabs { margin: 0; border: 0; flex: 1; }
+.source-segment { display: inline-flex; gap: 2px; padding: 3px; margin-bottom: 8px; border-radius: 16px; background: var(--hover); }
+.source-segment button { padding: 4px 12px; border-radius: 13px; font-size: 12px; color: var(--subtle); white-space: nowrap; }
+.source-segment button:hover { color: var(--text); }
+.source-segment button[aria-pressed=true] { color: var(--accent); background: var(--panel); box-shadow: 0 1px 3px #0000001f; font-weight: 600; }
+
+/* Theme picker that opens from the sidebar instead of the settings page. */
+.theme-menu { position: relative; }
+.theme-menu > .appearance-button { width: 100%; }
+.theme-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+.theme-popover button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border-radius: 6px; font-size: 13px; text-align: left; }
+.theme-popover button:hover { background: var(--hover); }
+.theme-popover button[aria-checked=true] { color: var(--accent); font-weight: 600; }
+.theme-popover button svg { margin-left: auto; }
+
+/* Virtualised track lists: spacers stand in for rows outside the viewport. */
+.track-spacer { overflow-anchor: none; }
+.track-total { margin: 14px 0 0; font-size: 12px; color: var(--muted); text-align: right; }
+
+/* Theme menu entries: swatch, name and a short description. */
+.theme-popover{min-width:200px}
+.theme-popover button{gap:11px;padding:9px 11px}
+.theme-popover .theme-dot{margin-left:0;width:12px;height:12px;flex-shrink:0;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 12%,transparent)}
+.theme-choice{display:flex;flex-direction:column;gap:2px;min-width:0}
+.theme-choice strong{font-size:13px;font-weight:500;color:var(--text)}
+.theme-choice small{font-size:11px;color:var(--muted);font-weight:400}
+.theme-popover button[aria-checked=true] .theme-choice strong{color:var(--accent);font-weight:600}
+.queue-next-tag { display: inline-block; margin-left: 6px; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-style: normal; font-weight: 600; vertical-align: 1px; color: var(--accent); background: var(--accent-tint); }
+.queue-item .queue-play-next:hover { color: var(--accent); }

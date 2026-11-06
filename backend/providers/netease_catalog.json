@@ -1,0 +1,593 @@
+[
+  {
+    "id": "netease:64278",
+    "source": "netease",
+    "source_id": "64278",
+    "title": "六月飞霜",
+    "artist": "陈奕迅",
+    "artist_ids": [
+      "2116"
+    ],
+    "album": "Stranger Under My Skin",
+    "album_id": "6355",
+    "cover": "https://p1.music.126.net/9-PMVvRGgYw4uZYwteDkiQ==/109951171301957274.jpg",
+    "duration_ms": 262000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=64278",
+    "catalog_origin": "historical",
+    "aliases": [
+      "六月飛霜",
+      "Snow In June",
+      "Eason Chan"
+    ],
+    "catalog_note": "官方详情已移除；歌曲身份由同专辑曲序、独立唱片目录与现存旧评论交叉核对，时长来自 QQ 同版录音。未将翻唱或用户上传版本冒充原唱。",
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 2231,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=6355",
+      "duration": "https://y.qq.com/n/ryqq/songDetail/0044ZUy23cRpe0",
+      "recording_identity": "https://y.qq.com/n/ryqq/songDetail/0044ZUy23cRpe0"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_64278",
+      "https://music.163.com/album?id=6355",
+      "https://y.qq.com/n/ryqq/songDetail/0044ZUy23cRpe0"
+    ]
+  },
+  {
+    "id": "netease:28442914",
+    "source": "netease",
+    "source_id": "28442914",
+    "title": "这么远，那么近",
+    "artist": "黄耀明 / 张国荣",
+    "artist_ids": [
+      "3062",
+      "6457"
+    ],
+    "album": "Cross Over",
+    "album_id": "2794104",
+    "cover": "https://p2.music.126.net/2SD-O2cHWKAUfHM4wn1qpg==/109951173832119657.jpg",
+    "duration_ms": 292000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=28442914",
+    "catalog_origin": "historical",
+    "aliases": [
+      "黃耀明",
+      "Anthony Wong"
+    ],
+    "catalog_note": "官方详情已移除；歌曲身份由同专辑曲序、独立唱片目录与现存旧评论交叉核对，时长来自 QQ 同版录音。未将翻唱或用户上传版本冒充原唱。",
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 668,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2794104",
+      "duration": "https://y.qq.com/n/ryqq/songDetail/002xySZn07Iwhg",
+      "recording_identity": "https://y.qq.com/n/ryqq/songDetail/002xySZn07Iwhg"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_28442914",
+      "https://music.163.com/album?id=2794104",
+      "https://y.qq.com/n/ryqq/songDetail/002xySZn07Iwhg"
+    ]
+  },
+  {
+    "id": "netease:28442916",
+    "source": "netease",
+    "source_id": "28442916",
+    "title": "如果你知我苦衷",
+    "artist": "黄耀明",
+    "artist_ids": [
+      "3062"
+    ],
+    "album": "Cross Over",
+    "album_id": "2794104",
+    "cover": "https://p2.music.126.net/2SD-O2cHWKAUfHM4wn1qpg==/109951173832119657.jpg",
+    "duration_ms": 223000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=28442916",
+    "catalog_origin": "historical",
+    "aliases": [
+      "黃耀明",
+      "Anthony Wong"
+    ],
+    "catalog_note": "官方详情已移除；歌曲身份由同专辑曲序、独立唱片目录与现存旧评论交叉核对，时长来自 QQ 同版录音。未将翻唱或用户上传版本冒充原唱。",
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 1348,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2794104",
+      "duration": "https://y.qq.com/n/ryqq/songDetail/002CUAGa0z8Hee",
+      "recording_identity": "https://y.qq.com/n/ryqq/songDetail/002CUAGa0z8Hee"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_28442916",
+      "https://music.163.com/album?id=2794104",
+      "https://y.qq.com/n/ryqq/songDetail/002CUAGa0z8Hee"
+    ]
+  },
+  {
+    "id": "netease:28442918",
+    "source": "netease",
+    "source_id": "28442918",
+    "title": "夜有所梦",
+    "artist": "黄耀明 / 张国荣",
+    "artist_ids": [
+      "3062",
+      "6457"
+    ],
+    "album": "Cross Over",
+    "album_id": "2794104",
+    "cover": "https://p2.music.126.net/2SD-O2cHWKAUfHM4wn1qpg==/109951173832119657.jpg",
+    "duration_ms": 274000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=28442918",
+    "catalog_origin": "historical",
+    "aliases": [
+      "黃耀明",
+      "Anthony Wong"
+    ],
+    "catalog_note": "官方详情已移除；歌曲身份由同专辑曲序、独立唱片目录与现存旧评论交叉核对，时长来自 QQ 同版录音。未将翻唱或用户上传版本冒充原唱。",
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 424,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2794104",
+      "duration": "https://y.qq.com/n/ryqq/songDetail/001A8BLE2AY7f7",
+      "recording_identity": "https://y.qq.com/n/ryqq/songDetail/001A8BLE2AY7f7"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_28442918",
+      "https://music.163.com/album?id=2794104",
+      "https://y.qq.com/n/ryqq/songDetail/001A8BLE2AY7f7"
+    ]
+  },
+  {
+    "id": "netease:27867495",
+    "source": "netease",
+    "source_id": "27867495",
+    "title": "痴情司 (Live)",
+    "artist": "何韵诗",
+    "artist_ids": [],
+    "album": "Concert YY 黄伟文作品展 演唱会",
+    "album_id": "2685339",
+    "cover": "https://p1.music.126.net/eVNxevw1W5lyBmdq18tMJw==/109951163639097093.jpg",
+    "duration_ms": 292000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=27867495",
+    "catalog_origin": "historical",
+    "aliases": [
+      "癡情司",
+      "Concert YY",
+      "何韻詩",
+      "Denise Ho",
+      "HOCC"
+    ],
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 322,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "catalog_note": "网易云同批专辑曲序与现存旧评论交叉确认演出身份；已移除详情的标题、演唱者和时长参照 MusicBrainz 同版 6CD 唱片目录。封面来自网易云同专辑。",
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2685339",
+      "duration": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6",
+      "recording_identity": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/5"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_27867495",
+      "https://music.163.com/album?id=2685339",
+      "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/5"
+    ]
+  },
+  {
+    "id": "netease:27867454",
+    "source": "netease",
+    "source_id": "27867454",
+    "title": "达明一派对 (Live)",
+    "artist": "达明一派",
+    "artist_ids": [],
+    "album": "Concert YY 黄伟文作品展 演唱会",
+    "album_id": "2685339",
+    "cover": "https://p1.music.126.net/eVNxevw1W5lyBmdq18tMJw==/109951163639097093.jpg",
+    "duration_ms": 246000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=27867454",
+    "catalog_origin": "historical",
+    "aliases": [
+      "達明一派對",
+      "Concert YY",
+      "達明一派"
+    ],
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 399,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "catalog_note": "网易云同批专辑曲序与现存旧评论交叉确认演出身份；已移除详情的标题、演唱者和时长参照 MusicBrainz 同版 6CD 唱片目录。封面来自网易云同专辑。",
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2685339",
+      "duration": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6",
+      "recording_identity": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/2"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_27867454",
+      "https://music.163.com/album?id=2685339",
+      "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/2"
+    ]
+  },
+  {
+    "id": "netease:27867493",
+    "source": "netease",
+    "source_id": "27867493",
+    "title": "木纹 (Live)",
+    "artist": "何韵诗",
+    "artist_ids": [],
+    "album": "Concert YY 黄伟文作品展 演唱会",
+    "album_id": "2685339",
+    "cover": "https://p1.music.126.net/eVNxevw1W5lyBmdq18tMJw==/109951163639097093.jpg",
+    "duration_ms": 326000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=27867493",
+    "catalog_origin": "historical",
+    "aliases": [
+      "木紋",
+      "Concert YY",
+      "何韻詩",
+      "Denise Ho",
+      "HOCC"
+    ],
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 700,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "catalog_note": "网易云同批专辑曲序与现存旧评论交叉确认演出身份；已移除详情的标题、演唱者和时长参照 MusicBrainz 同版 6CD 唱片目录。封面来自网易云同专辑。",
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2685339",
+      "duration": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6",
+      "recording_identity": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/5"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_27867493",
+      "https://music.163.com/album?id=2685339",
+      "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/5"
+    ]
+  },
+  {
+    "id": "netease:27867516",
+    "source": "netease",
+    "source_id": "27867516",
+    "title": "劳斯莱斯 (Live)",
+    "artist": "何韵诗",
+    "artist_ids": [],
+    "album": "Concert YY 黄伟文作品展 演唱会",
+    "album_id": "2685339",
+    "cover": "https://p1.music.126.net/eVNxevw1W5lyBmdq18tMJw==/109951163639097093.jpg",
+    "duration_ms": 269000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=27867516",
+    "catalog_origin": "historical",
+    "aliases": [
+      "勞斯·萊斯",
+      "Concert YY",
+      "何韻詩",
+      "Denise Ho",
+      "HOCC"
+    ],
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 497,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "catalog_note": "网易云同批专辑曲序与现存旧评论交叉确认演出身份；已移除详情的标题、演唱者和时长参照 MusicBrainz 同版 6CD 唱片目录。封面来自网易云同专辑。",
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2685339",
+      "duration": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6",
+      "recording_identity": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/6"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_27867516",
+      "https://music.163.com/album?id=2685339",
+      "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/6"
+    ]
+  },
+  {
+    "id": "netease:27867463",
+    "source": "netease",
+    "source_id": "27867463",
+    "title": "再见露丝玛莉 (Live)",
+    "artist": "何韵诗",
+    "artist_ids": [],
+    "album": "Concert YY 黄伟文作品展 演唱会",
+    "album_id": "2685339",
+    "cover": "https://p1.music.126.net/eVNxevw1W5lyBmdq18tMJw==/109951163639097093.jpg",
+    "duration_ms": 268000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=27867463",
+    "catalog_origin": "historical",
+    "aliases": [
+      "再見露絲瑪莉",
+      "Concert YY",
+      "何韻詩",
+      "Denise Ho",
+      "HOCC"
+    ],
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 131,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "catalog_note": "网易云同批专辑曲序与现存旧评论交叉确认演出身份；已移除详情的标题、演唱者和时长参照 MusicBrainz 同版 6CD 唱片目录。封面来自网易云同专辑。",
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2685339",
+      "duration": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6",
+      "recording_identity": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/3"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_27867463",
+      "https://music.163.com/album?id=2685339",
+      "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/3"
+    ]
+  },
+  {
+    "id": "netease:27867464",
+    "source": "netease",
+    "source_id": "27867464",
+    "title": "明目张胆 (Live)",
+    "artist": "何韵诗",
+    "artist_ids": [],
+    "album": "Concert YY 黄伟文作品展 演唱会",
+    "album_id": "2685339",
+    "cover": "https://p1.music.126.net/eVNxevw1W5lyBmdq18tMJw==/109951163639097093.jpg",
+    "duration_ms": 263000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=27867464",
+    "catalog_origin": "historical",
+    "aliases": [
+      "明目張膽",
+      "Concert YY",
+      "何韻詩",
+      "Denise Ho",
+      "HOCC"
+    ],
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 199,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "catalog_note": "网易云同批专辑曲序与现存旧评论交叉确认演出身份；已移除详情的标题、演唱者和时长参照 MusicBrainz 同版 6CD 唱片目录。封面来自网易云同专辑。",
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2685339",
+      "duration": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6",
+      "recording_identity": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/3"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_27867464",
+      "https://music.163.com/album?id=2685339",
+      "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/3"
+    ]
+  },
+  {
+    "id": "netease:27867517",
+    "source": "netease",
+    "source_id": "27867517",
+    "title": "芳华绝代 (Live)",
+    "artist": "陈奕迅 / 何韵诗",
+    "artist_ids": [],
+    "album": "Concert YY 黄伟文作品展 演唱会",
+    "album_id": "2685339",
+    "cover": "https://p1.music.126.net/eVNxevw1W5lyBmdq18tMJw==/109951163639097093.jpg",
+    "duration_ms": 253000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=27867517",
+    "catalog_origin": "historical",
+    "aliases": [
+      "芳華絕代",
+      "Concert YY",
+      "何韻詩",
+      "Denise Ho",
+      "HOCC"
+    ],
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 1343,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "catalog_note": "网易云同批专辑曲序与现存旧评论交叉确认演出身份；已移除详情的标题、演唱者和时长参照 MusicBrainz 同版 6CD 唱片目录。封面来自网易云同专辑。",
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2685339",
+      "duration": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6",
+      "recording_identity": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/6"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_27867517",
+      "https://music.163.com/album?id=2685339",
+      "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/6"
+    ]
+  },
+  {
+    "id": "netease:27867427",
+    "source": "netease",
+    "source_id": "27867427",
+    "title": "这么远，那么近 (Live)",
+    "artist": "黄耀明",
+    "artist_ids": [],
+    "album": "Concert YY 黄伟文作品展 演唱会",
+    "album_id": "2685339",
+    "cover": "https://p1.music.126.net/eVNxevw1W5lyBmdq18tMJw==/109951163639097093.jpg",
+    "duration_ms": 313000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=27867427",
+    "catalog_origin": "historical",
+    "aliases": [
+      "這麼遠那麼近",
+      "Concert YY",
+      "黃耀明"
+    ],
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 445,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "catalog_note": "网易云同批专辑曲序与现存旧评论交叉确认演出身份；已移除详情的标题、演唱者和时长参照 MusicBrainz 同版 6CD 唱片目录。封面来自网易云同专辑。",
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2685339",
+      "duration": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6",
+      "recording_identity": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/1"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_27867427",
+      "https://music.163.com/album?id=2685339",
+      "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/1"
+    ]
+  },
+  {
+    "id": "netease:27867487",
+    "source": "netease",
+    "source_id": "27867487",
+    "title": "小王子 (Live)",
+    "artist": "黄耀明",
+    "artist_ids": [],
+    "album": "Concert YY 黄伟文作品展 演唱会",
+    "album_id": "2685339",
+    "cover": "https://p1.music.126.net/eVNxevw1W5lyBmdq18tMJw==/109951163639097093.jpg",
+    "duration_ms": 245000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=27867487",
+    "catalog_origin": "historical",
+    "aliases": [
+      "小王子",
+      "Concert YY",
+      "黃耀明"
+    ],
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 109,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "catalog_note": "网易云同批专辑曲序与现存旧评论交叉确认演出身份；已移除详情的标题、演唱者和时长参照 MusicBrainz 同版 6CD 唱片目录。封面来自网易云同专辑。",
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2685339",
+      "duration": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6",
+      "recording_identity": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/5"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_27867487",
+      "https://music.163.com/album?id=2685339",
+      "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/5"
+    ]
+  },
+  {
+    "id": "netease:27867508",
+    "source": "netease",
+    "source_id": "27867508",
+    "title": "漩涡 (Live)",
+    "artist": "彭羚 / 黄耀明",
+    "artist_ids": [],
+    "album": "Concert YY 黄伟文作品展 演唱会",
+    "album_id": "2685339",
+    "cover": "https://p1.music.126.net/eVNxevw1W5lyBmdq18tMJw==/109951163639097093.jpg",
+    "duration_ms": 245000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=27867508",
+    "catalog_origin": "historical",
+    "aliases": [
+      "漩渦",
+      "Concert YY",
+      "彭羚 / 黃耀明"
+    ],
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 618,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "catalog_note": "网易云同批专辑曲序与现存旧评论交叉确认演出身份；已移除详情的标题、演唱者和时长参照 MusicBrainz 同版 6CD 唱片目录。封面来自网易云同专辑。",
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2685339",
+      "duration": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6",
+      "recording_identity": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/6"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_27867508",
+      "https://music.163.com/album?id=2685339",
+      "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/6"
+    ]
+  },
+  {
+    "id": "netease:27867450",
+    "source": "netease",
+    "source_id": "27867450",
+    "title": "HOCC Dance Medley - 艳光四射 / 你是八十年代 / 光明会 (Live)",
+    "artist": "何韵诗",
+    "artist_ids": [],
+    "album": "Concert YY 黄伟文作品展 演唱会",
+    "album_id": "2685339",
+    "cover": "https://p1.music.126.net/eVNxevw1W5lyBmdq18tMJw==/109951163639097093.jpg",
+    "duration_ms": 482000,
+    "availability": "unavailable",
+    "source_url": "https://music.163.com/#/song?id=27867450",
+    "catalog_origin": "historical",
+    "aliases": [
+      "HOCC Dance Medley: 艷光四射 / 你是八十年代 / 光明會",
+      "Concert YY",
+      "何韻詩",
+      "Denise Ho",
+      "HOCC"
+    ],
+    "verified_at": "2026-10-25",
+    "verification": {
+      "detail": "removed",
+      "comments_total": 176,
+      "lyrics": "uncollected",
+      "id_basis": "album_sequence_and_public_comments"
+    },
+    "catalog_note": "网易云同批专辑曲序与现存旧评论交叉确认演出身份；已移除详情的标题、演唱者和时长参照 MusicBrainz 同版 6CD 唱片目录。封面来自网易云同专辑。",
+    "metadata_sources": {
+      "cover": "https://music.163.com/album?id=2685339",
+      "duration": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6",
+      "recording_identity": "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/2"
+    },
+    "sources": [
+      "https://music.163.com/api/v1/resource/comments/R_SO_4_27867450",
+      "https://music.163.com/album?id=2685339",
+      "https://musicbrainz.org/release/e8ad9292-4a0f-4b3a-94c0-0ddb8379b7b6/disc/2"
+    ]
+  }
+]
