@@ -24,8 +24,10 @@ export default function LyricLines({lines,active,playing,onSeek,children}){
   useEffect(()=>{
     const pane=root.current?.closest('.lyrics-scroll'),line=currentLine.current;
     if(!pane||!line||!playing||Date.now()<heldUntil.current)return;
-    const box=pane.getBoundingClientRect(),rect=line.getBoundingClientRect();
-    pane.scrollTo({top:pane.scrollTop+rect.top-box.top-(box.height-rect.height)/2,behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+    const box=pane.getBoundingClientRect(),rect=line.getBoundingClientRect(),behavior=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
+    // Vertical lyrics run right to left, so the pane scrolls sideways instead.
+    if(getComputedStyle(root.current).writingMode.startsWith('vertical'))pane.scrollTo({left:pane.scrollLeft+rect.left-box.left-(box.width-rect.width)/2,behavior});
+    else pane.scrollTo({top:pane.scrollTop+rect.top-box.top-(box.height-rect.height)/2,behavior});
   },[index]);
   return <div className="lyric-lines" ref={root}>{children}{lines.map((line,i)=><button key={i} className={i===index?(line.words?'current has-words':'current'):''} ref={i===index?currentLine:undefined} onClick={()=>onSeek(line)} title="点击跳转到该歌词">{i===index&&line.words?<WordLine words={line.words} position={position} playing={playing}/>:line.text}{line.translation&&<small className="lyric-translation">{line.translation}</small>}</button>)}</div>;
 }

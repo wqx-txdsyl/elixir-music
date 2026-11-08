@@ -2,11 +2,23 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('desktop', {
   pickFolder: () => ipcRenderer.invoke('pick-folder'),
   login: source => ipcRenderer.invoke('login', source),
+  platformWindow: (source,url,play=false,trackId,track) => ipcRenderer.invoke('platform-window',source,url,play,trackId,track),
+  platformControl: (trackId,resume) => ipcRenderer.invoke('platform-control',trackId,resume),
+  onPlatformPlayback: callback => {
+    const handler=(_event,state)=>callback(state);
+    ipcRenderer.on('platform-playback',handler);
+    return ()=>ipcRenderer.removeListener('platform-playback',handler);
+  },
+  platformLogout: source => ipcRenderer.invoke('platform-logout', source),
+  platformReadTrack: (source,url) => ipcRenderer.invoke('platform-track-read', source, url),
+  platformSearch: (source,query) => ipcRenderer.invoke('platform-search', source, query),
+  platformStop: () => ipcRenderer.invoke('platform-stop'),
   finishLogin: source => ipcRenderer.invoke('finish-login', source),
   refreshSpotifySession: () => ipcRenderer.invoke('refresh-spotify-session'),
   cookieLogin: (source, cookie) => ipcRenderer.invoke('cookie-login', source, cookie),
   onAccountsUpdated: callback => {const handler=(_event,source)=>callback(source);ipcRenderer.on('accounts-updated',handler);return ()=>ipcRenderer.removeListener('accounts-updated',handler);},
   spotifyPlay: trackId => ipcRenderer.invoke('spotify-play',trackId),
+  spotifyStop: () => ipcRenderer.invoke('spotify-stop'),
   spotifyControl: (action,value) => ipcRenderer.invoke('spotify-control',action,value),
   spotifyState: () => ipcRenderer.invoke('spotify-state'),
   spotifyQueue: trackId => ipcRenderer.invoke('spotify-queue',trackId),

@@ -1,3 +1,4 @@
+@layer legacy {
 /* Aurora: a bento grid of glass cards with gradient edges; the long shelves sit in glass panels. */
 .home-aurora .home-greeting { margin: 4px 0 22px; }
 .home-aurora .home-greeting h1 {
@@ -185,4 +186,5 @@
   .home-bento-stats,
   .home-bento-link,
   .home-bento-faces button { transition: none; }
+}
 }

@@ -1,3 +1,4 @@
+@layer legacy {
 /* NetEase lyric page: the record turns while the song plays and keeps its angle when paused. */
 .vinyl-deck {
   position: relative;
@@ -72,4 +73,5 @@
 @media (prefers-reduced-motion: reduce) {
   .vinyl-deck > .vinyl-cover { animation: none; }
   .tonearm { transition: none; }
+}
 }

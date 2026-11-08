@@ -1,0 +1,434 @@
+/* 海外平台（二）：Bandcamp、Qobuz、KKBOX、Melon、Audiomack、Anghami */
+@layer skins {
+
+/* ================= 公共：把基底写死的平台色换成皮肤变量 ================= */
+/* 六个皮肤共用的强调渐变：首页图标卡、页头封面、精选卡片 */
+:root[data-skin=bandcamp] :is(.home-card-icon, .apple-pick-icon, .apple-pick.icon .apple-pick-caption),
+:root[data-skin=qobuz] :is(.home-card-icon, .apple-pick-icon, .apple-pick.icon .apple-pick-caption),
+:root[data-skin=kkbox] :is(.home-card-icon, .apple-pick-icon, .apple-pick.icon .apple-pick-caption),
+:root[data-skin=melon] :is(.home-card-icon, .apple-pick-icon, .apple-pick.icon .apple-pick-caption),
+:root[data-skin=audiomack] :is(.home-card-icon, .apple-pick-icon, .apple-pick.icon .apple-pick-caption),
+:root[data-skin=anghami] :is(.home-card-icon, .apple-pick-icon, .apple-pick.icon .apple-pick-caption) { background: var(--g2-grad); }
+:root[data-skin=bandcamp] .apple-pick.icon .apple-pick-caption::before,
+:root[data-skin=qobuz] .apple-pick.icon .apple-pick-caption::before,
+:root[data-skin=kkbox] .apple-pick.icon .apple-pick-caption::before,
+:root[data-skin=melon] .apple-pick.icon .apple-pick-caption::before,
+:root[data-skin=audiomack] .apple-pick.icon .apple-pick-caption::before,
+:root[data-skin=anghami] .apple-pick.icon .apple-pick-caption::before { background: var(--g2-grad); }
+:root[data-skin=bandcamp] .home-netease .home-netease-lists .home-card.icon:nth-child(n) .home-card-icon,
+:root[data-skin=melon] .home-netease .home-netease-lists .home-card.icon:nth-child(n) .home-card-icon { background: var(--g2-grad); }
+:root[data-skin=bandcamp] .home-netease .home-netease-lists .home-card.icon:nth-child(2n) .home-card-icon,
+:root[data-skin=melon] .home-netease .home-netease-lists .home-card.icon:nth-child(2n) .home-card-icon { background: var(--g2-grad2); }
+:root[data-skin=bandcamp] :is(.qq-feature-card.tone-green, .qq-chart.tone-green, .qq-feature-main.home-hero-empty),
+:root[data-skin=qobuz] :is(.qq-feature-card.tone-green, .qq-chart.tone-green, .qq-feature-main.home-hero-empty),
+:root[data-skin=kkbox] :is(.qq-feature-card.tone-green, .qq-chart.tone-green, .qq-feature-main.home-hero-empty),
+:root[data-skin=melon] :is(.qq-feature-card.tone-green, .qq-chart.tone-green, .qq-feature-main.home-hero-empty),
+:root[data-skin=audiomack] :is(.qq-feature-card.tone-green, .qq-chart.tone-green, .qq-feature-main.home-hero-empty),
+:root[data-skin=anghami] :is(.qq-feature-card.tone-green, .qq-chart.tone-green, .qq-feature-main.home-hero-empty) { background: var(--g2-grad); }
+:root[data-skin=bandcamp] .qq-chart.tone-blue, :root[data-skin=qobuz] .qq-chart.tone-blue, :root[data-skin=kkbox] .qq-chart.tone-blue,
+:root[data-skin=melon] .qq-chart.tone-blue, :root[data-skin=audiomack] .qq-chart.tone-blue, :root[data-skin=anghami] .qq-chart.tone-blue { background: var(--g2-grad2); }
+:root[data-skin=bandcamp] .qq-feature-main.home-hero-empty .button.primary, :root[data-skin=qobuz] .qq-feature-main.home-hero-empty .button.primary,
+:root[data-skin=kkbox] .qq-feature-main.home-hero-empty .button.primary, :root[data-skin=melon] .qq-feature-main.home-hero-empty .button.primary,
+:root[data-skin=audiomack] .qq-feature-main.home-hero-empty .button.primary, :root[data-skin=anghami] .qq-feature-main.home-hero-empty .button.primary { color: #111; }
+:root[data-skin=bandcamp] .qq-play-round, :root[data-skin=qobuz] .qq-play-round, :root[data-skin=kkbox] .qq-play-round,
+:root[data-skin=melon] .qq-play-round, :root[data-skin=audiomack] .qq-play-round, :root[data-skin=anghami] .qq-play-round { color: var(--accent-text); }
+
+/* 页头封面与“我的音乐”磁贴 */
+:root[data-skin=bandcamp] .page-hero, :root[data-skin=qobuz] .page-hero, :root[data-skin=kkbox] .page-hero,
+:root[data-skin=melon] .page-hero, :root[data-skin=audiomack] .page-hero, :root[data-skin=anghami] .page-hero { --hero-tint: var(--g2-grad); }
+:root[data-skin=bandcamp] :is(.hero-history, .hero-library, .hero-playlist), :root[data-skin=qobuz] :is(.hero-history, .hero-library, .hero-playlist),
+:root[data-skin=kkbox] :is(.hero-history, .hero-library, .hero-playlist), :root[data-skin=melon] :is(.hero-history, .hero-library, .hero-playlist),
+:root[data-skin=audiomack] :is(.hero-history, .hero-library, .hero-playlist), :root[data-skin=anghami] :is(.hero-history, .hero-library, .hero-playlist) { --hero-tint: var(--g2-grad2); }
+:root[data-skin=bandcamp] .page-hero~.library-summary>button:nth-child(n), :root[data-skin=qobuz] .page-hero~.library-summary>button:nth-child(n),
+:root[data-skin=kkbox] .page-hero~.library-summary>button:nth-child(n), :root[data-skin=melon] .page-hero~.library-summary>button:nth-child(n),
+:root[data-skin=audiomack] .page-hero~.library-summary>button:nth-child(n), :root[data-skin=anghami] .page-hero~.library-summary>button:nth-child(n) { --tile: var(--g2-grad); }
+:root[data-skin=bandcamp] .page-hero~.library-summary>button:nth-child(2n), :root[data-skin=qobuz] .page-hero~.library-summary>button:nth-child(2n),
+:root[data-skin=kkbox] .page-hero~.library-summary>button:nth-child(2n), :root[data-skin=melon] .page-hero~.library-summary>button:nth-child(2n),
+:root[data-skin=audiomack] .page-hero~.library-summary>button:nth-child(2n), :root[data-skin=anghami] .page-hero~.library-summary>button:nth-child(2n) { --tile: var(--g2-grad2); }
+
+/* 浅色基底（netease）的搜索框是写死的蓝灰色 */
+:root[data-skin=bandcamp] .search-box input::placeholder, :root[data-skin=melon] .search-box input::placeholder { color: var(--muted); }
+
+/* 深色基底（spotify）：外框、工作区、顶栏、播放栏、播放页里的绿色与灰色 */
+:root[data-skin=qobuz] .app.theme-spotify, :root[data-skin=kkbox] .app.theme-spotify,
+:root[data-skin=audiomack] .app.theme-spotify, :root[data-skin=anghami] .app.theme-spotify { background: var(--g2-frame); }
+:root[data-skin=qobuz] .theme-spotify :is(.topbar, .player), :root[data-skin=kkbox] .theme-spotify :is(.topbar, .player),
+:root[data-skin=audiomack] .theme-spotify :is(.topbar, .player), :root[data-skin=anghami] .theme-spotify :is(.topbar, .player) { background: var(--g2-frame); }
+:root[data-skin=qobuz] .theme-spotify .sidebar, :root[data-skin=kkbox] .theme-spotify .sidebar,
+:root[data-skin=audiomack] .theme-spotify .sidebar, :root[data-skin=anghami] .theme-spotify .sidebar { background: var(--sidebar); }
+:root[data-skin=qobuz] .theme-spotify .workspace, :root[data-skin=kkbox] .theme-spotify .workspace,
+:root[data-skin=audiomack] .theme-spotify .workspace, :root[data-skin=anghami] .theme-spotify .workspace { background: linear-gradient(var(--g2-glow) 0, var(--bg) 340px); }
+:root[data-skin=qobuz] .theme-spotify .search-box, :root[data-skin=kkbox] .theme-spotify .search-box,
+:root[data-skin=audiomack] .theme-spotify .search-box, :root[data-skin=anghami] .theme-spotify .search-box { background: var(--panel); border-color: var(--g2-edge); color: var(--subtle); }
+:root[data-skin=qobuz] .theme-spotify .search-box kbd, :root[data-skin=kkbox] .theme-spotify .search-box kbd,
+:root[data-skin=audiomack] .theme-spotify .search-box kbd, :root[data-skin=anghami] .theme-spotify .search-box kbd { color: var(--muted); }
+:root[data-skin=qobuz] .theme-spotify :is(.topbar-account button, .topbar-navigation>.icon-button:first-child),
+:root[data-skin=kkbox] .theme-spotify :is(.topbar-account button, .topbar-navigation>.icon-button:first-child),
+:root[data-skin=audiomack] .theme-spotify :is(.topbar-account button, .topbar-navigation>.icon-button:first-child),
+:root[data-skin=anghami] .theme-spotify :is(.topbar-account button, .topbar-navigation>.icon-button:first-child) { background: var(--panel); color: var(--text); }
+:root[data-skin=qobuz] .theme-spotify .library-heading:first-of-type, :root[data-skin=kkbox] .theme-spotify .library-heading:first-of-type,
+:root[data-skin=audiomack] .theme-spotify .library-heading:first-of-type, :root[data-skin=anghami] .theme-spotify .library-heading:first-of-type { color: var(--subtle); }
+:root[data-skin=qobuz] .theme-spotify .playlist-navigation .nav-item svg, :root[data-skin=kkbox] .theme-spotify .playlist-navigation .nav-item svg,
+:root[data-skin=audiomack] .theme-spotify .playlist-navigation .nav-item svg, :root[data-skin=anghami] .theme-spotify .playlist-navigation .nav-item svg { background: var(--panel); }
+:root[data-skin=qobuz] .theme-spotify .playlist-navigation .nav-item.selected svg, :root[data-skin=kkbox] .theme-spotify .playlist-navigation .nav-item.selected svg,
+:root[data-skin=audiomack] .theme-spotify .playlist-navigation .nav-item.selected svg, :root[data-skin=anghami] .theme-spotify .playlist-navigation .nav-item.selected svg { background: var(--accent-tint); color: var(--accent); }
+:root[data-skin=qobuz] :is(.home-tabs button, .home-filters button, .home-pick-chip, .source-tabs button),
+:root[data-skin=kkbox] :is(.home-tabs button, .home-filters button, .home-pick-chip, .source-tabs button),
+:root[data-skin=audiomack] :is(.home-tabs button, .home-filters button, .home-pick-chip, .source-tabs button),
+:root[data-skin=anghami] :is(.home-tabs button, .home-filters button, .home-pick-chip, .source-tabs button) { background: var(--g2-chip); color: var(--text); }
+:root[data-skin=qobuz] :is(.home-tabs button.active, .home-filters button.chosen, .home-pick-chip.chosen, .source-tabs button.active),
+:root[data-skin=kkbox] :is(.home-tabs button.active, .home-filters button.chosen, .home-pick-chip.chosen, .source-tabs button.active),
+:root[data-skin=audiomack] :is(.home-tabs button.active, .home-filters button.chosen, .home-pick-chip.chosen, .source-tabs button.active),
+:root[data-skin=anghami] :is(.home-tabs button.active, .home-filters button.chosen, .home-pick-chip.chosen, .source-tabs button.active) { background: var(--accent); color: var(--accent-text); }
+:root[data-skin=qobuz] .theme-spotify .feature-banner, :root[data-skin=kkbox] .theme-spotify .feature-banner,
+:root[data-skin=audiomack] .theme-spotify .feature-banner, :root[data-skin=anghami] .theme-spotify .feature-banner { background: color-mix(in srgb, var(--accent) 22%, var(--panel)); }
+:root[data-skin=qobuz] .theme-spotify :is(.feature-copy .eyebrow, .feature-copy p), :root[data-skin=kkbox] .theme-spotify :is(.feature-copy .eyebrow, .feature-copy p),
+:root[data-skin=audiomack] .theme-spotify :is(.feature-copy .eyebrow, .feature-copy p), :root[data-skin=anghami] .theme-spotify :is(.feature-copy .eyebrow, .feature-copy p) { color: var(--subtle); }
+:root[data-skin=qobuz] .theme-spotify :is(.feature-button, .floating-play), :root[data-skin=kkbox] .theme-spotify :is(.feature-button, .floating-play),
+:root[data-skin=audiomack] .theme-spotify :is(.feature-button, .floating-play), :root[data-skin=anghami] .theme-spotify :is(.feature-button, .floating-play) { background: var(--accent); color: var(--accent-text); }
+:root[data-skin=qobuz] .home-spotify :is(.home-shortcut-likes, .home-shortcut-ranking) .home-shortcut-art, :root[data-skin=kkbox] .home-spotify :is(.home-shortcut-likes, .home-shortcut-ranking) .home-shortcut-art,
+:root[data-skin=audiomack] .home-spotify :is(.home-shortcut-likes, .home-shortcut-ranking) .home-shortcut-art, :root[data-skin=anghami] .home-spotify :is(.home-shortcut-likes, .home-shortcut-ranking) .home-shortcut-art { background: var(--g2-grad); }
+:root[data-skin=qobuz] .home-spotify :is(.home-shortcut-history, .home-shortcut-library) .home-shortcut-art, :root[data-skin=kkbox] .home-spotify :is(.home-shortcut-history, .home-shortcut-library) .home-shortcut-art,
+:root[data-skin=audiomack] .home-spotify :is(.home-shortcut-history, .home-shortcut-library) .home-shortcut-art, :root[data-skin=anghami] .home-spotify :is(.home-shortcut-history, .home-shortcut-library) .home-shortcut-art { background: var(--g2-grad2); }
+:root[data-skin=qobuz] .home-spotify .home-hero-empty, :root[data-skin=kkbox] .home-spotify .home-hero-empty,
+:root[data-skin=audiomack] .home-spotify .home-hero-empty, :root[data-skin=anghami] .home-spotify .home-hero-empty { background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 45%, var(--bg)), var(--bg) 85%); }
+:root[data-skin=qobuz] .theme-spotify .player-controls>.icon-button.active, :root[data-skin=kkbox] .theme-spotify .player-controls>.icon-button.active,
+:root[data-skin=audiomack] .theme-spotify .player-controls>.icon-button.active, :root[data-skin=anghami] .theme-spotify .player-controls>.icon-button.active { color: var(--accent); }
+:root[data-skin=qobuz] .theme-spotify .player-controls>.icon-button, :root[data-skin=kkbox] .theme-spotify .player-controls>.icon-button,
+:root[data-skin=audiomack] .theme-spotify .player-controls>.icon-button, :root[data-skin=anghami] .theme-spotify .player-controls>.icon-button { color: var(--subtle); }
+:root[data-skin=qobuz] .theme-spotify .progress-row input, :root[data-skin=kkbox] .theme-spotify .progress-row input,
+:root[data-skin=audiomack] .theme-spotify .progress-row input, :root[data-skin=anghami] .theme-spotify .progress-row input,
+:root[data-skin=qobuz] .theme-spotify .progress-row input:hover, :root[data-skin=kkbox] .theme-spotify .progress-row input:hover,
+:root[data-skin=audiomack] .theme-spotify .progress-row input:hover, :root[data-skin=anghami] .theme-spotify .progress-row input:hover { background: linear-gradient(to right, var(--g2-played) var(--range), #ffffff21 var(--range)); }
+:root[data-skin=qobuz] .theme-spotify .detail-view, :root[data-skin=kkbox] .theme-spotify .detail-view,
+:root[data-skin=audiomack] .theme-spotify .detail-view, :root[data-skin=anghami] .theme-spotify .detail-view { background: linear-gradient(var(--g2-glow), var(--bg) 65%); }
+:root[data-skin=qobuz] .theme-spotify :is(.detail-tabs, .table-header), :root[data-skin=kkbox] .theme-spotify :is(.detail-tabs, .table-header),
+:root[data-skin=audiomack] .theme-spotify :is(.detail-tabs, .table-header), :root[data-skin=anghami] .theme-spotify :is(.detail-tabs, .table-header) { border-color: var(--g2-edge); }
+:root[data-skin=qobuz] .theme-spotify .detail-tabs button.active:after, :root[data-skin=kkbox] .theme-spotify .detail-tabs button.active:after,
+:root[data-skin=audiomack] .theme-spotify .detail-tabs button.active:after, :root[data-skin=anghami] .theme-spotify .detail-tabs button.active:after { background: var(--accent); }
+:root[data-skin=qobuz] .theme-spotify .lyric-lines button, :root[data-skin=kkbox] .theme-spotify .lyric-lines button,
+:root[data-skin=audiomack] .theme-spotify .lyric-lines button, :root[data-skin=anghami] .theme-spotify .lyric-lines button { color: var(--g2-lyric); }
+:root[data-skin=qobuz] .theme-spotify .modal, :root[data-skin=kkbox] .theme-spotify .modal,
+:root[data-skin=audiomack] .theme-spotify .modal, :root[data-skin=anghami] .theme-spotify .modal { background: var(--panel); }
+:root[data-skin=qobuz] .theme-spotify .button.quiet, :root[data-skin=kkbox] .theme-spotify .button.quiet,
+:root[data-skin=audiomack] .theme-spotify .button.quiet, :root[data-skin=anghami] .theme-spotify .button.quiet { border-color: var(--g2-edge); }
+:root[data-skin=qobuz] .theme-spotify .button.quiet:hover, :root[data-skin=kkbox] .theme-spotify .button.quiet:hover,
+:root[data-skin=audiomack] .theme-spotify .button.quiet:hover, :root[data-skin=anghami] .theme-spotify .button.quiet:hover { border-color: var(--accent); }
+:root[data-skin=qobuz] .theme-spotify .page-hero, :root[data-skin=kkbox] .theme-spotify .page-hero,
+:root[data-skin=audiomack] .theme-spotify .page-hero, :root[data-skin=anghami] .theme-spotify .page-hero { --band: var(--g2-band); background: linear-gradient(180deg, var(--band) 0, color-mix(in srgb, var(--band) 30%, var(--bg)) 100%); }
+:root[data-skin=qobuz] .theme-spotify .section-nav button[aria-current], :root[data-skin=kkbox] .theme-spotify .section-nav button[aria-current],
+:root[data-skin=audiomack] .theme-spotify .section-nav button[aria-current], :root[data-skin=anghami] .theme-spotify .section-nav button[aria-current] { background: var(--accent-tint); color: var(--text); }
+:root[data-skin=qobuz] .theme-spotify .accounts-page, :root[data-skin=kkbox] .theme-spotify .accounts-page,
+:root[data-skin=audiomack] .theme-spotify .accounts-page, :root[data-skin=anghami] .theme-spotify .accounts-page { --panel-solid: var(--panel); }
+:root[data-skin=qobuz] .theme-spotify .track-row:hover, :root[data-skin=kkbox] .theme-spotify .track-row:hover,
+:root[data-skin=audiomack] .theme-spotify .track-row:hover, :root[data-skin=anghami] .theme-spotify .track-row:hover { background: var(--hover); }
+
+/* ================= Bandcamp ================= */
+/* 独立唱片店：纸白底、衬线标题、直角封面和细线分隔，青蓝只用在链接与选中处 */
+:root[data-skin=bandcamp] {
+  --bg: #ffffff; --sidebar: #fafafa; --panel: #ffffff; --text: #333333; --muted: #8a8a8a; --subtle: #5c5c5c;
+  --line: #e4e4e4; --hover: #f2f2f2; --accent: #1da0c3; --accent-tint: #1da0c314; --accent-text: #ffffff;
+  --radius: 2px; --shadow: 0 10px 34px #0000001f; --chip: #f2f2f2;
+  --g2-grad: linear-gradient(140deg, #3fb8d6, #13799a); --g2-grad2: linear-gradient(140deg, #8c8c8c, #4a4a4a);
+  --g2-serif: Georgia, "Noto Serif SC", "Source Han Serif SC", "Songti SC", SimSun, serif;
+  --g2-link: #0f7fa0;
+  color-scheme: light; color: var(--text); background: var(--bg);
+}
+:root[data-skin=bandcamp] .app { font-family: "Helvetica Neue", Helvetica, Arial, "Microsoft YaHei UI", sans-serif; }
+:root[data-skin=bandcamp] .sidebar { background: var(--sidebar); border-right: 1px solid var(--line); }
+:root[data-skin=bandcamp] .workspace { box-shadow: inset 0 4px 0 var(--accent); }
+:root[data-skin=bandcamp] .nav-item { border-radius: 0; color: var(--subtle); }
+:root[data-skin=bandcamp] .nav-item:hover { background: transparent; color: var(--g2-link); text-decoration: underline; text-underline-offset: 3px; }
+:root[data-skin=bandcamp] .nav-item.selected { background: #ffffff; color: #1a1a1a; font-weight: 700; box-shadow: inset 3px 0 0 var(--accent), 0 0 0 1px var(--line); }
+:root[data-skin=bandcamp] .nav-item.selected svg { color: var(--accent); }
+:root[data-skin=bandcamp] .library-heading { font-family: var(--g2-serif); font-size: 13px; letter-spacing: 0; font-style: italic; color: var(--subtle); }
+:root[data-skin=bandcamp] .appearance-button { border-radius: 0; background: #fff; border-color: #d6d6d6; }
+:root[data-skin=bandcamp] .search-box { background: #fff; border: 1px solid #c9c9c9; border-radius: 0; color: var(--muted); box-shadow: inset 0 1px 2px #0000000d; }
+
+:root[data-skin=bandcamp] :is(.app .page-hero h1, .home-section-head h2, .apple-title h1, .modal-head h2, .home-greeting h1, .page-heading h1, .detail-art > h1) { font-family: var(--g2-serif); font-weight: 400; letter-spacing: 0; color: #1a1a1a; }
+:root[data-skin=bandcamp] .home-section-head { border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+:root[data-skin=bandcamp] :is(.home-text-button, .page-hero-meta a, .text-button) { color: var(--g2-link); }
+:root[data-skin=bandcamp] :is(.home-card .music-art, .music-art, .cover, .page-hero-art, .large-cover, .large-cover > .cover, .home-card-icon, .apple-pick-art, .apple-pick-caption) { border-radius: 0; }
+:root[data-skin=bandcamp] .home-card .music-art { box-shadow: 0 0 0 1px #00000014; }
+:root[data-skin=bandcamp] .home-card strong { font-weight: 700; color: #1a1a1a; }
+:root[data-skin=bandcamp] .home-card:hover strong { color: var(--g2-link); text-decoration: underline; }
+:root[data-skin=bandcamp] .home-card-badge { border-radius: 0; background: #ffffffe6; color: #333; }
+:root[data-skin=bandcamp] .home-banner { border-radius: 0; }
+:root[data-skin=bandcamp] .button { border-radius: 2px; }
+:root[data-skin=bandcamp] .button.primary { background: var(--accent); color: #fff; font-weight: 600; box-shadow: inset 0 -2px 0 #0000001f; }
+:root[data-skin=bandcamp] .button.quiet { background: #fff; border-color: #c9c9c9; color: var(--text); }
+:root[data-skin=bandcamp] .button.quiet:hover:not(:disabled) { border-color: var(--accent); color: var(--g2-link); }
+:root[data-skin=bandcamp] .page-hero-art { box-shadow: 0 0 0 1px #00000014, 0 6px 18px #0000001a; }
+:root[data-skin=bandcamp] .page-hero-eyebrow { font-family: var(--g2-serif); font-style: italic; letter-spacing: 0; font-size: 13px; }
+:root[data-skin=bandcamp] .track-filter { border-radius: 0; }
+:root[data-skin=bandcamp] .table-header { border-bottom: 2px solid #333; color: var(--subtle); font-weight: 700; }
+:root[data-skin=bandcamp] .track-row { border-radius: 0; border-bottom: 1px solid #ededed; }
+:root[data-skin=bandcamp] .track-row:nth-child(odd) { background: transparent; }
+:root[data-skin=bandcamp] .track-row:hover { background: #f7f7f7; }
+:root[data-skin=bandcamp] .track-row .song-title:hover { color: var(--g2-link); text-decoration: underline; }
+:root[data-skin=bandcamp] .track-row.current .song-title { color: var(--g2-link); font-weight: 700; }
+:root[data-skin=bandcamp] .row-number span { font-family: var(--g2-serif); font-style: italic; }
+:root[data-skin=bandcamp] .source-tag { border-radius: 0; }
+:root[data-skin=bandcamp] .player { background: #fafafa; border-top: 1px solid #dcdcdc; }
+:root[data-skin=bandcamp] .now-cover .cover { border-radius: 0; box-shadow: 0 0 0 1px #00000014; }
+:root[data-skin=bandcamp] .play-main { border-radius: 2px; background: #fff; color: #222; border: 1px solid #bdbdbd; box-shadow: inset 0 -2px 0 #0000000d; }
+:root[data-skin=bandcamp] .play-main:hover { transform: none; border-color: var(--accent); color: var(--g2-link); }
+:root[data-skin=bandcamp] .progress-row input { height: 6px; border-radius: 0; background: linear-gradient(to right, #555 var(--range), #e2e2e2 var(--range)); box-shadow: inset 0 0 0 1px #00000010 !important; }
+:root[data-skin=bandcamp] .progress-row input::-webkit-slider-thumb { width: 8px; height: 14px; border-radius: 1px; background: #fff; border: 1px solid #888; opacity: 1; }
+:root[data-skin=bandcamp] .detail-view { background: #fff; }
+:root[data-skin=bandcamp] .large-cover { box-shadow: 0 0 0 1px #00000014, 0 14px 30px #00000024; }
+:root[data-skin=bandcamp] .detail-tabs button.active:after { border-radius: 0; height: 2px; background: #333; }
+:root[data-skin=bandcamp] .lyric-lines button { font-family: var(--g2-serif); color: #a3a3a3; font-weight: 400; }
+:root[data-skin=bandcamp] .lyric-lines button.current { color: #1a1a1a; font-weight: 400; font-style: italic; }
+:root[data-skin=bandcamp] .lyric-offset button { color: var(--g2-link); }
+:root[data-skin=bandcamp] .modal { border-radius: 0; border-color: #cfcfcf; box-shadow: 0 8px 30px #00000026; }
+
+/* ================= Qobuz ================= */
+/* 发烧友唱片架：近黑底、冷蓝强调、细字大标题和大写小标签，播放栏挂 Hi-Res 音质徽标 */
+:root[data-skin=qobuz] {
+  --bg: #0b0b0c; --sidebar: #121214; --panel: #1b1b1f; --text: #f2f2f2; --muted: #8e8e98; --subtle: #b9b9c2;
+  --line: #ffffff12; --hover: #ffffff0b; --accent: #4aa3ff; --accent-tint: #4aa3ff1f; --accent-text: #04111f;
+  --radius: 4px; --shadow: 0 20px 70px #000c; --chip: #ffffff12;
+  --g2-frame: #050506; --g2-glow: #14202e; --g2-edge: #ffffff1c; --g2-chip: #ffffff10; --g2-lyric: #5d6170; --g2-played: #4aa3ff; --g2-band: #1c3a5c;
+  --g2-grad: linear-gradient(140deg, #4aa3ff, #1d4f9a); --g2-grad2: linear-gradient(140deg, #3a3d48, #17181d);
+  --g2-gold: #d9b45a;
+  color-scheme: dark; color: var(--text); background: var(--bg);
+}
+:root[data-skin=qobuz] .sidebar { border-right: 1px solid var(--line); }
+:root[data-skin=qobuz] .theme-spotify .sidebar, :root[data-skin=qobuz] .theme-spotify .workspace { border-radius: 4px; }
+:root[data-skin=qobuz] .nav-item { border-radius: 3px; color: var(--subtle); }
+:root[data-skin=qobuz] .nav-item.selected { background: #ffffff0d; color: #fff; box-shadow: inset 2px 0 0 var(--accent); }
+:root[data-skin=qobuz] .nav-item.selected svg { color: var(--accent); }
+:root[data-skin=qobuz] .library-heading, :root[data-skin=qobuz] .theme-spotify .library-heading:first-of-type { text-transform: uppercase; font-size: 11px; letter-spacing: 1.6px; font-weight: 600; color: var(--muted); }
+:root[data-skin=qobuz] .appearance-button { border-radius: 3px; background: #ffffff08; }
+:root[data-skin=qobuz] .search-box, :root[data-skin=qobuz] .theme-spotify .search-box { border-radius: 4px; background: #16161a; }
+
+:root[data-skin=qobuz] :is(.home-tabs button, .home-filters button, .home-pick-chip, .source-tabs button) { border-radius: 3px; text-transform: uppercase; letter-spacing: .8px; font-size: 11px; }
+:root[data-skin=qobuz] :is(.app .page-hero h1, .apple-title h1, .home-greeting h1, .page-heading h1) { font-weight: 300; letter-spacing: -.5px; }
+:root[data-skin=qobuz] .home-section-head h2 { font-weight: 400; letter-spacing: .2px; }
+:root[data-skin=qobuz] :is(.page-hero-eyebrow, .feature-copy .eyebrow, .home-section-head small, .apple-pick-eyebrow) { text-transform: uppercase; letter-spacing: 1.6px; font-size: 11px; font-weight: 600; color: var(--accent); }
+:root[data-skin=qobuz] :is(.home-card .music-art, .page-hero-art, .large-cover, .large-cover > .cover, .home-shortcut, .home-shortcut-art) { border-radius: 3px; }
+:root[data-skin=qobuz] .home-card .music-art { box-shadow: 0 10px 26px #000a, 0 0 0 1px #ffffff0d; }
+:root[data-skin=qobuz] .home-card strong { font-weight: 500; }
+:root[data-skin=qobuz] .home-card-badge { border-radius: 2px; background: #000000b3; color: var(--g2-gold); letter-spacing: .5px; }
+:root[data-skin=qobuz] .home-card-play, :root[data-skin=qobuz] .floating-play { background: var(--accent); color: var(--accent-text); }
+:root[data-skin=qobuz] .button { border-radius: 3px; }
+:root[data-skin=qobuz] .button.primary { text-transform: uppercase; letter-spacing: .8px; font-size: 11px; }
+:root[data-skin=qobuz] .table-header { text-transform: uppercase; letter-spacing: 1.2px; font-size: 10px; }
+:root[data-skin=qobuz] .track-row { border-radius: 2px; border-bottom: 1px solid #ffffff09; }
+:root[data-skin=qobuz] .track-row.current { background: linear-gradient(90deg, var(--accent-tint), transparent 60%); }
+:root[data-skin=qobuz] .row-number span { font-variant-numeric: tabular-nums; color: var(--muted); }
+:root[data-skin=qobuz] .source-tag { border-radius: 2px; }
+:root[data-skin=qobuz] .player { border-top: 1px solid #ffffff10; }
+:root[data-skin=qobuz] .now-cover .cover { border-radius: 2px; }
+:root[data-skin=qobuz] .play-main, :root[data-skin=qobuz] .theme-spotify .play-main { background: #fff; color: #0b0b0c; box-shadow: 0 0 0 4px #4aa3ff26; }
+:root[data-skin=qobuz] .progress-row input { height: 2px; }
+:root[data-skin=qobuz] .progress-row input::-webkit-slider-thumb { background: #fff; box-shadow: 0 0 0 3px #4aa3ff55; }
+/* 音质徽标 */
+:root[data-skin=qobuz] .player-right::before {
+  content: "24-BIT · HI-RES"; flex: none; align-self: center; margin-right: 6px; padding: 3px 7px 3px 6px;
+  border: 1px solid #d9b45a99; border-radius: 2px; color: var(--g2-gold); background: linear-gradient(#d9b45a14, #d9b45a05);
+  font: 600 9px/1.2 "Segoe UI", Arial, sans-serif; letter-spacing: 1.2px; white-space: nowrap;
+}
+:root[data-skin=qobuz] .detail-tabs button { text-transform: uppercase; letter-spacing: 1px; font-size: 12px; }
+:root[data-skin=qobuz] .lyric-lines button { font-weight: 500; }
+:root[data-skin=qobuz] .lyric-lines button.current, :root[data-skin=qobuz] .theme-spotify .lyric-lines button.current { color: #fff; font-weight: 600; }
+:root[data-skin=qobuz] .detail-art > h1 { font-weight: 300; }
+:root[data-skin=qobuz] .modal { border-radius: 4px; border-color: #ffffff1a; }
+
+/* ================= KKBOX ================= */
+/* 华语歌单味：深灰底、天青强调、圆润胶囊和带光晕的大字歌词 */
+:root[data-skin=kkbox] {
+  --bg: #141518; --sidebar: #1b1c20; --panel: #232429; --text: #f1f3f5; --muted: #8f949c; --subtle: #c0c5cc;
+  --line: #ffffff12; --hover: #ffffff0c; --accent: #09cef6; --accent-tint: #09cef61f; --accent-text: #03171d;
+  --radius: 12px; --shadow: 0 20px 70px #000b; --chip: #ffffff12;
+  --g2-frame: #0e0f11; --g2-glow: #13303a; --g2-edge: #ffffff1a; --g2-chip: #ffffff10; --g2-lyric: #7d838c; --g2-played: #09cef6; --g2-band: #0d5566;
+  --g2-grad: linear-gradient(140deg, #3fe0ff, #0790c9); --g2-grad2: linear-gradient(140deg, #6c7cf4, #2c3a9e);
+  color-scheme: dark; color: var(--text); background: var(--bg);
+}
+:root[data-skin=kkbox] .theme-spotify .sidebar, :root[data-skin=kkbox] .theme-spotify .workspace { border-radius: 14px; }
+:root[data-skin=kkbox] .nav-item { border-radius: 22px; }
+:root[data-skin=kkbox] .nav-item.selected { background: var(--accent-tint); color: var(--accent); font-weight: 600; }
+:root[data-skin=kkbox] .nav-item.selected svg { color: var(--accent); }
+:root[data-skin=kkbox] .playlist-navigation .nav-item svg { border-radius: 8px; }
+:root[data-skin=kkbox] .appearance-button { border-radius: 22px; }
+:root[data-skin=kkbox] .search-box, :root[data-skin=kkbox] .theme-spotify .search-box { border-radius: 22px; }
+
+:root[data-skin=kkbox] .home-section-head h2 { display: flex; align-items: center; gap: 9px; }
+:root[data-skin=kkbox] .home-section-head h2::before { content: ""; width: 4px; height: .9em; border-radius: 2px; background: var(--g2-grad); }
+:root[data-skin=kkbox] :is(.home-card .music-art, .page-hero-art, .large-cover, .home-shortcut, .home-shortcut-art, .qq-chart, .qq-feature-card) { border-radius: 12px; }
+:root[data-skin=kkbox] .home-card:hover { background: #ffffff0a; }
+:root[data-skin=kkbox] .home-card-badge { border-radius: 10px; background: #09cef6e0; color: #03171d; font-weight: 700; }
+:root[data-skin=kkbox] .home-card-play, :root[data-skin=kkbox] .floating-play { background: var(--accent); color: var(--accent-text); box-shadow: 0 6px 18px #09cef64d; }
+:root[data-skin=kkbox] .button { border-radius: 20px; }
+:root[data-skin=kkbox] .button.primary { font-weight: 700; box-shadow: 0 6px 16px #09cef633; }
+:root[data-skin=kkbox] .track-filter { border-radius: 18px; }
+:root[data-skin=kkbox] .track-row { border-radius: 10px; }
+:root[data-skin=kkbox] .track-row.current { background: var(--accent-tint); }
+:root[data-skin=kkbox] .track-row.current .row-number span { color: var(--accent); }
+:root[data-skin=kkbox] .source-tag { border-radius: 8px; }
+:root[data-skin=kkbox] .now-cover .cover { border-radius: 10px; }
+:root[data-skin=kkbox] .play-main, :root[data-skin=kkbox] .theme-spotify .play-main { background: var(--accent); color: var(--accent-text); width: 38px; height: 38px; box-shadow: 0 0 0 5px #09cef61f, 0 6px 16px #09cef640; }
+:root[data-skin=kkbox] .progress-row input { height: 4px; border-radius: 4px; }
+:root[data-skin=kkbox] .progress-row input::-webkit-slider-thumb { opacity: 1; width: 11px; height: 11px; background: #fff; box-shadow: 0 0 0 3px #09cef666; }
+:root[data-skin=kkbox] .detail-tabs button.active { color: var(--accent); }
+:root[data-skin=kkbox] .lyric-lines button { font-weight: 700; }
+:root[data-skin=kkbox] .lyric-lines button.current, :root[data-skin=kkbox] .theme-spotify .lyric-lines button.current { color: var(--accent); text-shadow: 0 0 22px #09cef666; }
+:root[data-skin=kkbox] .modal { border-radius: 18px; }
+
+/* ================= Melon ================= */
+/* 韩国榜单文化：纯白页面、荧光绿边框搜索框、粗体大号名次数字和直角卡片 */
+:root[data-skin=melon] {
+  --bg: #ffffff; --sidebar: #fafafa; --panel: #ffffff; --text: #1a1a1a; --muted: #8c8c8c; --subtle: #555555;
+  --line: #ebebeb; --hover: #f4f4f4; --accent: #00cd3c; --accent-tint: #00cd3c17; --accent-text: #ffffff;
+  --radius: 3px; --shadow: 0 12px 40px #0000001c; --chip: #f2f2f2;
+  --g2-grad: linear-gradient(140deg, #34e06a, #00a432); --g2-grad2: linear-gradient(140deg, #2b2b2b, #555555);
+  --g2-green: #00a832;
+  color-scheme: light; color: var(--text); background: var(--bg);
+}
+:root[data-skin=melon] .sidebar { background: var(--sidebar); border-right: 1px solid var(--line); }
+:root[data-skin=melon] .nav-item { border-radius: 3px; color: #333; }
+:root[data-skin=melon] .nav-item:hover { background: #f1f1f1; }
+:root[data-skin=melon] .nav-item.selected { background: transparent; color: var(--g2-green); font-weight: 700; box-shadow: inset 0 0 0 1px #00cd3c66; }
+:root[data-skin=melon] .nav-item.selected svg { color: var(--accent); }
+:root[data-skin=melon] .library-heading { color: #333; font-weight: 700; letter-spacing: 0; font-size: 12px; }
+:root[data-skin=melon] .appearance-button { border-radius: 3px; }
+:root[data-skin=melon] .search-box { background: #fff; border: 2px solid var(--accent); border-radius: 3px; color: var(--g2-green); }
+:root[data-skin=melon] .search-box svg { color: var(--g2-green); }
+:root[data-skin=melon] :is(.app .page-hero h1, .home-section-head h2, .apple-title h1, .home-greeting h1, .page-heading h1) { font-weight: 800; letter-spacing: -.5px; }
+:root[data-skin=melon] .home-section-head h2 { display: flex; align-items: center; gap: 8px; }
+:root[data-skin=melon] .home-section-head h2::before { content: ""; width: 9px; height: 9px; background: var(--accent); }
+:root[data-skin=melon] .home-text-button { color: var(--g2-green); }
+:root[data-skin=melon] :is(.home-card .music-art, .page-hero-art, .large-cover, .large-cover > .cover, .home-card-icon, .qq-chart, .qq-feature-card, .qq-feature-main) { border-radius: 2px; }
+:root[data-skin=melon] .home-card .music-art { box-shadow: 0 0 0 1px #0000000f; }
+:root[data-skin=melon] .home-card strong { font-weight: 700; }
+:root[data-skin=melon] .home-card-badge { border-radius: 0; background: var(--accent); color: #fff; font-weight: 800; }
+:root[data-skin=melon] .home-banner { border-radius: 2px; }
+:root[data-skin=melon] .button { border-radius: 2px; }
+:root[data-skin=melon] .button.primary { font-weight: 700; background: var(--accent); }
+:root[data-skin=melon] .button.quiet { background: #fff; border-color: #d5d5d5; }
+:root[data-skin=melon] .button.quiet:hover:not(:disabled) { border-color: var(--accent); color: var(--g2-green); }
+:root[data-skin=melon] .page-hero-eyebrow { color: var(--g2-green); font-weight: 800; letter-spacing: 1px; }
+:root[data-skin=melon] .page-hero-stats dd { font-weight: 800; color: var(--g2-green); }
+:root[data-skin=melon] .track-filter { border-radius: 2px; }
+:root[data-skin=melon] .table-header { border-top: 2px solid #1a1a1a; border-bottom-color: #d9d9d9; background: #fafafa; color: #555; font-weight: 700; }
+:root[data-skin=melon] .track-row { border-radius: 0; border-bottom: 1px solid #f0f0f0; }
+:root[data-skin=melon] .track-row:nth-child(odd) { background: transparent; }
+:root[data-skin=melon] .track-row:hover { background: #f7fdf9; }
+:root[data-skin=melon] .row-number span { font-family: "Segoe UI", Arial, sans-serif; font-size: 17px; font-weight: 800; color: #1a1a1a; font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
+:root[data-skin=melon] .track-row.current .row-number span, :root[data-skin=melon] .track-row.current .song-title { color: var(--g2-green); }
+:root[data-skin=melon] .song-title { font-weight: 700; }
+:root[data-skin=melon] .artist-ranking-row > .rank { font-size: 20px; font-weight: 900; color: #1a1a1a; }
+:root[data-skin=melon] .artist-ranking-row:nth-child(-n+3) > .rank { color: var(--g2-green); }
+:root[data-skin=melon] .source-tag { border-radius: 0; }
+:root[data-skin=melon] .player { background: #fff; border-top: 1px solid #e3e3e3; box-shadow: 0 -4px 14px #00000008; }
+:root[data-skin=melon] .now-cover .cover { border-radius: 2px; }
+:root[data-skin=melon] .play-main { background: var(--accent); color: #fff; box-shadow: 0 4px 12px #00cd3c55; }
+:root[data-skin=melon] .progress-row input { height: 3px; border-radius: 0; }
+:root[data-skin=melon] .progress-row input::-webkit-slider-thumb { opacity: 1; width: 10px; height: 10px; background: #fff; border: 2px solid var(--accent); }
+:root[data-skin=melon] .detail-view { background: #fff; }
+:root[data-skin=melon] .detail-tabs button.active { color: #1a1a1a; font-weight: 800; }
+:root[data-skin=melon] .detail-tabs button.active:after { border-radius: 0; background: var(--accent); }
+:root[data-skin=melon] .lyric-lines button { color: #a6a6a6; }
+:root[data-skin=melon] .lyric-lines button.current { color: var(--g2-green); font-weight: 800; }
+:root[data-skin=melon] .lyric-offset button { color: var(--g2-green); }
+:root[data-skin=melon] .modal { border-radius: 3px; border-top: 3px solid var(--accent); }
+
+/* ================= Audiomack ================= */
+/* 街头混音带：炭黑底、橙黄强调、压缩体大写标题和粗进度条 */
+:root[data-skin=audiomack] {
+  --bg: #0d0d0d; --sidebar: #141414; --panel: #1e1e1e; --text: #f7f7f7; --muted: #8f8f8f; --subtle: #c2c2c2;
+  --line: #ffffff12; --hover: #ffffff0d; --accent: #ffa200; --accent-tint: #ffa2001f; --accent-text: #170e00;
+  --radius: 4px; --shadow: 0 20px 70px #000c; --chip: #ffffff12;
+  --g2-frame: #070707; --g2-glow: #2a1d07; --g2-edge: #ffffff1c; --g2-chip: #ffffff10; --g2-lyric: #6e6e6e; --g2-played: #ffa200; --g2-band: #6b4300;
+  --g2-grad: linear-gradient(140deg, #ffc23d, #ff7a00); --g2-grad2: linear-gradient(140deg, #3a3a3a, #161616);
+  --g2-cond: Bahnschrift, "Bahnschrift SemiCondensed", "Arial Narrow", "Microsoft YaHei UI", sans-serif;
+  color-scheme: dark; color: var(--text); background: var(--bg);
+}
+:root[data-skin=audiomack] .theme-spotify .sidebar, :root[data-skin=audiomack] .theme-spotify .workspace { border-radius: 4px; }
+:root[data-skin=audiomack] .theme-spotify .workspace { background: repeating-linear-gradient(135deg, #ffffff03 0 2px, transparent 2px 9px), linear-gradient(var(--g2-glow) 0, var(--bg) 340px); }
+:root[data-skin=audiomack] .nav-item { border-radius: 3px; font-weight: 500; }
+:root[data-skin=audiomack] .nav-item.selected { background: var(--accent-tint); color: #fff; box-shadow: inset 3px 0 0 var(--accent); font-weight: 700; }
+:root[data-skin=audiomack] .nav-item.selected svg { color: var(--accent); }
+:root[data-skin=audiomack] .library-heading, :root[data-skin=audiomack] .theme-spotify .library-heading:first-of-type { font-family: var(--g2-cond); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+:root[data-skin=audiomack] .appearance-button { border-radius: 3px; }
+:root[data-skin=audiomack] .search-box, :root[data-skin=audiomack] .theme-spotify .search-box { border-radius: 4px; background: #191919; }
+
+:root[data-skin=audiomack] :is(.app .page-hero h1, .home-section-head h2, .apple-title h1, .home-greeting h1, .page-heading h1, .detail-art > h1) { font-family: var(--g2-cond); font-weight: 700; text-transform: uppercase; letter-spacing: .3px; }
+:root[data-skin=audiomack] :is(.home-tabs button, .home-filters button, .home-pick-chip, .source-tabs button) { border-radius: 3px; font-family: var(--g2-cond); text-transform: uppercase; letter-spacing: .8px; font-weight: 700; }
+:root[data-skin=audiomack] .home-text-button { color: var(--accent); }
+:root[data-skin=audiomack] :is(.home-card .music-art, .page-hero-art, .large-cover, .large-cover > .cover, .home-shortcut, .home-shortcut-art) { border-radius: 3px; }
+:root[data-skin=audiomack] .home-card:hover { background: #ffa2000d; }
+:root[data-skin=audiomack] .home-card-badge { border-radius: 2px; background: var(--accent); color: #170e00; font-weight: 800; }
+:root[data-skin=audiomack] .home-card-play, :root[data-skin=audiomack] .floating-play { background: var(--accent); color: var(--accent-text); }
+:root[data-skin=audiomack] .button { border-radius: 3px; }
+:root[data-skin=audiomack] .button.primary { font-family: var(--g2-cond); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+:root[data-skin=audiomack] .page-hero-eyebrow { font-family: var(--g2-cond); text-transform: uppercase; letter-spacing: 2px; color: var(--accent); font-weight: 700; }
+:root[data-skin=audiomack] .table-header { font-family: var(--g2-cond); text-transform: uppercase; letter-spacing: 1px; }
+:root[data-skin=audiomack] .track-row { border-radius: 3px; }
+:root[data-skin=audiomack] .track-row.current { background: var(--accent-tint); box-shadow: inset 3px 0 0 var(--accent); }
+:root[data-skin=audiomack] .row-number span { font-family: var(--g2-cond); font-weight: 700; font-size: 13px; }
+:root[data-skin=audiomack] .source-tag { border-radius: 2px; }
+:root[data-skin=audiomack] .player { border-top: 2px solid #ffa20033; }
+:root[data-skin=audiomack] .now-cover .cover { border-radius: 3px; }
+:root[data-skin=audiomack] .play-main, :root[data-skin=audiomack] .theme-spotify .play-main { background: var(--accent); color: #170e00; width: 40px; height: 40px; }
+:root[data-skin=audiomack] .progress-row input { height: 5px; border-radius: 1px; }
+:root[data-skin=audiomack] .progress-row input::-webkit-slider-thumb { opacity: 1; width: 4px; height: 14px; border-radius: 1px; background: #fff; }
+:root[data-skin=audiomack] .waveform i.played { background: var(--g2-grad); }
+:root[data-skin=audiomack] .detail-tabs button { font-family: var(--g2-cond); text-transform: uppercase; letter-spacing: 1px; }
+:root[data-skin=audiomack] .lyric-lines button { font-weight: 700; }
+:root[data-skin=audiomack] .lyric-lines button.current, :root[data-skin=audiomack] .theme-spotify .lyric-lines button.current { color: var(--accent); }
+:root[data-skin=audiomack] .modal { border-radius: 4px; border-top: 3px solid var(--accent); }
+
+/* ================= Anghami ================= */
+/* 夜紫底配紫到洋红的渐变：渐变胶囊按钮、渐变进度条和渐变高亮歌词，卡片大圆角 */
+:root[data-skin=anghami] {
+  --bg: #100b1a; --sidebar: #160f24; --panel: #21182f; --text: #f6f0ff; --muted: #9d90b6; --subtle: #cdc1e2;
+  --line: #ffffff14; --hover: #ffffff0d; --accent: #b04bff; --accent-tint: #b04bff24; --accent-text: #ffffff;
+  --radius: 16px; --shadow: 0 20px 70px #05010dcc; --chip: #ffffff12;
+  --g2-frame: #0a0612; --g2-glow: #2a1446; --g2-edge: #ffffff1c; --g2-chip: #ffffff12; --g2-lyric: #7f7298; --g2-band: #5a1f7a;
+  --g2-grad: linear-gradient(120deg, #8a3dff, #c13bd8 55%, #ff3d8b); --g2-grad2: linear-gradient(140deg, #5b3cc4, #2a1a63);
+  --g2-played: #c84af0;
+  color-scheme: dark; color: var(--text); background: var(--bg);
+}
+:root[data-skin=anghami] .theme-spotify .sidebar, :root[data-skin=anghami] .theme-spotify .workspace { border-radius: 16px; }
+:root[data-skin=anghami] .theme-spotify .workspace { background: radial-gradient(60% 300px at 85% 0, #ff3d8b1f, transparent 70%), linear-gradient(var(--g2-glow) 0, var(--bg) 360px); }
+:root[data-skin=anghami] .nav-item { border-radius: 24px; }
+:root[data-skin=anghami] .nav-item.selected { background: linear-gradient(90deg, #8a3dff40, #ff3d8b26); color: #fff; font-weight: 600; }
+:root[data-skin=anghami] .nav-item.selected svg { color: #ff7ab8; }
+:root[data-skin=anghami] .playlist-navigation .nav-item svg { border-radius: 10px; }
+:root[data-skin=anghami] .appearance-button { border-radius: 22px; }
+:root[data-skin=anghami] .search-box, :root[data-skin=anghami] .theme-spotify .search-box { border-radius: 24px; background: #1d1529; }
+
+:root[data-skin=anghami] :is(.home-tabs button.active, .home-filters button.chosen, .home-pick-chip.chosen, .source-tabs button.active) { background: var(--g2-grad); color: #fff; }
+:root[data-skin=anghami] :is(.app .page-hero h1, .apple-title h1, .home-greeting h1, .page-heading h1) { font-weight: 800; }
+:root[data-skin=anghami] .home-text-button { color: #ff7ab8; }
+:root[data-skin=anghami] :is(.home-card .music-art, .page-hero-art, .large-cover, .home-shortcut, .home-shortcut-art, .apple-pick-art, .qq-chart, .qq-feature-card) { border-radius: 16px; }
+:root[data-skin=anghami] .apple-pick-art { border-radius: 16px 16px 0 0; }
+:root[data-skin=anghami] .apple-pick-caption { border-radius: 0 0 16px 16px; }
+:root[data-skin=anghami] .home-card .music-art { box-shadow: 0 12px 28px #05010d99; }
+:root[data-skin=anghami] .home-card:hover { background: #ffffff0a; }
+:root[data-skin=anghami] .home-card-badge { border-radius: 10px; background: #100b1ab3; color: #fff; }
+:root[data-skin=anghami] .home-card-play, :root[data-skin=anghami] .floating-play, :root[data-skin=anghami] .qq-play-round { background: var(--g2-grad); color: #fff; box-shadow: 0 8px 20px #c13bd855; }
+:root[data-skin=anghami] .button { border-radius: 22px; }
+:root[data-skin=anghami] .button.primary, :root[data-skin=anghami] .theme-spotify .feature-button { background: var(--g2-grad); color: #fff; font-weight: 700; box-shadow: 0 6px 18px #b04bff40; }
+:root[data-skin=anghami] .page-hero-eyebrow { color: #ff9ccb; font-weight: 600; }
+:root[data-skin=anghami] .theme-spotify .page-hero { background: linear-gradient(180deg, #5a1f7a 0, #3a1450 45%, color-mix(in srgb, #5a1f7a 22%, var(--bg)) 100%); }
+:root[data-skin=anghami] .track-filter { border-radius: 18px; }
+:root[data-skin=anghami] .track-row { border-radius: 12px; }
+:root[data-skin=anghami] .track-row.current { background: linear-gradient(90deg, #8a3dff2e, #ff3d8b12 70%, transparent); }
+:root[data-skin=anghami] .track-row.current .song-title { color: #ff8cc4; }
+:root[data-skin=anghami] .source-tag { border-radius: 8px; }
+:root[data-skin=anghami] .now-cover .cover { border-radius: 12px; }
+:root[data-skin=anghami] .play-main, :root[data-skin=anghami] .theme-spotify .play-main { background: var(--g2-grad); color: #fff; width: 40px; height: 40px; box-shadow: 0 6px 18px #c13bd866; }
+:root[data-skin=anghami] .progress-row input, :root[data-skin=anghami] .theme-spotify .progress-row input,
+:root[data-skin=anghami] .theme-spotify .progress-row input:hover { height: 4px; border-radius: 4px; background: linear-gradient(to right, #8a3dff, #ff3d8b var(--range), #ffffff21 var(--range)); }
+:root[data-skin=anghami] .progress-row input::-webkit-slider-thumb { opacity: 1; width: 12px; height: 12px; background: #fff; box-shadow: 0 0 0 3px #ff3d8b55; }
+:root[data-skin=anghami] .waveform i.played { background: linear-gradient(#ff3d8b, #8a3dff); }
+:root[data-skin=anghami] .detail-tabs button.active:after { background: var(--g2-grad); }
+:root[data-skin=anghami] .lyric-lines button { font-weight: 700; }
+:root[data-skin=anghami] .lyric-lines button.current, :root[data-skin=anghami] .theme-spotify .lyric-lines button.current {
+  background: linear-gradient(90deg, #c08bff, #ff6fae); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+:root[data-skin=anghami] .modal { border-radius: 22px; border-color: #b04bff33; }
+}

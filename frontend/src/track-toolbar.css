@@ -1,3 +1,4 @@
+@layer legacy {
 /* Song list toolbar: song actions on the left, search / sort / multi-select on the right. */
 .track-toolbar{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;margin:18px 0 12px;min-height:54px}
 .track-toolbar .button{min-height:36px;padding:8px 14px;font-size:12px;white-space:nowrap}
@@ -10,7 +11,7 @@
 /* In-list search */
 .track-filter{display:flex;align-items:center;gap:7px;height:36px;width:200px;padding:0 8px 0 12px;border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--muted);cursor:text;transition:width .18s ease,border-color .15s}
 .track-filter:hover{border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
-.track-filter:focus-within,.track-filter.has-value{width:250px;border-color:var(--accent);color:var(--text)}
+.track-filter:focus-within,.track-filter.has-value{width:250px;color:var(--text)}
 .track-filter>svg{flex:none}
 .track-filter input{flex:1;min-width:0;height:100%;border:0;background:none;color:var(--text);font-size:12px;outline:none;padding:0}
 .track-filter input::placeholder{color:var(--muted)}
@@ -54,3 +55,4 @@
 .selection-bar .track-filter:focus-within,.selection-bar .track-filter.has-value{width:200px}
 .selection-text{display:flex;flex-direction:column;gap:1px;line-height:1.3}
 .track-toolbar .button.icon-only{padding:8px 11px}
+}

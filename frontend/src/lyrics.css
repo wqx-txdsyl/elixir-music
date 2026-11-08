@@ -1,3 +1,4 @@
+@layer legacy {
 /* Unsynced provider lyrics use the same typography as the timed lyric view. */
 .plain-lyrics {
   margin: 0;
@@ -21,4 +22,5 @@
 @media (max-width: 1150px) {
   .plain-lyrics { font-size: 17px; }
   .theme-spotify .plain-lyrics { font-size: 21px; }
+}
 }

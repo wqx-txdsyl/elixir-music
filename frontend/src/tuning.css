@@ -1,0 +1,31 @@
+/* Colour, corner, type and scale adjustments from the studio. They apply to every skin and part. */
+@layer tuning {
+
+/* Corners */
+.app[data-radius=sharp] :is(*, *::before, *::after):not(.round, .round *, .play-main, .play-main *, .theme-dot, .vinyl-cover, .vinyl-cover *, .tonearm, .cassette-reel, .cassette-reel *, .crate-disc, .crate-disc *, .crate-nav .icon-button, .cd-lid, .cd-lid *, .ipod-wheel, .ipod-center, input[type=range], .home-card.round *, [class*=avatar], [class*=avatar] *, .now-cover .cover) { border-radius: 0; }
+.app[data-radius=sharp] .play-main { border-radius: 50%; }
+.app[data-radius=round] :is(.button, .search-box, .track-filter, .home-filters button, .source-segment, .source-segment button, .theme-option, .quality-button) { border-radius: 999px; }
+.app[data-radius=round] :is(.cover, .music-art, .home-card .music-art, .large-cover, .page-hero-art, .nav-cover) { border-radius: 16px; }
+.app[data-radius=round] :is(.nav-item, .track-row, .home-track, .queue-item, .setting-row, .select-trigger) { border-radius: 14px; }
+.app[data-radius=round] :is(.modal, .queue-panel, .settings-section, .page-hero, .account-card, .theme-popover, .select-options, .now-panel-card, .studio-card) { border-radius: 22px; }
+
+/* Type */
+.app[data-font=sans] { font-family: "HarmonyOS Sans SC", "MiSans", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif; }
+.app[data-font=serif] { font-family: "Source Han Serif SC", "Noto Serif SC", "Songti SC", "SimSun", "STSong", Georgia, serif; }
+.app[data-font=serif] :is(h1, h2, h3, strong) { letter-spacing: .02em; }
+.app[data-font=rounded] { font-family: "Varela Round", "Nunito", "HarmonyOS Sans SC", "MiSans", "YouYuan", "Microsoft YaHei UI", sans-serif; }
+.app[data-font=mono] { font-family: "Cascadia Mono", "JetBrains Mono", "Sarasa Mono SC", "Consolas", "Microsoft YaHei UI", monospace; }
+.app[data-font=mono] :is(h1, h2) { letter-spacing: -.02em; }
+.app[data-font] :is(input, button, select, textarea) { font-family: inherit; }
+
+/* Motion */
+.app[data-motion=reduced] :is(*, *::before, *::after) { animation-duration: .001ms; animation-iteration-count: 1; transition-duration: .001ms; scroll-behavior: auto; }
+.app[data-motion=reduced] :is(.vinyl-cover, .cassette-reel span, .app-backdrop::before) { animation: none; }
+
+/* High contrast: stronger secondary text and dividers. */
+.app[data-contrast=high] { --muted: color-mix(in srgb, var(--text) 72%, var(--bg)); --subtle: color-mix(in srgb, var(--text) 86%, var(--bg)); --line: color-mix(in srgb, var(--text) 26%, transparent); }
+.app[data-contrast=high] :is(button, a):focus-visible { outline-width: 3px; }
+}
+
+/* Interface scale: zoom the whole tree and give it back the space zoom takes away. */
+#root { zoom: var(--ui-scale, 1); width: calc(100% / var(--ui-scale, 1)); height: calc(100% / var(--ui-scale, 1)); }

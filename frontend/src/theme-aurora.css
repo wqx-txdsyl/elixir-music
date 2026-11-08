@@ -1,3 +1,4 @@
+@layer legacy {
 /* Aurora: Elixir's own style. Floating glass panels over a dark sky tinted by the current cover. */
 :root[data-theme=aurora] {
   --bg: #0b0d18;
@@ -108,3 +109,4 @@
 .preview-aurora .preview-main > span i { background: #a594ff55; }
 .preview-aurora .preview-player { background: #ffffff12; border-color: transparent; left: 5px; right: 5px; bottom: 4px; border-radius: 5px; }
 .preview-aurora .preview-player:after { background: var(--aurora-gradient); }
+}

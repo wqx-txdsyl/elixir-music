@@ -1,3 +1,4 @@
+@layer legacy {
 /* The Ink home is a record sleeve on a shop counter, followed by a listening journal. */
 .home-ink { max-width: 1320px; margin: 0 auto; }
 .ink-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
@@ -112,4 +113,5 @@
 @media(prefers-reduced-motion:reduce) {
   .ink-record-sleeve,.ink-record-disc { transition: none; }
   .ink-session.is-playing .ink-record-disc>span { animation: none; }
+}
 }

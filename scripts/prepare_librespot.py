@@ -25,10 +25,11 @@ MSYS2_PACKAGES={
     'mingw-w64-x86_64-libogg-1.3.6-1-any.pkg.tar.zst':'7ef9ec16403e1489a37c3a5ce58b083408ba694c6882e673639e2250df98bb8b',
     'mingw-w64-x86_64-libvorbis-1.3.7-3-any.pkg.tar.zst':'3d68dc3ccb32f0ea230a4bbc19c8fd440893058437c49864c4e26b12d6cb078a',
     'mingw-w64-x86_64-mpg123-1.33.7-1-any.pkg.tar.zst':'2928cf82017d27d394f383abadbae3137e3c0123a0c635b81f8192b62b8c1745',
+    'mingw-w64-x86_64-libwinpthread-14.0.0.r598.ge3d18511f-1-any.pkg.tar.zst':'942a62a3ecafbb4f5a80016685a0e3002a8de903012eed49c213e4f5b693668a',
 }
 MSYS2_BASE='https://repo.msys2.org/mingw/mingw64/'
 
-REQUIRED_FILES=['go-librespot.exe','libFLAC.dll','libogg-0.dll','libvorbis-0.dll','libvorbisenc-2.dll','libmpg123-0.dll']
+REQUIRED_FILES=['go-librespot.exe','libFLAC.dll','libogg-0.dll','libvorbis-0.dll','libvorbisenc-2.dll','libmpg123-0.dll','libwinpthread-1.dll']
 
 
 def sha256(path:Path)->str:

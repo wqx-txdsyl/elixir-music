@@ -1,0 +1,219 @@
+/* Elixir 原创：pixel */
+@layer skins {
+
+@keyframes elixir-px-blink{50%{opacity:0}}
+
+/* ================= 像素 ================= */
+/* 8-bit 游戏机界面：Sweetie-16 配色、等宽大写字、四边外描边留出缺角的方块按钮（多层 box-shadow）、阶梯硬投影、封面按像素放大，进度条一格一格地走。 */
+:root[data-skin=pixel]{--bg:#1a1c2c;--sidebar:#29366f;--panel:#333c57;--panel-solid:#333c57;--text:#f4f4f4;--muted:#94b0c2;--subtle:#c2d3dd;--line:#566c86;--hover:#3b5dc93d;--accent:#ffcd75;--accent-tint:#ffcd7526;--accent-text:#1a1c2c;--radius:0px;--chip:#566c8659;--shadow:4px 4px 0 #0b0c14;
+  --px-font:"Fusion Pixel 12px Monospaced SC","Zpix","Press Start 2P","Cascadia Mono","Consolas","Sarasa Mono SC","Microsoft YaHei UI",monospace;
+  --px-frame:0 -3px 0 #0b0c14,0 3px 0 #0b0c14,-3px 0 0 #0b0c14,3px 0 0 #0b0c14;
+  --px-frame-lite:0 -2px 0 #566c86,0 2px 0 #566c86,-2px 0 0 #566c86,2px 0 0 #566c86;
+  --px-frame-gold:0 -2px 0 #ffcd75,0 2px 0 #ffcd75,-2px 0 0 #ffcd75,2px 0 0 #ffcd75;
+  --px-bevel:inset -3px -3px 0 #0000004d,inset 3px 3px 0 #ffffff40;
+  --px-drop:3px 6px 0 #0b0c14,6px 3px 0 #0b0c14,6px 6px 0 #0b0c14;
+  --px-grid:repeating-linear-gradient(90deg,transparent 0 6px,#1a1c2c 6px 8px);
+  color-scheme:dark}
+:root[data-skin=pixel] ::selection{background:#ffcd75;color:#1a1c2c}
+:root[data-skin=pixel] .app{font-family:var(--px-font);background:#1a1c2c}
+:root[data-skin=pixel] :is(img,.cover,.music-art,.page-hero-art,.large-cover,.modular-chart-art,.home-recent-art){image-rendering:pixelated}
+/* 侧栏：深蓝主菜单，选中项是黄色凸起砖块 + 闪烁的 ◀ 光标 */
+:root[data-skin=pixel] .sidebar{background:#29366f;border-radius:0;box-shadow:inset -3px 0 0 #1a1c2c,inset -6px 0 0 #3b5dc9}
+:root[data-skin=pixel] .workspace{background:#1a1c2c;border-radius:0}
+:root[data-skin=pixel] .brand{color:#ffcd75;text-transform:uppercase;letter-spacing:2px;text-shadow:2px 2px 0 #b13e53}
+:root[data-skin=pixel] .brand .brand-icon{color:#ef7d57}
+:root[data-skin=pixel] .nav-item{border-radius:0;height:34px;font-size:13px;color:#c2d3dd;letter-spacing:1px;text-transform:uppercase}
+:root[data-skin=pixel] .nav-item svg{color:#73eff7}
+:root[data-skin=pixel] .nav-item:hover{background:#3b5dc9;color:#f4f4f4}
+:root[data-skin=pixel] .nav-item.selected{background:#ffcd75;color:#1a1c2c;font-weight:700;box-shadow:var(--px-bevel)}
+:root[data-skin=pixel] .nav-item.selected svg{color:#1a1c2c}
+:root[data-skin=pixel] .nav-item.selected::after{content:"◀";margin-left:auto;font-size:10px;color:#b13e53;animation:elixir-px-blink .9s steps(1) infinite;flex-shrink:0}
+:root[data-skin=pixel] .nav-item small{background:#1a1c2c;color:#ffcd75;border-radius:0}
+:root[data-skin=pixel] :is(.library-heading,.playlist-heading){color:#73eff7;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+:root[data-skin=pixel] :is(.library-heading,.playlist-heading)>span::before{content:"■ ";color:#ef7d57}
+:root[data-skin=pixel] .playlist-navigation .nav-item svg{background:#1a1c2c;border-radius:0}
+:root[data-skin=pixel] .create-first{color:#94b0c2}
+:root[data-skin=pixel] .appearance-button{background:#1a1c2c;border:0;border-radius:0;color:#ffcd75;box-shadow:var(--px-frame-lite)}
+:root[data-skin=pixel] .appearance-button:hover{background:#3b5dc9;color:#f4f4f4}
+:root[data-skin=pixel] .sidebar-bottom{color:#94b0c2}
+/* 顶栏：搜索框是游戏里的输入槽 */
+:root[data-skin=pixel] .topbar{background:#1a1c2c;box-shadow:inset 0 -3px 0 #29366f}
+:root[data-skin=pixel] .search-box{background:#0b0c14;border:0;border-radius:0;color:#73eff7;box-shadow:var(--px-frame-lite)}
+
+:root[data-skin=pixel] .search-box input{color:#f4f4f4;caret-color:#ffcd75;font-family:var(--px-font)}
+:root[data-skin=pixel] .search-box input::placeholder{color:#566c86;text-transform:uppercase}
+:root[data-skin=pixel] .search-box kbd{background:#333c57;border:0;color:#94b0c2;border-radius:0}
+:root[data-skin=pixel] :is(.topbar-account button,.topbar-navigation>.icon-button){background:#333c57;border:0;border-radius:0;color:#f4f4f4;box-shadow:var(--px-bevel)}
+:root[data-skin=pixel] :is(.topbar-account button,.topbar-navigation>.icon-button):hover{background:#3b5dc9;color:#ffcd75}
+/* 首页：大写像素标题 + 闪烁光标，分区标题带色块 */
+:root[data-skin=pixel] :is(.home-greeting h1,.apple-title h1,.qq-hello h1){color:#ffcd75;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-shadow:3px 3px 0 #b13e53}
+:root[data-skin=pixel] :is(.home-greeting h1,.apple-title h1,.qq-hello h1)::after{content:"_";margin-left:6px;color:#f4f4f4;text-shadow:none;animation:elixir-px-blink .9s steps(1) infinite}
+:root[data-skin=pixel] :is(.home-greeting p,.apple-title p){color:#94b0c2;text-transform:uppercase;letter-spacing:1px}
+:root[data-skin=pixel] .apple-title{border-color:#566c86}
+:root[data-skin=pixel] .home-section-head{border-bottom:3px solid #29366f;padding-bottom:6px}
+:root[data-skin=pixel] :is(.home-section-head h2,.section-title h2){color:#f4f4f4;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+:root[data-skin=pixel] :is(.home-section-head h2,.section-title h2)::before{content:"";display:inline-block;width:10px;height:10px;margin-right:10px;vertical-align:1px;background:#ef7d57;box-shadow:3px 3px 0 #b13e53}
+:root[data-skin=pixel] .home-text-button{color:#73eff7;text-transform:uppercase;letter-spacing:1px}
+:root[data-skin=pixel] .home-text-button:hover:not(:disabled){color:#ffcd75;text-decoration:none}
+:root[data-skin=pixel] .home-hero{color:#f4f4f4;background:#29366f;border-radius:0;box-shadow:var(--px-frame),var(--px-drop)}
+:root[data-skin=pixel] .home-hero::before{filter:blur(30px) saturate(1.4) brightness(.5)}
+:root[data-skin=pixel] .home-hero::after{background:repeating-linear-gradient(180deg,transparent 0 3px,#1a1c2c40 3px 4px),linear-gradient(100deg,#1a1c2cd0,#29366f60)}
+:root[data-skin=pixel] :is(.home-hero h2,.home-hero-main h2){color:#ffcd75;text-transform:uppercase;text-shadow:3px 3px 0 #1a1c2c}
+:root[data-skin=pixel] .home-hero-state{color:#a7f070;text-transform:uppercase;letter-spacing:1px}
+:root[data-skin=pixel] .home-hero-state::before{content:"▶ ";color:#ffcd75}
+:root[data-skin=pixel] .home-hero-art{border-radius:0;box-shadow:var(--px-frame)}
+:root[data-skin=pixel] .home-recent{background:#333c57;border:0;border-radius:0;box-shadow:var(--px-frame)}
+/* 模块化首页（默认）：组件层定了底色和描边，这里改它引用的变量再补像素框 */
+:root[data-skin=pixel] .home-modular .home-shortcut{--panel:#333c57;--line:transparent;border-radius:0;box-shadow:var(--px-frame),var(--px-bevel)}
+:root[data-skin=pixel] .home-modular .home-shortcut:hover{--panel:#3b5dc9;box-shadow:var(--px-frame),var(--px-bevel),var(--px-drop)}
+:root[data-skin=pixel] .home-modular .home-shortcut-art{border-radius:0;box-shadow:0 0 0 2px #0b0c14}
+:root[data-skin=pixel] .home-modular .home-shortcut-text strong{color:#ffcd75;text-transform:uppercase;letter-spacing:1px}
+:root[data-skin=pixel] .home-modular .modular-chart{--panel:#29366f;--line:#3b5dc9;border-radius:0;box-shadow:var(--px-frame),var(--px-drop)}
+:root[data-skin=pixel] .home-modular .modular-chart h3{color:#ffcd75;text-transform:uppercase;letter-spacing:2px;border-bottom:3px solid #1a1c2c;padding-bottom:6px;margin-bottom:6px}
+:root[data-skin=pixel] .home-modular .modular-chart h3::before{content:"★ ";color:#ef7d57}
+:root[data-skin=pixel] .home-modular .modular-chart li b{color:#94b0c2}
+:root[data-skin=pixel] .home-modular .modular-chart li:nth-child(1) b{color:#ffcd75}
+:root[data-skin=pixel] .home-modular .modular-chart li:nth-child(2) b{color:#f4f4f4}
+:root[data-skin=pixel] .home-modular .modular-chart li:nth-child(3) b{color:#ef7d57}
+:root[data-skin=pixel] .home-modular .modular-chart li button:hover{background:#3b5dc9;box-shadow:inset 3px 0 0 #ffcd75}
+:root[data-skin=pixel] .home-modular .modular-chart-art{border-radius:0}
+/* 卡片与标签：方块按钮，选中是黄色凸起砖块 */
+:root[data-skin=pixel] :is(.home-card .music-art,.album-art .cover,.home-rank-art .music-art,.home-recent-art .music-art){border-radius:0;box-shadow:var(--px-frame)}
+:root[data-skin=pixel] .home-card strong{color:#f4f4f4;font-weight:700}
+:root[data-skin=pixel] .home-card small{color:#94b0c2}
+:root[data-skin=pixel] :is(.home-card:hover,.album-card:hover){background:#29366f;border-radius:0}
+:root[data-skin=pixel] :is(.home-card-play,.floating-play,.home-shortcut-play,.qq-play-round){background:#a7f070;color:#1a1c2c;border-radius:0;box-shadow:var(--px-frame),var(--px-bevel)}
+:root[data-skin=pixel] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.top-nav button.top-nav-item){background:#333c57;border:0;border-radius:0;color:#c2d3dd;font-size:12px;text-transform:uppercase;letter-spacing:1px;box-shadow:var(--px-frame-lite)}
+:root[data-skin=pixel] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button):hover{background:#3b5dc9;color:#f4f4f4}
+:root[data-skin=pixel] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected){background:#ffcd75;color:#1a1c2c;font-weight:700;box-shadow:var(--px-frame),var(--px-bevel)}
+:root[data-skin=pixel] .home-shortcut{background:#333c57;border:0;border-radius:0;box-shadow:var(--px-frame)}
+:root[data-skin=pixel] .home-shortcut:hover{background:#3b5dc9}
+:root[data-skin=pixel] .home-shortcut-likes .home-shortcut-art{background:#b13e53;color:#ffcd75}
+:root[data-skin=pixel] .home-shortcut-history .home-shortcut-art{background:#257179;color:#73eff7}
+:root[data-skin=pixel] .home-shortcut-ranking .home-shortcut-art{background:#ef7d57;color:#1a1c2c}
+:root[data-skin=pixel] .home-shortcut-library .home-shortcut-art{background:#38b764;color:#1a1c2c}
+:root[data-skin=pixel] :is(.home-card-icon,.apple-pick-icon){background:repeating-linear-gradient(90deg,transparent 0 8px,#0000001f 8px 16px),repeating-linear-gradient(180deg,transparent 0 8px,#0000001f 8px 16px),linear-gradient(180deg,#3b5dc9,#29366f);color:#ffcd75}
+:root[data-skin=pixel] .apple-pick.icon .apple-pick-caption,:root[data-skin=pixel] .apple-pick.icon .apple-pick-caption::before{background:#29366f}
+:root[data-skin=pixel] :is(.home-hero-empty,.feature-banner,.qq-feature-main.home-hero-empty){background:linear-gradient(180deg,#29366f 0 40%,#3b5dc9 40% 60%,#41a6f6 60% 75%,#73eff7 75%)}
+:root[data-skin=pixel] :is(.qq-feature-card.tone-green,.qq-chart.tone-green){background:#257179}
+:root[data-skin=pixel] .qq-chart.tone-blue{background:#3b5dc9}
+:root[data-skin=pixel] .qq-chart.tone-amber{background:#b13e53}
+:root[data-skin=pixel] .qq-cover-card{background:#5d275d}
+:root[data-skin=pixel] :is(.qq-feature-main,.qq-feature-card){border-radius:0;box-shadow:var(--px-frame)}
+:root[data-skin=pixel] .home-banner{border-radius:0;background:#5d275d;box-shadow:var(--px-frame),var(--px-drop)}
+:root[data-skin=pixel] .home-banner-tag{border-radius:0;background:#ef7d57;color:#1a1c2c}
+:root[data-skin=pixel] .home-banner h2{color:#ffcd75;text-shadow:3px 3px 0 #1a1c2c}
+:root[data-skin=pixel] .home-arrow{background:#333c57;border:0;border-radius:0;color:#ffcd75;box-shadow:var(--px-frame-lite)}
+:root[data-skin=pixel] :is(.home-rank-row,.home-track):hover{background:#29366f}
+:root[data-skin=pixel] :is(.home-now-bars i,.equalizer i){background:#a7f070;border-radius:0}
+/* 页头与歌曲列表 */
+:root[data-skin=pixel] .page-heading h1{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:#ffcd75;text-transform:uppercase;letter-spacing:2px;text-shadow:3px 3px 0 #b13e53}
+:root[data-skin=pixel] .page-hero{border:0;border-radius:0;background:repeating-linear-gradient(180deg,transparent 0 4px,#0000001a 4px 8px),linear-gradient(180deg,#29366f,#1a1c2c);box-shadow:var(--px-frame),var(--px-drop)}
+:root[data-skin=pixel] .page-hero h1{color:#ffcd75;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-shadow:4px 4px 0 #b13e53}
+:root[data-skin=pixel] .page-hero-eyebrow{color:#73eff7;text-transform:uppercase;letter-spacing:2px}
+:root[data-skin=pixel] .page-hero-eyebrow::before{content:"▶ ";color:#ef7d57}
+:root[data-skin=pixel] .page-hero-art{border-radius:0;box-shadow:var(--px-frame),var(--px-drop)}
+:root[data-skin=pixel] :is(.hero-likes,.hero-history,.hero-ranking,.hero-library,.hero-music,.hero-playlist,.hero-accounts,.hero-settings){--band:#29366f;--hero-tint:linear-gradient(135deg,#38b764,#257179)}
+:root[data-skin=pixel] .hero-likes{--hero-tint:linear-gradient(135deg,#b13e53,#5d275d)}
+:root[data-skin=pixel] .hero-history{--hero-tint:linear-gradient(135deg,#41a6f6,#29366f)}
+:root[data-skin=pixel] .hero-ranking{--hero-tint:linear-gradient(135deg,#ffcd75,#ef7d57)}
+:root[data-skin=pixel] .page-hero~.library-summary>button{border-radius:0;box-shadow:var(--px-frame);--tile:linear-gradient(135deg,#3b5dc9,#29366f)}
+:root[data-skin=pixel] .track-table{background:transparent}
+:root[data-skin=pixel] .table-header{color:#73eff7;border-color:#29366f;text-transform:uppercase;letter-spacing:2px;font-size:11px}
+:root[data-skin=pixel] .track-row{border-radius:0;box-shadow:inset 0 -2px 0 #29366f}
+:root[data-skin=pixel] .track-row:nth-child(odd){background:none}
+:root[data-skin=pixel] .track-row:hover{background:#29366f}
+:root[data-skin=pixel] .track-row.current{background:#333c57;box-shadow:inset 4px 0 0 #ffcd75,inset 0 -2px 0 #29366f}
+:root[data-skin=pixel] .track-row.current .song-title{color:#ffcd75}
+:root[data-skin=pixel] .track-row.current .song-title::before{content:"▶ ";color:#a7f070}
+:root[data-skin=pixel] .song-title{font-weight:700;color:#f4f4f4}
+:root[data-skin=pixel] .track-name .cover{border-radius:0;box-shadow:0 0 0 2px #0b0c14}
+:root[data-skin=pixel] :is(.track-filter,.select-trigger){background:#0b0c14;border:0;border-radius:0;color:#c2d3dd;box-shadow:var(--px-frame-lite)}
+
+/* 播放栏：控制面板，播放键是红色街机按钮，进度条一格一格 */
+:root[data-skin=pixel] .player{background:#29366f;border:0;border-radius:0;box-shadow:inset 0 3px 0 #0b0c14,inset 0 6px 0 #3b5dc9}
+:root[data-skin=pixel] .now-cover .cover{border-radius:0;box-shadow:var(--px-frame)}
+:root[data-skin=pixel] .now-title button{color:#ffcd75;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+:root[data-skin=pixel] .now-title span{color:#94b0c2}
+:root[data-skin=pixel] .play-main{background:#b13e53;color:#f4f4f4;border-radius:0;box-shadow:var(--px-frame),inset -4px -4px 0 #5d275d,inset 4px 4px 0 #ef7d57}
+:root[data-skin=pixel] .play-main:hover{transform:none;background:#ef7d57;box-shadow:var(--px-frame),inset -4px -4px 0 #b13e53,inset 4px 4px 0 #ffcd75}
+:root[data-skin=pixel] .play-main:active{transform:translateY(2px);box-shadow:var(--px-frame),inset 4px 4px 0 #5d275d}
+:root[data-skin=pixel] .player-controls>.icon-button{color:#94b0c2;border-radius:0}
+:root[data-skin=pixel] .player-controls>.icon-button:hover{color:#ffcd75;background:#1a1c2c}
+:root[data-skin=pixel] .player-controls>.icon-button.active{color:#a7f070}
+:root[data-skin=pixel] :is(.progress-row input,.progress-row input:hover){border-radius:0;background:var(--px-grid),linear-gradient(to right,#a7f070 var(--range),#1a1c2c var(--range));box-shadow:0 0 0 2px #0b0c14}
+:root[data-skin=pixel] input[type=range]::-webkit-slider-thumb{width:10px;height:14px;border-radius:0;background:#ffcd75;box-shadow:0 0 0 2px #0b0c14}
+:root[data-skin=pixel] .volume-slider{border-radius:0;background:var(--px-grid),linear-gradient(to right,#73eff7 var(--range),#1a1c2c var(--range))}
+:root[data-skin=pixel] :is(.progress-row span,.progress-time){color:#c2d3dd;font-variant-numeric:tabular-nums}
+:root[data-skin=pixel] .app[data-progress=lyric] .lyric-marks i{border-radius:0;width:3px;background:#566c86}
+:root[data-skin=pixel] .app[data-progress=lyric] .lyric-marks i.chorus{background:#ef7d57}
+:root[data-skin=pixel] .app[data-progress=lyric] .lyric-marks i:is(.passed,.chorus.passed){background:#ffcd75}
+/* 正在播放（卡拉 OK）：夜空舞台，星点格子背景 + 底部砖块地面，当前句是带硬投影的黄字 */
+:root[data-skin=pixel] .detail-view{--accent:#ffcd75;border-radius:0}
+:root[data-skin=pixel] .app[data-np=karaoke] .detail-view::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(0deg,#5d275d 0 12px,#b13e53 12px 16px,transparent 16px),repeating-linear-gradient(90deg,#333c57 0 30px,#29366f 30px 32px) bottom/100% 12px no-repeat,radial-gradient(circle at 12% 18%,#73eff7 0 1.5px,transparent 2px) 0 0/160px 120px,radial-gradient(circle at 70% 60%,#f4f4f4 0 1.5px,transparent 2px) 0 0/220px 170px,radial-gradient(circle at 40% 80%,#ffcd75 0 1.5px,transparent 2px) 0 0/300px 210px,linear-gradient(180deg,#1a1c2c 0,#29366f 75%,#3b5dc9 100%)}
+:root[data-skin=pixel] .app[data-np=karaoke] .detail-art>h1{-webkit-text-fill-color:#ffcd75;text-transform:uppercase;letter-spacing:2px;text-shadow:2px 2px 0 #b13e53}
+:root[data-skin=pixel] .app[data-np=karaoke] .detail-art>h1::before{content:"♪ NOW PLAYING · ";-webkit-text-fill-color:#73eff7;text-shadow:none;font-size:12px;font-weight:400;vertical-align:3px}
+:root[data-skin=pixel] .app[data-np=karaoke] .detail-art>.artist-name{-webkit-text-fill-color:#94b0c2}
+:root[data-skin=pixel] .app[data-np=karaoke] .detail-tabs{border-color:#566c86}
+:root[data-skin=pixel] .app[data-np=karaoke] .detail-tabs button{-webkit-text-fill-color:#94b0c2;text-transform:uppercase;letter-spacing:1px}
+:root[data-skin=pixel] .app[data-np=karaoke] .detail-tabs button.active{-webkit-text-fill-color:#ffcd75}
+:root[data-skin=pixel] .detail-tabs button.active:after{background:#ffcd75;border-radius:0;height:3px}
+:root[data-skin=pixel] .app[data-np=karaoke] .lyric-lines{--accent:#ffcd75;--subtle:#94b0c2}
+:root[data-skin=pixel] .app[data-np=karaoke] .lyric-lines button{-webkit-text-fill-color:#566c86;letter-spacing:1px}
+:root[data-skin=pixel] .app[data-np=karaoke] .lyric-lines button.current{-webkit-text-fill-color:#ffcd75;text-shadow:3px 3px 0 #b13e53,6px 6px 0 #0b0c14}
+:root[data-skin=pixel] .app[data-np=karaoke] .lyric-lines button.current.has-words{-webkit-text-fill-color:#94b0c2;text-shadow:3px 3px 0 #0b0c14}
+:root[data-skin=pixel] .lyric-lines .lyric-word:is(.sung,.singing){-webkit-text-fill-color:currentColor}
+:root[data-skin=pixel] .app[data-np=karaoke] .lyric-lines button.current::before{content:"▶ ";-webkit-text-fill-color:#ef7d57;text-shadow:none;animation:elixir-px-blink .9s steps(1) infinite}
+:root[data-skin=pixel] .app[data-np=karaoke] .detail-view :is(.text-button,.icon-button,.source-tag,.detail-close){-webkit-text-fill-color:#c2d3dd}
+:root[data-skin=pixel] .app[data-np=karaoke] .detail-view .button.quiet{background:#333c57;border-radius:0;box-shadow:var(--px-frame-lite)}
+:root[data-skin=pixel] .app[data-np=karaoke].detail-open .player{--line:#566c86;box-shadow:inset 0 3px 0 #b13e53,inset 0 0 0 999px #1a1c2c}
+:root[data-skin=pixel] :is(.large-cover,.large-cover .cover){border-radius:0}
+:root[data-skin=pixel] .large-cover{box-shadow:var(--px-frame),var(--px-drop)}
+:root[data-skin=pixel] .detail-actions .button.primary{background:#ffcd75;color:#1a1c2c}
+/* 可视化器：画布按像素放大，跟随强调色 */
+:root[data-skin=pixel] .visualizer-strip{--accent:#a7f070;image-rendering:pixelated}
+:root[data-skin=pixel] :is(.home-now-bars i,.equalizer i){background:#a7f070;border-radius:0}
+/* 弹窗与菜单：对话框式的双层像素框 */
+:root[data-skin=pixel] :is(.modal,.queue-panel,.more-menu-popover,.select-options,.theme-popover,.quality-popover,.action-menu,.track-toolbar.selection-bar,.toast){background:#1a1c2c;border:0;border-radius:0;box-shadow:inset 0 0 0 2px #f4f4f4,inset 0 0 0 4px #1a1c2c,inset 0 0 0 6px #566c86,var(--px-frame),6px 9px 0 #0b0c14}
+:root[data-skin=pixel] :is(.more-menu-popover,.select-options,.action-menu,.theme-popover,.quality-popover) button{border-radius:0}
+:root[data-skin=pixel] :is(.more-menu-popover,.select-options,.action-menu,.theme-popover,.quality-popover) button:hover{background:#3b5dc9;color:#f4f4f4}
+:root[data-skin=pixel] .modal-head h2{color:#ffcd75;text-transform:uppercase;letter-spacing:2px;text-shadow:2px 2px 0 #b13e53}
+:root[data-skin=pixel] .modal-head h2::before{content:"▶ ";color:#ef7d57}
+:root[data-skin=pixel] .toast{color:#f4f4f4}
+:root[data-skin=pixel] .button{border-radius:0;text-transform:uppercase;letter-spacing:1px}
+:root[data-skin=pixel] .button.primary{background:#ffcd75;color:#1a1c2c;font-weight:700;box-shadow:var(--px-bevel),var(--px-frame);text-shadow:none}
+:root[data-skin=pixel] .button.primary:hover:not(:disabled){filter:none;transform:none;background:#ffe2a8}
+:root[data-skin=pixel] .button.primary:active:not(:disabled){transform:translate(2px,2px);box-shadow:inset 3px 3px 0 #0000004d,var(--px-frame)}
+:root[data-skin=pixel] .button.quiet{background:#333c57;border:0;color:#f4f4f4;box-shadow:var(--px-frame-lite)}
+:root[data-skin=pixel] .button.quiet:hover:not(:disabled){background:#3b5dc9;color:#f4f4f4}
+:root[data-skin=pixel] .text-button{color:#73eff7}
+/* 设置页：存档菜单，分区是像素对话框 */
+:root[data-skin=pixel] .section-nav button{border-radius:0;color:#c2d3dd;text-transform:uppercase;letter-spacing:1px}
+:root[data-skin=pixel] .section-nav button:hover{background:#3b5dc9;color:#f4f4f4}
+:root[data-skin=pixel] .section-nav button[aria-current]{background:#ffcd75;color:#1a1c2c;font-weight:700;box-shadow:var(--px-bevel)}
+:root[data-skin=pixel] :is(.settings-section,.account-card){background:#333c57;border:0;border-radius:0;box-shadow:var(--px-frame),var(--px-drop)}
+:root[data-skin=pixel] .settings-section>h2{color:#ffcd75;text-transform:uppercase;letter-spacing:2px}
+:root[data-skin=pixel] .settings-section>h2::before{content:"■ ";color:#ef7d57}
+:root[data-skin=pixel] .setting-row{border-color:#566c86}
+:root[data-skin=pixel] .setting-row strong{color:#f4f4f4}
+:root[data-skin=pixel] :is(.source-segment,.sleep-options) button{border-radius:0}
+:root[data-skin=pixel] :is(.theme-choice,.studio-switch){border-radius:0}
+/* 新组件：唱片箱、听歌日历（Sweetie-16 绿阶）、CD 随身听 */
+:root[data-skin=pixel] .record-crate{--accent:#ffcd75}
+:root[data-skin=pixel] :is(.crate-nav .icon-button){border-radius:0;border:0;box-shadow:var(--px-frame-lite)}
+:root[data-skin=pixel] .crate-eyebrow{color:#ef7d57;text-transform:uppercase}
+:root[data-skin=pixel] .calendar-body{border-radius:0;background:#333c57;box-shadow:var(--px-frame),var(--px-drop)}
+:root[data-skin=pixel] :is(.calendar-legend,.calendar-week) i{border-radius:0;background:#1a1c2c;box-shadow:none}
+:root[data-skin=pixel] :is(.calendar-legend,.calendar-week) i[data-level="1"]{background:#257179}
+:root[data-skin=pixel] :is(.calendar-legend,.calendar-week) i[data-level="2"]{background:#38b764}
+:root[data-skin=pixel] :is(.calendar-legend,.calendar-week) i[data-level="3"]{background:#a7f070}
+:root[data-skin=pixel] :is(.calendar-legend,.calendar-week) i[data-level="4"]{background:#ffcd75}
+:root[data-skin=pixel] .calendar-week i:hover{outline:2px solid #f4f4f4;outline-offset:0}
+:root[data-skin=pixel] .calendar-stats dd{color:#ffcd75}
+:root[data-skin=pixel] .cd-player{background:linear-gradient(160deg,#94b0c2,#566c86);box-shadow:var(--px-frame),var(--px-drop)}
+/* 通用：方块滚动条、像素焦点框 */
+:root[data-skin=pixel] ::-webkit-scrollbar-thumb{border-radius:0;background:#566c86;box-shadow:inset -2px -2px 0 #333c57,inset 2px 2px 0 #94b0c2}
+:root[data-skin=pixel] ::-webkit-scrollbar-thumb:hover{background:#ffcd75}
+:root[data-skin=pixel] :focus-visible{outline:2px solid #ffcd75;outline-offset:2px}
+
+}

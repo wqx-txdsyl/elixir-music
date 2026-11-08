@@ -1,16 +1,16 @@
-param([switch]$SkipBackend, [switch]$Sign, [switch]$WithLegacySpotifyEngine)
+param([switch]$SkipBackend, [switch]$Sign, [Alias('WithLegacySpotifyEngine')][switch]$WithSpotifyPremium)
 $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath (Split-Path -Parent $PSScriptRoot)
 python scripts/prepare_ecs.py
 if ($LASTEXITCODE -ne 0) {throw 'Playback runtime verification failed'}
-if ($WithLegacySpotifyEngine) {
+if ($WithSpotifyPremium) {
   python scripts/prepare_librespot.py
-  if ($LASTEXITCODE -ne 0) {throw 'Optional legacy Spotify engine preparation failed'}
+  if ($LASTEXITCODE -ne 0) {throw 'Spotify Premium player preparation failed'}
 }
 if (!$SkipBackend) {& $PSScriptRoot/build_service.ps1}
 npm run build
 if ($LASTEXITCODE -ne 0) {throw 'Frontend build failed'}
-if ($WithLegacySpotifyEngine) {
+if ($WithSpotifyPremium) {
   New-Item -ItemType Directory -Path resources/backend/librespot -Force | Out-Null
   Copy-Item -Path .cache/librespot/runtime/* -Destination resources/backend/librespot -Force
 }

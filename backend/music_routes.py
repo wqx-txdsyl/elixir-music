@@ -20,7 +20,7 @@ class SyncCloudLibrary(BaseModel):
     kinds:list[str]=Field(default_factory=lambda:list(cloud_library.KINDS),min_length=1,max_length=4)
 
 
-def install(app, get_store, get_providers, public_track, track_get, public_tracks):
+def install(app, get_store, get_providers, public_track, track_get, public_tracks, search_platforms):
     searches_in_flight={}
     cloud_in_flight={}
 
@@ -72,8 +72,8 @@ def install(app, get_store, get_providers, public_track, track_get, public_track
         results=await asyncio.gather(*(refresh(n) for n in names))
         return dict(cloud_view(body.source),errors=[e for group in results for e in group])
     def identity(eid):
-        match = re.fullmatch(r'(netease|qqmusic|spotify):(album|artist|playlist|mv):([A-Za-z0-9_-]{1,160})', eid)
-        if not match: raise ValueError('无效的音乐实体标识')
+        match = re.fullmatch(r'([a-z]+):(album|artist|playlist|mv):([A-Za-z0-9_-]{1,160})', eid)
+        if not match or match[1] not in get_providers(): raise ValueError('无效的音乐实体标识')
         return match.groups()
 
     def save_result(result):
@@ -87,12 +87,11 @@ def install(app, get_store, get_providers, public_track, track_get, public_track
     async def search(q:str='',kind:str='album',source:str='all',offset:int=0,limit:int=30):
         q=q.strip()[:200]; limit=max(1,min(limit,50));offset=max(0,min(offset,10000))
         if kind not in ('album','artist','playlist','mv'): raise ValueError('请选择歌曲、专辑、歌手、歌单或MV')
-        providers=get_providers(); names=list(providers) if source=='all' else [source]
-        if any(n not in providers for n in names): raise ValueError('未知平台')
+        providers=get_providers(); names=search_platforms(source,kind)
         if not q: return {'items':[],'errors':[],'has_more':False}
         get_store().search_record(q)
-        direct=re.fullmatch(r'(netease|qqmusic|spotify):(album|artist|playlist|mv):([A-Za-z0-9_-]{1,160})',q)
-        if direct and direct[2]==kind:
+        direct=re.fullmatch(r'([a-z]+):(album|artist|playlist|mv):([A-Za-z0-9_-]{1,160})',q)
+        if direct and direct[1] in names and direct[2]==kind and kind!='mv':
             result=await detail(q)
             return {'items':[result],'errors':[],'has_more':False,'offset':0}
         async def one(name):
@@ -116,7 +115,7 @@ def install(app, get_store, get_providers, public_track, track_get, public_track
         results=await asyncio.gather(*(one(n) for n in names))
         items=[i for r,_ in results for i in r['items']];saved=get_store().saved_ids([i['id'] for i in items])
         return {'items':[dict(i,saved=i['id'] in saved) for i in items], 'errors':[e for _,e in results if e],
-                'has_more':any(r.get('has_more') for r,_ in results),'offset':offset,'next_offset':offset+limit}
+                'has_more':any(r.get('has_more') for r,_ in results),'offset':offset,'next_offset':offset+limit,'sources':names}
 
     @app.get('/api/music/entities/{eid}')
     async def detail(eid:str,offset:int=0,limit:int=50):
@@ -176,6 +175,10 @@ def install(app, get_store, get_providers, public_track, track_get, public_track
     @app.get('/api/music/stats')
     def stats(source:str='all',since:float=0,until:float=0):
         return get_store().listening_stats(source,since,until)
+
+    @app.get('/api/music/calendar')
+    def calendar(days:int=182):
+        return get_store().listening_calendar(days)
 
     artist_lookup_failed={}
     async def fill_artist_pictures(artists):
@@ -273,7 +276,7 @@ def install(app, get_store, get_providers, public_track, track_get, public_track
         db=get_store();target=db.create_playlist(str(body.get('title') or '导入的歌单')[:100]);failures=[]
         for index,t in enumerate(entries):
             tid=t.get('id','') if isinstance(t,dict) else ''
-            if not re.fullmatch(r'(netease|qqmusic|spotify|local):[A-Za-z0-9_-]{1,160}',tid):
+            if not isinstance(tid,str) or not re.fullmatch(r'[a-z]+:[A-Za-z0-9_-]{1,160}',tid) or tid.split(':',1)[0] not in {*get_providers(),'local'}:
                 failures.append({'index':index,'title':str(t.get('title','')) if isinstance(t,dict) else '', 'reason':'无效歌曲标识'});continue
             if not db.get(tid):
                 if tid.startswith('local:'):
@@ -301,7 +304,18 @@ def install(app, get_store, get_providers, public_track, track_get, public_track
         get_store().unlink(track_id);return {'ok':True}
 
     @app.get('/api/music/discovery')
-    def discovery_modes():return {'modes':catalog.DISCOVERY}
+    def discovery_modes():return {'modes':discovery_definitions()}
+
+    def discovery_definitions():
+        from .providers.public_music import PLATFORMS
+        modes = catalog.DISCOVERY + [
+            {'id':f'{source}:charts','source':source,'title':title,'mode':'read'}
+            for source,title in (('apple','热门歌曲'),('deezer','热门榜单'),('ytmusic','公开精选'),('melon','TOP 100'))
+        ]
+        modes += [{'id':f'{source}:official','source':source,'title':'平台发现','mode':'platform','url':platform['recommend']}
+                  for source,platform in PLATFORMS.items() if platform.get('recommend')]
+        # 暂停接入的平台不出现在首页推荐里。
+        return [mode for mode in modes if not PLATFORMS.get(mode['source'],{}).get('paused')]
 
     @app.get('/api/spotify/state')
     async def spotify_state():
@@ -319,9 +333,11 @@ def install(app, get_store, get_providers, public_track, track_get, public_track
     async def spotify_bridge_status():
         # Status only: must not spawn the sidecar just for a poll.
         bridge=get_providers()['spotify'].bridge()
-        info={'running':bridge.is_running(),'logged_in':False,'username':'','membership':'',
+        running=await asyncio.to_thread(bridge.is_running)
+        info={'available':bridge.exe.is_file(),'running':running,'logged_in':False,'username':'','membership':'',
               'pairing':None,'device_name':'Elixir Music'}
-        if bridge.is_running():
+        if running:
+            if not bridge.logged_in:await asyncio.to_thread(bridge.refresh_login_state)
             state=bridge.state()
             info.update(logged_in=bool(state.get('logged_in')),username=state.get('username',''),
                         device_id=state.get('device_id',''))
@@ -338,13 +354,13 @@ def install(app, get_store, get_providers, public_track, track_get, public_track
         pairing=None
         if not state.get('logged_in'):
             pairing=await asyncio.to_thread(bridge.pairing)
-        return {'running':True,'logged_in':bool(state.get('logged_in')),'username':state.get('username',''),
+        return {'available':True,'running':True,'logged_in':bool(state.get('logged_in')),'username':state.get('username',''),
                 'membership':await asyncio.to_thread(bridge.membership_state),'pairing':pairing}
 
     @app.get('/api/music/discovery/{source}/{mode}')
     async def read_discovery(source:str,mode:str):
-        if not any(x['id']==source+':'+mode and x['mode']=='read' for x in catalog.DISCOVERY):raise ValueError('此特色能力尚未接入')
-        definition=next(x for x in catalog.DISCOVERY if x['id']==source+':'+mode)
+        definition=next((x for x in discovery_definitions() if x['id']==source+':'+mode and x['mode']=='read'),None)
+        if not definition:raise ValueError('此特色能力尚未接入')
         if definition.get('requires_login'):
             profile=await asyncio.to_thread(get_providers()[source].profile)
             if not profile.get('logged_in'):raise RuntimeError('请先连接该平台账号；匿名默认列表不能当作你的个性化推荐')

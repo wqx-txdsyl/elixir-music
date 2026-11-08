@@ -1,6 +1,7 @@
 fastapi>=0.115,<1
 uvicorn>=0.30,<1
 requests>=2.32,<3
+requests-oauthlib>=2,<3
 websocket-client>=1.8,<2
 httpx>=0.28,<1
 mutagen>=1.47,<2
@@ -8,3 +9,6 @@ pycryptodome>=3.20,<4
 qrcode>=8,<9
 pillow>=11,<13
 opencc-python-reimplemented>=0.1.7,<1
+ytmusicapi==1.12.2
+beautifulsoup4>=4.12,<5
+zstandard>=0.23,<1

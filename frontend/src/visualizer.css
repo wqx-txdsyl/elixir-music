@@ -1,3 +1,4 @@
+@layer legacy {
 /* Spectrum around or under the cover on the lyric page. */
 .detail-cover-stage {
   position: relative;
@@ -25,3 +26,4 @@
   flex-shrink: 0;
 }
 .theme-spotify .visualizer-strip { height: 48px; }
+}

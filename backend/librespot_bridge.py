@@ -58,6 +58,9 @@ class LibrespotBridge:
         self.exe = exe_dir / 'go-librespot.exe'
 
     def _default_exe_dir(self) -> Path:
+        packaged = Path(os.environ['ELIXIR_LIBRESPOT_DIR']) if 'ELIXIR_LIBRESPOT_DIR' in os.environ else None
+        if packaged is not None and (packaged / 'go-librespot.exe').is_file():
+            return packaged
         packaged = Path(__file__).resolve().parents[1] / 'resources' / 'backend' / 'librespot'
         if (packaged / 'go-librespot.exe').exists():
             return packaged
@@ -118,7 +121,7 @@ class LibrespotBridge:
             if self.is_running():
                 return
             if not self.exe.exists():
-                raise BridgeError('Spotify 播放组件尚未安装，请先运行 npm run prepare:playback')
+                raise BridgeError('此版本未安装 Spotify Premium 本地播放组件')
             self.stop_event.clear()
             self._write_config()
             logfile = open(self.data_dir / 'spotify-bridge.log', 'ab')
@@ -135,7 +138,7 @@ class LibrespotBridge:
                 if self.process.poll() is not None:
                     message = self._recent_error()
                     raise BridgeError(message or 'Spotify 播放组件启动失败')
-                if self._api_ready():
+                if self._api_reachable():
                     self._start_events()
                     self._refresh_login_state()
                     return
@@ -155,15 +158,15 @@ class LibrespotBridge:
                 return line.split('msg="', 1)[-1].rstrip('"')[:160]
         return ''
 
-    def _api_ready(self) -> bool:
+    def _api_reachable(self) -> bool:
         try:
             response = requests.get(self.base + '/', timeout=1)
-            return response.ok and bool(response.json().get('playback_ready'))
+            return response.ok and isinstance(response.json().get('playback_ready'), bool)
         except (requests.RequestException, ValueError):
             return False
 
     def is_running(self) -> bool:
-        return self.process is not None and self.process.poll() is None and self._api_ready()
+        return self.process is not None and self.process.poll() is None and self._api_reachable()
 
     def ensure(self) -> 'LibrespotBridge':
         with self.lock:
@@ -194,6 +197,9 @@ class LibrespotBridge:
     def _refresh_login_state(self) -> None:
         try:
             status = self._request('GET', '/status')
+            if self.player['username'] != str(status.get('username') or ''):
+                self.membership = ''
+                self.membership_checked = 0.0
             self.logged_in = bool(status.get('username'))
             self.player['device_id'] = str(status.get('device_id') or '')
             self.player['device_name'] = str(status.get('device_name') or 'Elixir Music')
@@ -207,6 +213,10 @@ class LibrespotBridge:
                 self.player.update(playing=False, buffering=False, uri='', track_id='', position_ms=0)
         except BridgeError:
             self.logged_in = False
+
+    def refresh_login_state(self) -> None:
+        with self.lock:
+            self._refresh_login_state()
 
     def _request(self, method: str, path: str, payload=None, timeout: float = 8) -> dict:
         try:
@@ -300,7 +310,11 @@ class LibrespotBridge:
         with self.lock:
             if kind == 'metadata':
                 self._absorb_track(data, playing=self.player['playing'])
-            elif kind in ('will_play', 'playing'):
+            elif kind == 'will_play':
+                self._absorb_track(data, playing=False)
+                self.player['buffering'] = True
+                self.last_error = ''
+            elif kind == 'playing':
                 self._absorb_track(data, playing=True)
             elif kind == 'paused':
                 self._absorb_track(data, playing=False)
@@ -339,7 +353,7 @@ class LibrespotBridge:
             return int(min(self.player['position_ms'] + elapsed,
                            self.player['duration_ms'] or float('inf')))
 
-    def play(self, track_id: str, position_ms: int = 0) -> dict:
+    def play(self, track_id: str, position_ms: int = 0, *, membership_verified: bool = False) -> dict:
         self.ensure()
         with self.lock:
             if not self.player['username']:
@@ -347,23 +361,24 @@ class LibrespotBridge:
             logged_in = self.logged_in
         if not logged_in:
             raise BridgeError('Spotify 应用内播放器尚未登录：请在账号页完成设备配对（spotify.com/pair）')
-        membership = self.membership_state()
-        if membership == 'free':
-            raise BridgeError('该 Spotify 账号不是 Premium 会员：Spotify 只向会员提供点播音频，免费账号无法在本应用内真实播放')
+        if not membership_verified and self.membership_state() != 'premium':
+            raise BridgeError('本地播放器需要已验证的 Spotify Premium 账号')
         payload = {'uri': 'spotify:track:' + track_id, 'position': int(position_ms)}
         if position_ms:
             payload['skip_to_uri'] = payload['uri']
-        self._request('POST', '/player/play', payload, timeout=15)
-        # Optimistic local state; the events socket refines it with real
-        # decoder progress and corrects it via playback_error on failure.
         with self.lock:
+            self.last_error = ''
             self.player.update(uri=payload['uri'], track_id=track_id,
-                position_ms=int(position_ms), playing=True, buffering=True, at=time.monotonic())
+                position_ms=int(position_ms), duration_ms=0, playing=False, buffering=True, at=time.monotonic())
+        self._request('POST', '/player/play', payload, timeout=15)
         return self.play_state()
+
+    def queue(self, track_id: str) -> None:
+        self._request('POST', '/player/add_to_queue', {'uri': 'spotify:track:' + track_id}, timeout=8)
 
     def play_state(self) -> dict:
         state = self.state()
-        confirmed = bool(state.get('is_playing')) and bool(state.get('track_id'))
+        confirmed = bool(state.get('is_playing')) and bool(state.get('track_id')) and not state.get('buffering')
         return {'confirmed': confirmed, 'state': state, 'device_id': self.player['device_id'],
                 'device_name': self.player['device_name'], 'reason': self.last_error or ''}
 
@@ -383,7 +398,7 @@ class LibrespotBridge:
         self._request(method, path, payload, timeout=8)
         with self.lock:
             if action == 'pause':
-                self.player.update(playing=False, at=time.monotonic())
+                self.player.update(position_ms=self.position_now(), playing=False, at=time.monotonic())
             elif action == 'resume':
                 self.player.update(playing=True, at=time.monotonic())
             elif action == 'seek' and payload is not None:

@@ -1,3 +1,4 @@
+@layer legacy {
 /* Ink: a record shop's paper sleeves and black shelving. No glass, no cover glow.
    Surfaces use 4/8px corners; round controls are reserved for playback. */
 :root[data-theme=ink] {
@@ -42,7 +43,7 @@
 .theme-ink .topbar { height: 76px; padding: 0 32px; gap: 18px; border-bottom: 1px solid var(--line); }
 .theme-ink .topbar-navigation .icon-button { border: 0; }
 .theme-ink .search-box { background: #e9ebe3; border: 1px solid transparent; border-radius: 5px; max-width: 440px; height: 38px; color: var(--subtle); }
-.theme-ink .search-box:focus-within { border-color: var(--accent); background: var(--panel); }
+.theme-ink .search-box:focus-within { background: var(--panel); }
 .theme-ink .search-box input::placeholder { color: #73786d; }
 .theme-ink .topbar-account button { font-size: 12px; }
 .theme-ink .main-scroll { padding: 26px 38px 48px; }
@@ -52,7 +53,7 @@
 .theme-ink .button.quiet { background: transparent; border-color: #cdd1c5; }
 .theme-ink .button.quiet:hover { background: var(--hover); border-color: #9ba28f; }
 .theme-ink :is(.cover,.music-art,.select-trigger,.select-options,.list-disclosure,.modal) { border-radius: 5px; }
-.theme-ink :is(button,input,summary):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.theme-ink :is(button,summary):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .theme-ink .source-tabs { gap: 28px; }
 .theme-ink .source-tabs button.active { color: var(--accent); }
 .theme-ink .source-tag { border-radius: 2px; }
@@ -123,4 +124,5 @@
   :root[data-theme=ink] { --side-width: 180px; }
   .theme-ink .main-scroll { padding: 18px 20px 30px; }
   .theme-ink .topbar { padding: 0 16px; gap: 10px; }
+}
 }

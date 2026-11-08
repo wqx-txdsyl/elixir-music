@@ -1,0 +1,473 @@
+/* Replaceable parts. Every rule here is keyed on a data attribute that only appears once the
+   listener (or a skin's defaults) picks that part, so a skin keeps its own layout until then.
+   This layer sits above every skin, so these rules win without fighting over specificity. */
+@layer components {
+/* 输入框获得焦点时不加任何描边，光标本身就是提示；部分皮肤用通配的 :focus-visible 加了描边，这里统一去掉。 */
+:is(input:not([type=range], [type=checkbox], [type=radio], [type=color]), textarea, select):focus-visible { outline: none; }
+
+/* ================= Frame: where the sidebar, the page, the player and the side panel go ================= */
+.app[data-frame] {
+  position: relative;
+  --frame-side: var(--side-width);
+  --frame-panel: 0px;
+  --main-left: var(--frame-side);
+  --main-right: var(--frame-panel);
+  --row-main: "side main panel";
+  --detail-top: 0px;
+  --detail-bottom: var(--player-height);
+  grid-template-columns: var(--frame-side) minmax(0, 1fr) var(--frame-panel);
+  grid-template-rows: minmax(0, 1fr) var(--player-height);
+  --row-player: "player player player";
+  grid-template-areas: var(--row-main) var(--row-player);
+}
+.app[data-frame][data-side=right] {
+  --row-main: "panel main side";
+  --main-left: var(--frame-panel);
+  --main-right: var(--frame-side);
+  grid-template-columns: var(--frame-panel) minmax(0, 1fr) var(--frame-side);
+}
+/* 右侧面板关着时那一列宽 0，但列间距照算；让内容区连同这条间距一起占掉，宽度和皮肤原样一致。 */
+.app[data-frame]:not([data-panel=on]) { --row-main: "side main main"; }
+.app[data-frame][data-side=right]:not([data-panel=on]) { --row-main: "main main side"; }
+/* QQ 音乐原样的侧栏通到窗口底，播放栏只在内容区下面；播放栏没换时保持这样。 */
+.app[data-frame].theme-qqmusic:not([data-player]) { --row-player: "side player player"; }
+.app[data-frame][data-side=right].theme-qqmusic:not([data-player]) { --row-player: "player player side"; }
+.app[data-frame][data-panel=on] { --frame-panel: clamp(280px, 24vw, 340px); }
+.app[data-frame][data-sidebar=rail] { --frame-side: 78px; }
+.app[data-frame][data-sidebar=hidden] { --frame-side: 0px; }
+.app[data-frame][data-sidebar=float] { --frame-side: calc(var(--side-width) + 14px); }
+/* Apple 系原样的播放器在窗口顶部；播放器没换时，改别的部件也让它留在顶部。 */
+.app[data-frame][data-player=top], .app[data-frame].theme-apple:not([data-player]) {
+  grid-template-rows: var(--player-height) minmax(0, 1fr);
+  grid-template-areas: "player player player" var(--row-main);
+  --detail-top: var(--player-height); --detail-bottom: 0px;
+}
+.app[data-frame]:is([data-player=float], [data-player=hidden]) {
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: var(--row-main);
+  --detail-bottom: 0px;
+}
+.app[data-frame][data-player=mini] { --player-height: 58px; }
+.app[data-frame] > .sidebar { grid-area: side; min-width: 0; }
+.app[data-frame] > .workspace { grid-area: main; min-width: 0; }
+.app[data-frame] > .player { grid-area: player; }
+.app[data-frame] > .now-panel { grid-area: panel; }
+.app[data-frame] .detail-view:not(.np-fullscreen) { inset: var(--detail-top) 0 var(--detail-bottom); }
+.app[data-frame] .queue-panel { top: calc(var(--detail-top) + 74px); bottom: calc(var(--detail-bottom) + 10px); }
+.app[data-frame]:is([data-player=float]) .queue-panel { bottom: 104px; }
+.app[data-frame]:is([data-player=float]) .toast { bottom: 110px; }
+.app[data-frame][data-player=top] .toast { bottom: 26px; }
+.app[data-frame][data-side=right] .queue-panel { right: auto; left: calc(var(--frame-panel) + 14px); }
+/* The Spotify skin lifts its search bar out of the page; inside a custom frame it goes back in. */
+.app[data-frame] .topbar { position: relative; inset: auto; left: auto; right: auto; top: auto; }
+.app[data-frame].theme-spotify .workspace { padding-top: 0; }
+/* Spotify 系原样把顶栏放在窗口顶部 64px 的黑带里；换了部件也照样放在那里，只是左右对齐内容区，
+   否则顶栏会掉进内容卡片、顶部空出一条。灵动岛自己占着这条带子，保持顶栏在内容区里。 */
+.app[data-frame].theme-spotify:not([data-player=island]) .topbar {
+  position: absolute; top: 0; height: 64px;
+  left: calc(var(--main-left) + 16px); right: calc(var(--main-right) + 8px);
+}
+/* 完整侧栏时标志固定在窗口左上角（侧栏放右边也一样），顶栏左边沿用皮肤原来的位置给它让开。 */
+.app[data-frame].theme-spotify:not([data-player=island]):is(:not([data-sidebar]), [data-sidebar=full]) .topbar { left: revert-layer; }
+.app[data-frame][data-side=right] > .sidebar { border-right: 0; border-left: 1px solid var(--line); }
+
+/* ================= Sidebar variants ================= */
+.app[data-sidebar=hidden] > .sidebar { display: none; }
+
+.app[data-sidebar=rail] > .sidebar { padding: 0 10px; align-items: stretch; overflow: hidden auto; scrollbar-width: none; }
+/* 窄侧栏放不下时只让导航和歌单滚动，标志和底部按钮固定显示。 */
+.app[data-sidebar=rail] > .sidebar { display: flex; flex-direction: column; overflow: hidden; }
+.app[data-sidebar=rail] > .sidebar > * { flex: none; }
+.app[data-sidebar=rail] > .sidebar > :is(nav, .playlist-navigation) { flex: 0 1 auto; min-height: 0; overflow: hidden auto; scrollbar-width: none; }
+.app[data-sidebar=rail] > .sidebar > .playlist-navigation { min-height: 0; }
+.app[data-sidebar=rail] > .sidebar > .sidebar-footer { margin-top: auto; }
+.app[data-sidebar=rail] .platform-brand { position: static; width: auto; justify-content: center; padding: 0; gap: 0; height: 76px; min-height: 76px; }
+.app[data-sidebar=rail] .platform-brand span,
+.app[data-sidebar=rail] .sidebar :is(.library-heading, .create-first, .sidebar-bottom span, .theme-menu .appearance-button > span:not(.theme-dot)) { display: none; }
+.app[data-sidebar=rail] .sidebar nav { display: flex; flex-direction: column; gap: 6px; }
+.app[data-sidebar=rail] .sidebar nav .nav-item,
+.app[data-sidebar=rail] .playlist-navigation .nav-item {
+  grid-column: auto; width: min(56px, 100%); height: 52px; min-height: 52px; max-height: none; margin: 0 auto; padding: 0;
+  flex-direction: column; justify-content: center; gap: 3px; border-radius: 14px; font-size: 10px;
+}
+.app[data-sidebar=rail] .sidebar nav .nav-item > span { position: static; width: auto; height: auto; clip-path: none; max-width: 54px; overflow: hidden; text-overflow: ellipsis; font-size: 10px; line-height: 1.1; }
+.app[data-sidebar=rail] .sidebar nav .nav-item small { display: none; }
+.app[data-sidebar=rail] .sidebar nav .nav-item:nth-child(n) { margin-top: 0; background-color: transparent; }
+.app[data-sidebar=rail] .sidebar nav .nav-item.selected { background: var(--accent-tint); color: var(--accent); }
+.app[data-sidebar=rail] .playlist-navigation { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.app[data-sidebar=rail] .playlist-navigation .nav-item > span:not(.nav-cover) { display: none; }
+.app[data-sidebar=rail] .playlist-navigation .nav-cover { display: block; width: 40px; height: 40px; border-radius: 9px; overflow: hidden; }
+.app[data-sidebar=rail] .playlist-navigation .nav-cover img { width: 100%; height: 100%; object-fit: cover; }
+.app[data-sidebar=rail] .playlist-navigation .nav-item:has(.nav-cover) > svg { display: none; }
+.app[data-sidebar=rail] .sidebar-footer { padding: 12px 0; }
+.app[data-sidebar=rail] .theme-menu .appearance-button { justify-content: center; padding: 10px 0; }
+.app[data-sidebar=rail] .theme-popover { width: 300px; }
+.app[data-sidebar=rail] .sidebar-bottom { flex-direction: column; gap: 10px; padding: 12px 0 0; }
+/* 窄侧栏放右边时顶端正好在窗口按钮底下，往下让出按钮的高度；播放栏在顶部时侧栏本来就在它下面。 */
+.app[data-sidebar=rail][data-side=right]:not([data-player=top], .theme-apple:not([data-player])) > .sidebar { padding-top: 32px; }
+.app[data-sidebar=rail] .sidebar-bottom > button { justify-content: center; font-size: 0; gap: 0; }
+/* 普通侧栏：歌单区至少留一行；矮窗口里导航项压矮一点，给歌单区和时钟腾地方。
+   用 :where 压低优先级，皮肤自己写了高度上限的照旧。 */
+:where(.app:not([data-sidebar=rail])) > .sidebar > .playlist-navigation { min-height: 46px; }
+@media (max-height: 820px) {
+  :where(.app:not([data-sidebar=rail])) > .sidebar > nav .nav-item { max-height: 42px; min-height: 0; }
+}
+/* 矮窗口里窄侧栏的导航项压矮一些，尽量不用滚动就全部看得到。 */
+@media (max-height: 860px) {
+  .app[data-sidebar=rail] .sidebar nav { gap: 3px; }
+  .app[data-sidebar=rail] .sidebar nav .nav-item,
+  .app[data-sidebar=rail] .playlist-navigation .nav-item { height: 46px; min-height: 46px; gap: 2px; }
+  .app[data-sidebar=rail] .platform-brand { height: 60px; min-height: 60px; }
+}
+.app[data-sidebar=rail] .sidebar-clock { display: none; }
+
+.app[data-sidebar=float] > .sidebar {
+  margin: 12px 0 12px 12px; border-radius: 20px; border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel, #fff) 78%, transparent);
+  backdrop-filter: blur(24px) saturate(1.4); box-shadow: 0 14px 40px #0000001f;
+}
+.app[data-sidebar=float][data-side=right] > .sidebar { margin: 12px 12px 12px 0; }
+.app[data-sidebar=float][data-player=bar] > .sidebar,
+.app[data-sidebar=float][data-player=mini] > .sidebar { margin-bottom: 10px; }
+
+/* Top navigation that replaces a removed sidebar. */
+.top-nav { display: none; }
+.app[data-sidebar=hidden] .top-nav { display: flex; align-items: center; gap: 4px; min-width: 0; overflow-x: auto; scrollbar-width: none; -webkit-app-region: no-drag; }
+.app[data-sidebar=hidden] .top-nav-brand { display: flex; align-items: center; gap: 8px; margin-right: 10px; font-weight: 650; font-size: 16px; white-space: nowrap; }
+/* 标志用遮罩画，颜色跟随皮肤的文字色，深色皮肤里也看得见。 */
+.app[data-sidebar=hidden] .top-nav-mark { flex: none; width: 26px; height: 26px; background: currentColor; -webkit-mask: url(/xiandan-mark.svg) center / contain no-repeat; mask: url(/xiandan-mark.svg) center / contain no-repeat; }
+.top-nav button.top-nav-item { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 13px; border-radius: 17px; font-size: 13px; color: var(--subtle); white-space: nowrap; }
+.top-nav button.top-nav-item:hover { background: var(--hover); color: var(--text); }
+.top-nav button.top-nav-item.selected { background: var(--text); color: var(--bg); }
+.app[data-sidebar=hidden] .topbar { gap: 12px; }
+.app[data-sidebar=hidden] .topbar .search-box { max-width: 300px; }
+/* 顶部导航放不下时逐级收起（useNavFit 实测后写 data-fit）：先只留选中项的文字，再全部只留图标；收起的项一定显示图标。 */
+.app[data-sidebar=hidden] .top-nav { flex-shrink: 0; }
+.app[data-sidebar=hidden] .top-nav[data-fit=icons] { flex-shrink: 1; }
+.app[data-sidebar=hidden] .topbar .search-box { min-width: 150px; }
+.top-nav[data-fit=compact] button.top-nav-item:not(.selected),
+.top-nav[data-fit=icons] button.top-nav-item { font-size: 0; gap: 0; padding: 0 9px; }
+.top-nav:is([data-fit=compact], [data-fit=icons]) button.top-nav-item:not(.selected) svg,
+.top-nav[data-fit=icons] button.top-nav-item svg { display: block; }
+.app[data-sidebar=hidden] .top-nav[data-fit=icons] .top-nav-brand { font-size: 0; gap: 0; margin-right: 4px; }
+
+/* ================= Top bar variants ================= */
+.app[data-topbar=hidden] .topbar { display: none; }
+.drag-strip { display: none; }
+.app[data-topbar=hidden] .drag-strip { display: block; position: absolute; top: 0; left: 0; right: 140px; height: 30px; z-index: 30; -webkit-app-region: drag; }
+.app[data-topbar=hidden] .main-scroll { padding-top: 38px; }
+/* 居中：五列网格（顶部导航 | 后退前进 | 搜索 | 账号 | 窗口按钮），两侧等宽让搜索框居中，各部分不会叠在一起。 */
+.app[data-topbar=center] .topbar { display: grid; grid-template-columns: auto minmax(max-content, 1fr) minmax(180px, 520px) minmax(0, 1fr) auto; align-items: center; column-gap: 12px; }
+.app[data-topbar=center] .topbar > .top-nav { grid-column: 1; }
+.app[data-topbar=center] .topbar > .topbar-navigation { grid-column: 2; justify-self: start; position: static; }
+.app[data-topbar=center] .topbar > .search-box { grid-column: 3; width: 100%; max-width: none; min-width: 0; margin: 0; }
+.app[data-topbar=center] .topbar > .topbar-account { grid-column: 4; justify-self: end; position: static; margin: 0; }
+.app[data-topbar=center] .topbar > .caption-spacer { grid-column: 5; }
+/* 没有侧栏时顶部导航也在顶栏里：左边两列按内容排满，搜索框在剩下的地方居中。 */
+.app[data-topbar=center][data-sidebar=hidden] .topbar { grid-template-columns: max-content max-content minmax(150px, 1fr) auto auto; }
+.app[data-topbar=center][data-sidebar=hidden] .topbar > .search-box { max-width: 520px; justify-self: center; }
+.app[data-topbar=full] .topbar-account { display: block; }
+
+/* ================= Player variants ================= */
+/* Structural reset so a skin's own bar arrangement (for example the Apple LCD) does not leak into a replacement. */
+.app:where([data-player]:not([data-player=hidden])) .player { grid-template-areas: none; -webkit-app-region: no-drag; margin: 0; }
+.app:where([data-player]:not([data-player=hidden])) .player-center { display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-width: 0; }
+.app:where([data-player]:not([data-player=hidden])) .player-controls { grid-area: auto; justify-content: center; }
+.app:where([data-player]:not([data-player=hidden])) .now-playing { grid-area: auto; position: relative; height: auto; padding: 0; background: none; border: 0; border-radius: 0; overflow: visible; gap: 12px; }
+.app:where([data-player]:not([data-player=hidden])) .now-title { flex: 0 1 auto; text-align: left; padding: 0; }
+.app:where([data-player]:not([data-player=hidden])) .now-title button { margin: 0; }
+.app:where([data-player]:not([data-player=hidden])) .progress-row { grid-area: auto; position: relative; height: auto; padding: 0; align-items: center; pointer-events: auto; z-index: auto; gap: 10px; }
+.app:where([data-player]:not([data-player=hidden])) .progress-row span { position: static; opacity: 1; }
+.app:where([data-player]:not([data-player=hidden])) .player-right { grid-area: auto; }
+.app:where([data-player]:not([data-player=hidden])) .quality-popover { top: auto; bottom: calc(100% + 10px); }
+
+.app[data-player=bar] .player { border-top: 1px solid var(--line); border-bottom: 0; border-radius: 0; padding: 0 22px; grid-template-columns: minmax(220px, 1fr) minmax(300px, 1.2fr) minmax(220px, 1fr); }
+.app[data-player=top] .player { border-top: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0 152px 0 22px; grid-template-columns: minmax(220px, 1fr) minmax(300px, 1.2fr) minmax(200px, 1fr); -webkit-app-region: drag; }
+.app[data-player=top] .player :is(button, input, a, .quality-menu) { -webkit-app-region: no-drag; }
+.app[data-player=top] .quality-popover { bottom: auto; top: calc(100% + 10px); }
+.app[data-player=top] .topbar { height: 60px; }
+/* Apple 系原样就是顶部播放器，顶栏高度沿用皮肤自己的。 */
+.app.theme-apple[data-player=top] .topbar { height: revert-layer; }
+
+.app[data-player=float] .player {
+  position: absolute; z-index: 60; bottom: 18px; height: 74px;
+  left: calc(var(--main-left) + (100% - var(--frame-side) - var(--frame-panel)) / 2);
+  width: min(900px, calc(100% - var(--frame-side) - var(--frame-panel) - 48px));
+  transform: translateX(-50%);
+  padding: 0 16px 0 10px; gap: 14px; border-radius: 40px; border: 1px solid var(--line);
+  grid-template-columns: minmax(170px, 1fr) minmax(220px, 1.25fr) minmax(130px, .8fr);
+  background: color-mix(in srgb, var(--panel-solid, var(--panel, #fff)) 80%, transparent);
+  backdrop-filter: blur(26px) saturate(1.5);
+  box-shadow: 0 20px 55px #00000033, 0 2px 8px #0000001a;
+}
+.app[data-player=float] .now-cover { width: 54px; height: 54px; }
+.app[data-player=float] .now-cover .cover { border-radius: 50%; overflow: hidden; }
+.app[data-player=float] .player-controls { height: 34px; gap: 12px; }
+.app[data-player=float] .progress-row span { font-size: 9px; }
+.app[data-player=float] :is(.volume-slider, .player-divider, .quality-menu) { display: none; }
+.app[data-player=float] .main-scroll { padding-bottom: 120px; }
+.app[data-player=float].detail-open .player { background: #00000059; border-color: #ffffff1f; color: #fff; --text: #fff; --muted: #ffffff8c; --subtle: #ffffffb8; --line: #ffffff26; --hover: #ffffff17; }
+
+.app[data-player=mini] .player { padding: 0 18px; gap: 16px; border-top: 1px solid var(--line); border-bottom: 0; border-radius: 0; grid-template-columns: minmax(200px, 1fr) auto minmax(120px, 1fr); position: relative; }
+.app[data-player=mini] .now-cover { width: 38px; height: 38px; }
+.app[data-player=mini] .now-title span { margin-top: 2px; }
+.app[data-player=mini] .player-center { flex-direction: row; align-items: center; }
+.app[data-player=mini] .player-controls { height: auto; gap: 8px; }
+.app[data-player=mini] .player-controls > .icon-button:first-child,
+.app[data-player=mini] .player-controls > .icon-button:last-child,
+.app[data-player=mini] :is(.quality-menu, .desktop-lyrics-toggle, .volume-slider, .player-divider) { display: none; }
+.app[data-player=mini] .play-main { width: 34px; height: 34px; }
+.app[data-player=mini] .progress-row { position: absolute; left: 0; right: 0; top: -2px; width: auto; }
+.app[data-player=mini] .progress-row span { display: none; }
+.app[data-player=mini] .progress-row input { height: 3px; border-radius: 0; }
+
+.app[data-player=hidden] > .player { display: none; }
+
+/* ================= Progress styles ================= */
+.progress-time { display: none; }
+.app[data-progress=line] .progress-row input { height: 3px; }
+.app[data-progress=thick] .progress-row input { height: 6px; border-radius: 6px; }
+.app[data-progress=thick] .progress-row input::-webkit-slider-thumb { width: 14px; height: 14px; }
+/* 只给留在网格里的播放栏加定位；悬浮和灵动岛自己是绝对定位，被这里盖成 relative 会掉回网格、挤出多余的列。 */
+.app[data-progress=edge]:not([data-player=float], [data-player=island]) .player { position: relative; }
+.app[data-progress=edge] .progress-row { position: absolute; left: 0; right: 0; top: -2px; width: auto; padding: 0; z-index: 2; }
+.app[data-progress=edge][data-player=float] .progress-row { left: 30px; right: 30px; }
+.app[data-progress=edge] .progress-row span { display: none; }
+.app[data-progress=edge] .progress-row input { height: 3px; border-radius: 0; transition: height .12s; }
+.app[data-progress=edge] .progress-row:hover input { height: 5px; }
+.app[data-progress=edge] .progress-row input::-webkit-slider-thumb { opacity: 0; }
+.app[data-progress=edge] .progress-row:hover input::-webkit-slider-thumb { opacity: 1; }
+.app[data-progress=edge] .progress-time { display: inline-block; margin-left: 6px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* SoundCloud-style waveform: the bars are drawn from a seed, the range input stays on top for seeking. */
+.waveform { display: none; }
+.app[data-progress=wave] .waveform { display: flex; position: absolute; inset: 0; align-items: center; gap: 1.5px; pointer-events: none; }
+.app[data-progress=wave] .progress-row .progress-track { position: relative; flex: 1; height: 30px; display: flex; align-items: center; }
+.app[data-progress=wave] .progress-row input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+.waveform i { flex: 1; min-width: 1px; height: calc(var(--h) * 100%); border-radius: 1px; background: color-mix(in srgb, var(--muted) 55%, transparent); }
+.waveform i.played { background: var(--accent); }
+.app[data-progress=wave] .player-controls { height: 30px; }
+.app[data-progress=wave][data-player=mini] .waveform, .app[data-progress=wave][data-player=mini] .progress-track { display: none; }
+
+/* ================= Now playing variants ================= */
+/* Shared reset for every replacement page: a skin's own grid areas and white-on-cover colours step aside. */
+.app[data-np] .detail-art, .app[data-np] .detail-content { display: flex; grid-area: auto; }
+.app[data-np] .detail-art > * { grid-area: auto; }
+.app[data-np] .detail-cover-stage { position: relative; inset: auto; width: auto; height: auto; display: flex; justify-content: center; align-items: center; }
+.app[data-np] .detail-art > .visualizer-strip { position: static; transform: none; width: min(100%, 320px); }
+.app[data-np] .detail-art > .artist-name::before, .app[data-np] .detail-art > .text-button::before { content: none; }
+
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .detail-view:not(.np-fullscreen) {
+  position: absolute; z-index: 40; overflow: hidden; border-radius: 0; animation: none;
+  background: var(--bg); color: var(--text);
+  --text: inherit; --muted: inherit; --subtle: inherit; --line: inherit; --hover: inherit; --panel: inherit; --chip: inherit;
+}
+.app:not([data-frame])[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .detail-view { inset: 0 0 var(--player-height); }
+.app:not([data-frame]).theme-apple[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=karaoke]) .detail-view { inset: var(--player-height) 0 0; }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .detail-backdrop { display: none; }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .detail-layout { display: grid; grid-template-columns: 44% minmax(0, 1fr); grid-template-areas: none; grid-template-rows: none; gap: 40px; padding: 20px 7% 25px; }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .detail-art { flex-direction: column; align-items: center; justify-content: flex-start; overflow: auto hidden; padding: 15px 20px 30px; }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .detail-art > h1 { margin: 26px 0 7px; font-size: 24px; text-align: center; }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .detail-art > .artist-name { color: var(--subtle); font-size: 14px; }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) :is(.detail-close, .detail-view .source-tag, .detail-view .text-button, .detail-view .icon-button) { color: inherit; }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .detail-view .button.quiet { background: var(--hover); color: var(--text); }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .detail-tabs { border-color: var(--line); }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .detail-tabs button { color: var(--muted); }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .detail-tabs button.active { color: var(--text); }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .lyric-lines button { color: var(--muted); font-size: 17px; font-weight: 500; filter: none; }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .lyric-lines button.current { color: var(--accent); font-size: 21px; font-weight: 650; }
+.app[data-np]:is([data-np=cover], [data-np=vinyl], [data-np=cassette], [data-np=cd]) .lyrics-scroll { --accent: inherit; --subtle: inherit; }
+.app[data-np=cover] .large-cover { width: min(340px, 34vh, 80%); height: auto; aspect-ratio: 1; border-radius: 12px; overflow: hidden; box-shadow: 0 18px 46px #0000002e; }
+.app[data-np=cover].detail-open .player, .app[data-np=vinyl].detail-open .player, .app[data-np=cassette].detail-open .player, .app[data-np=cd].detail-open .player { --text: inherit; }
+.app[data-np=vinyl] .detail-art { overflow-x: hidden; }
+.app[data-np=vinyl] .vinyl-deck { margin-top: 18px; }
+
+/* Immersive: the page covers the window and the artwork is blurred into it. */
+.app[data-np=immersive] .detail-view {
+  position: fixed; inset: 0; z-index: 44; overflow: hidden; border-radius: 0;
+  background: #16161c; color: #fff;
+  --text: #fff; --muted: #ffffff8c; --subtle: #ffffffb8; --line: #ffffff1f; --hover: #ffffff17; --panel: #ffffff14; --chip: #ffffff1f;
+}
+.app[data-np=immersive] .detail-backdrop { display: block; position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.app[data-np=immersive] .detail-backdrop::before { content: ""; position: absolute; inset: -18%; background: var(--detail-cover) center / cover, #2c2c34; filter: blur(80px) saturate(1.55) brightness(.75); transform: scale(1.1); }
+.app[data-np=immersive] .detail-backdrop::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, #0000002e, #0000008c); }
+.app[data-np=immersive] :is(.detail-toolbar, .detail-layout) { position: relative; z-index: 1; }
+.app[data-np=immersive] .detail-toolbar { height: 60px; padding: 0 160px 0 30px; }
+.app[data-np=immersive] .detail-close { border: 0; background: #ffffff1f; border-radius: 18px; padding: 6px 14px; font-size: 12px; color: #fff; }
+.app[data-np=immersive] .detail-view :is(.source-tag) { color: #fff; border-color: #ffffff59; background: none; }
+.app[data-np=immersive] .detail-view .text-button { color: #ffffffb8; }
+.app[data-np=immersive] .detail-view .button.quiet { background: #ffffff1f; border-color: transparent; color: #fff; }
+.app[data-np=immersive] .detail-view .icon-button { color: #ffffffcc; }
+.app[data-np=immersive] .detail-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); grid-template-areas: none; grid-template-rows: none; gap: 5vw; padding: 0 6vw calc(var(--player-height) + 2vh); }
+.app[data-np=immersive][data-player=float] .detail-layout { padding-bottom: 110px; }
+.app[data-np=immersive] .detail-art { flex-direction: column; align-items: center; justify-content: center; overflow: visible; padding: 0 0 4vh; }
+.app[data-np=immersive] .detail-art > :not(.detail-cover-stage) { width: min(46vh, 30vw, 430px); max-width: 100%; text-align: left; }
+.app[data-np=immersive] .large-cover { width: min(46vh, 30vw, 430px); height: auto; aspect-ratio: 1; max-width: none; border-radius: 14px; overflow: hidden; box-shadow: 0 30px 70px #00000073; }
+.app[data-np=immersive] .large-cover > .cover { border-radius: 14px; }
+.app[data-np=immersive] .detail-art > h1 { margin: 24px 0 2px; font-size: 22px; font-weight: 700; }
+.app[data-np=immersive] .detail-art > .artist-name { justify-content: flex-start; padding: 0; font-size: 15px; color: #ffffffb3; }
+.app[data-np=immersive] .detail-art > .text-button { justify-content: flex-start; padding: 2px 0; font-size: 13px; color: #ffffff80; }
+.app[data-np=immersive] .detail-actions { justify-content: flex-start; margin-top: 14px; gap: 12px; }
+.app[data-np=immersive] .detail-actions .button.primary { background: #ffffff2b; color: #fff; }
+.app[data-np=immersive] .detail-tabs { border-color: #ffffff1a; }
+.app[data-np=immersive] .detail-tabs button { color: #ffffff99; }
+.app[data-np=immersive] .detail-tabs button.active { color: #fff; }
+.app[data-np=immersive] .lyrics-scroll { --accent: #fff; --subtle: #ffffff59; mask-image: linear-gradient(transparent, #000 12%, #000 82%, transparent); }
+.app[data-np=immersive] .lyric-lines { gap: 24px; padding: 18vh 4px 36vh; }
+.app[data-np=immersive] .lyric-lines button { font-size: clamp(20px, 1.9vw, 30px); font-weight: 700; line-height: 1.3; color: #ffffff57; filter: none; }
+.app[data-np=immersive] .lyric-lines button:hover { color: #ffffffb3; }
+.app[data-np=immersive] .lyric-lines button.current { font-size: clamp(20px, 1.9vw, 30px); color: #fff; }
+.app[data-np=immersive] .lyric-lines button.current.has-words { color: #ffffff59; }
+.app[data-np=immersive] .plain-lyrics { color: #ffffffcc; font-size: 20px; font-weight: 600; }
+.app[data-np=immersive].detail-open .player:not([data-x]) { background: transparent; border-color: transparent; color: #fff; --text: #fff; --muted: #ffffff8c; --subtle: #ffffffb8; --line: #ffffff26; --hover: #ffffff17; }
+.app[data-np=immersive][data-player=float].detail-open .player { background: #0000004d; }
+.app[data-np=immersive].detail-open .player .progress-row input { background: linear-gradient(to right, #fff var(--range), #ffffff33 var(--range)); }
+
+/* Karaoke: no artwork column, the lyric line is the page. */
+.app[data-np=karaoke] .detail-view {
+  position: fixed; inset: var(--detail-top, 0) 0 var(--detail-bottom, var(--player-height)); z-index: 44; overflow: hidden; border-radius: 0;
+  background: radial-gradient(70% 60% at 50% 110%, color-mix(in srgb, var(--accent) 34%, transparent), transparent 70%), #0c0c10;
+  color: #fff; --text: #fff; --muted: #ffffff80; --subtle: #ffffffb0; --line: #ffffff1c; --hover: #ffffff14; --panel: #ffffff10; --chip: #ffffff1c;
+}
+.app:not([data-frame])[data-np=karaoke] .detail-view { inset: 0 0 var(--player-height); }
+.app[data-np=karaoke] .detail-backdrop { display: none; }
+.app[data-np=karaoke] .detail-toolbar { padding-right: 160px; }
+.app[data-np=karaoke] .detail-close, .app[data-np=karaoke] .detail-view :is(.text-button, .icon-button, .source-tag) { color: #ffffffcc; }
+.app[data-np=karaoke] .detail-view .button.quiet { background: #ffffff17; color: #fff; }
+.app[data-np=karaoke] .detail-layout { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); grid-template-areas: none; gap: 10px; padding: 0 8vw 20px; }
+.app[data-np=karaoke] .detail-art { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px; overflow: visible; padding: 0; text-align: center; }
+.app[data-np=karaoke] .detail-cover-stage, .app[data-np=karaoke] .detail-art > :is(.visualizer-strip, p, .listening-badge) { display: none; }
+.app[data-np=karaoke] .detail-art > h1 { margin: 0; font-size: 20px; }
+.app[data-np=karaoke] .detail-art > .artist-name, .app[data-np=karaoke] .detail-art > .text-button { padding: 0; font-size: 14px; color: #ffffffa0; }
+.app[data-np=karaoke] .detail-actions { margin: 0; }
+.app[data-np=karaoke] .detail-tabs { justify-content: center; border-color: #ffffff14; }
+.app[data-np=karaoke] .lyrics-scroll { --accent: #fff; mask-image: linear-gradient(transparent, #000 22%, #000 72%, transparent); }
+.app[data-np=karaoke] .lyric-lines { align-items: center; text-align: center; gap: 22px; padding: 26vh 0 44vh; }
+.app[data-np=karaoke] .lyric-lines button { font-size: clamp(18px, 1.7vw, 26px); font-weight: 600; color: #ffffff47; text-align: center; filter: none; transition: color .35s, font-size .35s, text-shadow .35s; }
+.app[data-np=karaoke] .lyric-lines button.current { font-size: clamp(30px, 3.6vw, 56px); font-weight: 800; color: #fff; text-shadow: 0 0 34px color-mix(in srgb, var(--accent) 70%, transparent); }
+.app[data-np=karaoke] .lyric-lines button.current.has-words { color: #ffffff52; }
+.app[data-np=karaoke] .lyric-offset { justify-content: center; }
+.app[data-np=karaoke].detail-open .player { background: #0c0c10; border-color: #ffffff14; color: #fff; --text: #fff; --muted: #ffffff8c; --subtle: #ffffffb8; --line: #ffffff1f; --hover: #ffffff14; }
+
+/* ================= Background variants ================= */
+.app-backdrop { display: none; }
+.app[data-bg] { position: relative; isolation: isolate; }
+.app[data-bg]::before, .app[data-bg]::after { display: none; }
+.app[data-bg] > .app-backdrop { display: block; position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--bg); }
+.app[data-bg] > .app-backdrop::before, .app[data-bg] > .app-backdrop::after { content: ""; position: absolute; }
+.app[data-bg=cover] > .app-backdrop::before { inset: -15%; background: var(--now-cover) center / cover, var(--bg); filter: blur(90px) saturate(1.5); opacity: .55; transform: scale(1.1); transition: background-image .6s; }
+.app[data-bg=cover] > .app-backdrop::after { inset: 0; background: color-mix(in srgb, var(--bg) 45%, transparent); }
+.app[data-bg=flow] > .app-backdrop::before {
+  inset: -30%;
+  background:
+    radial-gradient(36% 40% at 22% 28%, color-mix(in srgb, var(--accent) 55%, transparent), transparent 70%),
+    radial-gradient(32% 36% at 78% 22%, color-mix(in srgb, var(--accent) 30%, #6fe7da 40%), transparent 70%),
+    radial-gradient(40% 44% at 60% 82%, color-mix(in srgb, var(--accent) 20%, #ff9ec7 45%), transparent 70%);
+  filter: blur(60px); opacity: .7; animation: backdrop-flow 28s ease-in-out infinite alternate;
+}
+@keyframes backdrop-flow { 0% { transform: translate(0, 0) rotate(0deg) scale(1); } 50% { transform: translate(4%, -3%) rotate(8deg) scale(1.08); } 100% { transform: translate(-4%, 3%) rotate(-6deg) scale(1.02); } }
+.app[data-bg=grain] > .app-backdrop::after { inset: 0; opacity: .5; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.app[data-bg=grain] > .app-backdrop::before { inset: 0; background: radial-gradient(90% 70% at 50% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%); }
+.app[data-bg=image] > .app-backdrop::before { inset: 0; background: var(--user-bg) center / cover no-repeat; }
+.app[data-bg=image] > .app-backdrop::after { inset: 0; background: color-mix(in srgb, var(--bg) 55%, transparent); }
+/* 侧栏、内容区和播放栏变成毛玻璃，透出所选背景。
+   侧栏和播放栏有贴图或标志色的皮肤（data-chrome=solid）保持原样，只有内容区变成毛玻璃。 */
+.app[data-bg]:not([data-bg=plain]) .workspace,
+.app[data-bg]:not([data-bg=plain]):not(:where([data-chrome=solid])) :is(.sidebar, .player:not(:where([data-x]))) { background: color-mix(in srgb, var(--panel-solid, var(--bg)) 62%, transparent); backdrop-filter: blur(22px) saturate(1.3); }
+.app[data-bg]:not([data-bg=plain]):not(:where([data-chrome=solid])) .sidebar { background: color-mix(in srgb, var(--sidebar, var(--bg)) 52%, transparent); }
+/* 单色皮肤把背景也压成自己的色调：终端是绿色荧光屏，电子墨水只有黑白灰。 */
+:root[data-skin=terminal] .app[data-bg] > .app-backdrop { filter: grayscale(1) sepia(1) hue-rotate(65deg) saturate(2.4) brightness(.72); }
+:root[data-skin=eink] .app[data-bg] > .app-backdrop { filter: grayscale(1); }
+.app[data-bg]:not([data-bg=plain]).detail-open .player { backdrop-filter: none; }
+.app[data-bg=plain] :is(.sidebar, .workspace) { background: var(--bg); }
+.app[data-bg=plain] .sidebar { background: var(--sidebar); }
+
+/* ================= Docked now-playing panel (Spotify's right sidebar) ================= */
+.now-panel { display: none; }
+.app[data-frame][data-panel=on] > .now-panel { display: flex; }
+.now-panel { flex-direction: column; min-height: 0; overflow: hidden auto; padding: 18px 16px 20px; gap: 14px; border-left: 1px solid var(--line); background: var(--sidebar, var(--bg)); scrollbar-width: thin; }
+.app[data-side=right] > .now-panel { border-left: 0; border-right: 1px solid var(--line); }
+.now-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13px; font-weight: 650; padding-right: 0; }
+.app[data-side=left][data-player]:not([data-player=top]) .now-panel-head, .app[data-side=left]:not([data-player]) .now-panel-head { padding-right: 130px; }
+.now-panel-art { width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; box-shadow: 0 14px 34px #00000026; cursor: pointer; padding: 0; }
+.now-panel-art .cover { width: 100%; height: 100%; border-radius: 0; }
+.now-panel-title { display: flex; align-items: flex-start; gap: 10px; }
+.now-panel-title > div { min-width: 0; flex: 1; }
+.now-panel-title strong { display: block; font-size: 19px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.now-panel-title span { display: block; margin-top: 3px; font-size: 13px; color: var(--subtle); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.now-panel-card { border-radius: 12px; background: var(--hover); padding: 14px; }
+.now-panel-card h3 { margin: 0 0 10px; font-size: 13px; font-weight: 650; display: flex; justify-content: space-between; align-items: center; }
+.now-panel-lyric p { margin: 0; font-size: 13px; line-height: 1.75; color: var(--muted); transition: color .3s; }
+.now-panel-lyric p.current { color: var(--text); font-weight: 650; font-size: 14px; }
+.now-panel-queue button.queue-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px; border-radius: 8px; text-align: left; }
+.now-panel-queue button.queue-row:hover { background: var(--hover); }
+.now-panel-queue .cover { width: 38px; height: 38px; border-radius: 6px; flex: none; }
+.now-panel-queue span { min-width: 0; display: block; }
+.now-panel-queue strong, .now-panel-queue small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.now-panel-queue strong { font-size: 13px; font-weight: 500; }
+.now-panel-queue small { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.now-panel-empty { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+/* ================= Player lyric line and sidebar clock ================= */
+.player-lyric { display: none; }
+.app[data-lyric-bar=on] .now-title .player-lyric { display: block; color: var(--accent); font-weight: 500; }
+.app[data-lyric-bar=on] .now-title .player-lyric + span { display: none; }
+.app[data-lyric-bar=on] .now-title { max-width: 300px; }
+.sidebar-clock { margin: 10px 3px 4px; padding: 12px 14px; border-radius: 12px; background: var(--hover); font-size: 11px; color: var(--muted); }
+.sidebar-clock strong { display: block; font-size: 26px; font-weight: 300; letter-spacing: 1px; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.sidebar-clock span { display: block; margin-top: 6px; }
+.sidebar-clock meter { display: block; width: 100%; height: 5px; margin-top: 8px; }
+.sidebar-clock meter::-webkit-meter-bar { background: var(--line); border: 0; border-radius: 3px; height: 5px; }
+.sidebar-clock meter::-webkit-meter-optimum-value { background: var(--accent); border-radius: 3px; }
+/* 窗口矮时侧栏放不下整块时钟，会把底栏挤到播放栏下面：收成一行，再矮就不显示。 */
+@media (max-height: 820px) {
+  .sidebar-clock { display: flex; align-items: baseline; gap: 8px; margin: 6px 3px 2px; padding: 7px 12px; flex-shrink: 0; }
+  .sidebar-clock strong { font-size: 17px; }
+  .sidebar-clock span { margin-top: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .sidebar-clock meter { display: none; }
+}
+@media (max-height: 640px) { .sidebar-clock { display: none; } }
+
+/* ================= Cassette now-playing ================= */
+.cassette { position: relative; width: min(380px, 86%); aspect-ratio: 1.58; margin-top: 22px; border-radius: 16px; padding: 7% 6% 5%; background: linear-gradient(160deg, #3a3d46, #1e2026 70%); box-shadow: 0 22px 50px #0000004d, inset 0 1px 0 #ffffff26, inset 0 -3px 0 #00000059; color: #fff; }
+.cassette::before { content: ""; position: absolute; inset: 4.5%; border-radius: 10px; border: 1px solid #ffffff17; pointer-events: none; }
+.cassette-label { position: relative; height: 62%; border-radius: 8px; overflow: hidden; background: #f3eee2; color: #2b2b2b; display: grid; grid-template-columns: 30% 1fr; }
+.cassette-label .cover { width: 100%; height: 100%; border-radius: 0; }
+.cassette-label > div { padding: 8% 9%; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; background: repeating-linear-gradient(transparent 0 17px, #d9d2c0 17px 18px); }
+.cassette-label strong { font-size: 15px; font-family: "Segoe Print", "Comic Sans MS", var(--font-hand, cursive); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cassette-label small { font-size: 11px; color: #6b6458; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cassette-label i { position: absolute; right: 8px; top: 6px; font-style: normal; font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: 1px; }
+.cassette-window { position: absolute; left: 22%; right: 22%; top: 47%; height: 26%; border-radius: 40px; background: #111216e6; box-shadow: inset 0 2px 8px #000; display: flex; justify-content: space-between; align-items: center; padding: 0 5%; }
+.cassette-reel { position: relative; width: 26%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; }
+.cassette-reel::before { content: ""; position: absolute; width: calc(var(--tape) * 100%); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #3b2a20 0 30%, #24170f 31%); box-shadow: 0 0 0 1px #0006; transition: width 1s linear; }
+.cassette-reel span { position: relative; width: 44%; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(#f4f4f4 0 12%, transparent 12% 33%, #f4f4f4 33% 45%, transparent 45% 66%, #f4f4f4 66% 78%, transparent 78%); box-shadow: 0 0 0 2px #e8e8e8 inset; animation: reel-turn 2.4s linear infinite paused; }
+.cassette.spinning .cassette-reel span { animation-play-state: running; }
+@keyframes reel-turn { to { transform: rotate(-1turn); } }
+.cassette-screws { position: absolute; inset: 0; pointer-events: none; }
+.cassette-screws i { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: radial-gradient(#9ca0a8, #55585f); }
+.cassette-screws i:nth-child(1) { left: 2.5%; top: 4%; } .cassette-screws i:nth-child(2) { right: 2.5%; top: 4%; }
+.cassette-screws i:nth-child(3) { left: 2.5%; bottom: 5%; } .cassette-screws i:nth-child(4) { right: 2.5%; bottom: 5%; }
+.cassette-foot { position: absolute; left: 30%; right: 30%; bottom: 0; height: 12%; border-radius: 10px 10px 0 0; background: #2a2c33; box-shadow: inset 0 1px 0 #ffffff1a; }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @layer components {
+    .app[data-bg=flow] > .app-backdrop::before { animation: none; }
+    .cassette-reel span { animation: none; }
+  }
+}
+
+/* Spotify 系皮肤把品牌标志绝对定位在窗口左上角；悬浮侧栏带毛玻璃，会成为它的包含块，标志就掉进侧栏压住导航。 */
+@layer components {
+.app.theme-spotify .platform-brand { width: auto; }
+.app.theme-spotify[data-sidebar=float] .platform-brand { position: static; height: 56px; min-height: 56px; padding: 0 8px; }
+/* 标志进了侧栏，侧栏就往上伸进窗口顶部那 64px 空白，把高度补回来；在右边时让开窗口按钮。 */
+.app.theme-spotify[data-sidebar=float] > .sidebar { margin-top: -52px; }
+.app.theme-spotify[data-sidebar=float][data-side=right] > .sidebar { margin-top: -20px; }
+}
+
+/* Apple Music 这类播放栏在最上面的皮肤去掉了顶栏右侧给窗口按钮留的位置；顶栏改成通栏或侧栏隐藏后顶栏会顶到窗口右上角，要把位置留回来。 */
+@layer components {
+.app:is([data-topbar=full], [data-topbar=center], [data-sidebar=hidden]):not([data-player=top]) .topbar > .caption-spacer { display: block; flex: 0 0 138px; width: 138px; min-width: 138px; }
+}

@@ -1,16 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from './api';
-import { CheckCircle, WarningCircle, ArrowSquareOut, Play } from '@phosphor-icons/react';
+import { ArrowSquareOut } from '@phosphor-icons/react';
 
 const MEMBERSHIP_TEXT = {
-  premium: '备用引擎：Premium',
-  free: '此备用引擎不支持免费账号',
+  premium: 'Premium',
+  free: 'Free 账号请用网页登录',
   '': '会员状态未读取',
 };
 
-// In-app Spotify playback engine (go-librespot sidecar): pairing status and
-// membership check. Real audio decodes locally; nothing transfers to a device.
-export function SpotifyBridgeCard({ onChanged }) {
+// 应用内 Spotify 播放引擎（go-librespot 组件）的配对状态与会员检查。音频在本机解码，不转到其他设备。
+export function useSpotifyPremium(onChanged) {
   const [status, setStatus] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -32,23 +31,24 @@ export function SpotifyBridgeCard({ onChanged }) {
     finally { setBusy(false); }
   }
 
+  const paired = !!status?.logged_in;
+  const label = status?.available === false ? '未安装组件' : paired ? (status.membership === 'premium' ? '已配对' : MEMBERSHIP_TEXT[status.membership || '']) : status?.running ? '等待配对' : '';
+  return { status, busy, error, start, paired, label };
+}
+
+export function SpotifyPremiumBody({ premium }) {
+  const { status, busy, error, start, paired } = premium;
   const pairing = status?.pairing;
-  return <section className="account-card bridge-card">
-    <div className="account-content">
-      <h2>Spotify 备用引擎
-        {status?.logged_in && <span className="connected"><CheckCircle size={14} weight="fill" />已就绪</span>}
-        {status && !status.logged_in && <span className="connected bridge-offline"><WarningCircle size={14} />未登录</span>}
-      </h2>
-      <p>{status?.logged_in ? '登录账号 ' + (status.username || '').slice(0, 4) + '···' : '首次使用需要一次性设备配对'}</p>
-      <div className="membership"><WarningCircle size={17} />{MEMBERSHIP_TEXT[status?.membership || ''] || MEMBERSHIP_TEXT['']}</div>
-      {error && <small>{error}</small>}
-      {pairing && <div className="bridge-pairing">
-        <p>1. 打开 <button className="text-button" onClick={() => { if (window.desktop?.openExternal) window.desktop.openExternal(pairing.url); else window.open(pairing.url, '_blank'); }}>spotify.com/pair<ArrowSquareOut size={14} /></button></p>
-        <p>2. 输入配对码 <code className="pairing-code">{pairing.code}</code>，并用与会员绑定的 Spotify 账号批准</p>
-      </div>}
-    </div>
-    <div className="account-actions">
-      <button className="button primary" disabled={busy} onClick={start}><Play size={17} weight="fill" />{busy ? '正在启动…' : status?.logged_in ? '重启引擎' : '启动并配对'}</button>
-    </div>
-  </section>;
+  const open = url => { if (window.desktop?.openExternal) window.desktop.openExternal(url); else window.open(url, '_blank'); };
+  return <>
+    {error && <small className="account-method-error">{error}</small>}
+    {status?.username && paired && <small>{status.username} · {MEMBERSHIP_TEXT[status.membership || ''] || status.membership}</small>}
+    {pairing && <ol className="bridge-pairing">
+      <li>打开 <button className="text-button" onClick={() => open(pairing.url)}>spotify.com/pair<ArrowSquareOut size={14} /></button></li>
+      <li>输入配对码 <code className="pairing-code">{pairing.code}</code>，用开通会员的账号批准</li>
+    </ol>}
+    {!paired && status?.available !== false && <div className="account-method-actions">
+      <button className="button quiet" disabled={busy} onClick={start}>{busy ? '正在启动…' : status?.running ? '刷新配对码' : '启动并配对'}</button>
+    </div>}
+  </>;
 }

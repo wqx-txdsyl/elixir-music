@@ -1,3 +1,4 @@
+@layer legacy {
 /* Apple Music: white (or system dark) canvas, translucent grey sidebar, rose accent,
    and the player as an "LCD" strip across the top of the window. */
 :root[data-theme=apple] {
@@ -91,7 +92,7 @@
 /* Top bar under the player: back/forward and search. */
 .theme-apple .topbar { height: 58px; padding: 0 40px; gap: 14px; }
 .theme-apple .search-box { height: 32px; max-width: 300px; border-radius: 8px; background: var(--chip); border: 1px solid transparent; color: var(--muted); }
-.theme-apple .search-box:focus-within { border-color: color-mix(in srgb, var(--accent) 60%, transparent); background: var(--panel); }
+.theme-apple .search-box:focus-within { background: var(--panel); }
 .theme-apple .search-box input::placeholder { color: var(--muted); }
 .theme-apple .topbar-navigation .icon-button { color: var(--subtle); border: 0; background: none; }
 .theme-apple .main-scroll { padding: 6px 40px 48px; }
@@ -127,3 +128,4 @@
 .preview-apple .preview-sidebar { background: #f2f2f4; border-right: 1px solid #e3e3e6; }
 .preview-apple .preview-player { top: 0; bottom: auto; height: 15px; background: #f5f5f7; border-top: 0; border-bottom: 1px solid #e3e3e6; }
 .preview-apple .preview-main b:first-child { background: #fa2d48; }
+}

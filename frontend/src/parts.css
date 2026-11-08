@@ -1,0 +1,227 @@
+/* 2.0 第二批组件：程序坞侧栏、CD 随身听、歌词排版、封面墙背景。
+   和 components.css 一样放在 components 层，只在选了对应组件时生效。 */
+@layer components {
+
+/* ================= 侧栏：程序坞 ================= */
+.app[data-frame][data-sidebar=dock] { --frame-side: 0px; }
+.app[data-sidebar=dock] { --dock-bottom: calc(var(--player-height) + 12px); }
+.app[data-sidebar=dock]:is([data-player=top], [data-player=hidden], [data-player=island]) { --dock-bottom: 16px; }
+.app[data-sidebar=dock][data-player=float] { --dock-bottom: 104px; }
+.app[data-sidebar=dock] > .sidebar {
+  position: fixed; z-index: 58; left: calc(var(--main-left, 0px) + (100% - var(--frame-panel, 0px)) / 2); bottom: var(--dock-bottom); top: auto; transform: translateX(-50%);
+  width: auto; max-width: calc(100% - 40px); height: 64px; min-height: 0; margin: 0; padding: 0 12px; overflow: visible;
+  display: flex; flex-direction: row; align-items: center; gap: 4px; border: 0; border-radius: 22px;
+  background: color-mix(in srgb, var(--panel) 70%, transparent); backdrop-filter: blur(26px) saturate(1.6);
+  box-shadow: 0 14px 40px #00000040, 0 2px 6px #0000001f, inset 0 0 0 1px color-mix(in srgb, var(--text) 10%, transparent);
+}
+.app[data-sidebar=dock] > .sidebar > :is(.library-heading, .sidebar-clock) { display: none; }
+.app[data-sidebar=dock] .platform-brand { position: static; width: 46px; height: 46px; min-height: 0; padding: 0; margin: 0; display: grid; place-items: center; border-radius: 13px; background: none; }
+.app[data-sidebar=dock] .platform-brand span { display: none; }
+.app[data-sidebar=dock] .platform-brand img { width: 30px; height: 30px; }
+.app[data-sidebar=dock] .sidebar nav, .app[data-sidebar=dock] .playlist-navigation { display: flex; flex-direction: row; align-items: flex-end; gap: 4px; margin: 0; padding: 0; overflow: visible; border: 0; height: auto; flex: none; }
+.app[data-sidebar=dock] .playlist-navigation { padding-left: 10px; margin-left: 6px; border-left: 1px solid var(--line); }
+.app[data-sidebar=dock] .playlist-navigation .nav-item:nth-child(n+6), .app[data-sidebar=dock] .create-first { display: none; }
+.app[data-sidebar=dock] :is(.sidebar nav, .playlist-navigation) .nav-item {
+  position: relative; width: 46px; height: 46px; min-height: 0; max-height: none; margin: 0; padding: 0; display: grid; place-items: center; flex: none; border: 0;
+  border-radius: 13px; background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--text); box-shadow: none;
+  transform-origin: 50% 100%; transition: transform .18s cubic-bezier(.3, .7, .4, 1.4), background .2s;
+}
+.app[data-sidebar=dock] :is(.sidebar nav, .playlist-navigation) .nav-item:nth-child(n) { margin: 0; }
+.app[data-sidebar=dock] .nav-item > svg { width: 22px; height: 22px; }
+.app[data-sidebar=dock] .nav-item > small { position: absolute; top: -4px; right: -4px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--accent); color: var(--accent-text); font-size: 10px; line-height: 17px; text-align: center; }
+/* 名字做成悬停时冒出的气泡。 */
+.app[data-sidebar=dock] .nav-item > span:not(.nav-cover) {
+  position: absolute; left: 50%; bottom: calc(100% + 12px); transform: translate(-50%, 4px); width: max-content; max-width: 180px; height: auto; clip-path: none;
+  padding: 4px 10px; border-radius: 8px; background: color-mix(in srgb, var(--text) 88%, transparent); color: var(--bg);
+  font-size: 12px; font-weight: 600; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s;
+}
+.app[data-sidebar=dock] .nav-item:hover > span:not(.nav-cover), .app[data-sidebar=dock] .nav-item:focus-visible > span:not(.nav-cover) { opacity: 1; transform: translate(-50%, 0); }
+/* 鼠标移过时图标放大，左右邻居跟着稍微放大，像桌面程序坞。 */
+.app[data-sidebar=dock] .nav-item:hover { transform: translateY(-10px) scale(1.32); background: color-mix(in srgb, var(--text) 12%, transparent); }
+.app[data-sidebar=dock] .nav-item:has(+ .nav-item:hover), .app[data-sidebar=dock] .nav-item:hover + .nav-item { transform: translateY(-4px) scale(1.12); }
+.app[data-sidebar=dock] .nav-item.selected { background: var(--accent-tint); color: var(--accent); }
+.app[data-sidebar=dock] .nav-item.selected::after { content: ""; position: absolute; left: 50%; bottom: -7px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--accent); }
+.app[data-sidebar=dock] .playlist-navigation .nav-cover { position: absolute; inset: 0; display: block; border-radius: 13px; overflow: hidden; }
+.app[data-sidebar=dock] .playlist-navigation .nav-cover img { width: 100%; height: 100%; object-fit: cover; }
+.app[data-sidebar=dock] .playlist-navigation .nav-item:has(.nav-cover) > svg { display: none; }
+.app[data-sidebar=dock] .sidebar-footer { display: flex; align-items: center; gap: 4px; margin: 0 0 0 6px; padding: 0 0 0 10px; border-left: 1px solid var(--line); background: none; position: static; }
+.app[data-sidebar=dock] .sidebar-footer > :not(.theme-menu, .sidebar-bottom) { display: none; }
+.app[data-sidebar=dock] .theme-menu .appearance-button { position: relative; width: 46px; height: 46px; min-height: 0; max-height: none; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0; border: 0; border-radius: 13px; background: color-mix(in srgb, var(--text) 7%, transparent); box-shadow: none; color: var(--text); }
+.app[data-sidebar=dock] .theme-menu .appearance-button > svg { width: 22px; height: 22px; }
+/* 皮肤色点缩成右上角的小角标，不占图标的位置。 */
+.app[data-sidebar=dock] .theme-menu .appearance-button > .theme-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; margin: 0; }
+.app[data-sidebar=dock] .theme-menu .appearance-button > span:not(.theme-dot) { display: none; }
+.app[data-sidebar=dock] .theme-popover { bottom: calc(100% + 14px); top: auto; left: 50%; transform: translateX(-50%); width: 300px; }
+.app[data-sidebar=dock] .sidebar-bottom { display: flex; gap: 4px; padding: 0; margin: 0; border: 0; }
+.app[data-sidebar=dock] .sidebar-bottom > span { display: none; }
+/* 按钮里还有字号为 0 的文字节点，用 grid 会把图标和文字排成上下两行，图标就偏上；改用 flex 横排。 */
+.app[data-sidebar=dock] .sidebar-bottom button { width: 46px; height: 46px; min-height: 0; max-height: none; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0; border: 0; border-radius: 13px; font-size: 0; color: var(--text); background: color-mix(in srgb, var(--text) 7%, transparent); box-shadow: none; }
+.app[data-sidebar=dock] .sidebar-bottom button > svg { width: 22px; height: 22px; }
+.app[data-sidebar=dock] .theme-menu .appearance-button:hover,
+.app[data-sidebar=dock] .sidebar-bottom button:hover { background: color-mix(in srgb, var(--text) 10%, transparent); }
+.app[data-sidebar=dock] .main-scroll { padding-bottom: 110px; }
+.app[data-sidebar=dock][data-player=float] .main-scroll { padding-bottom: 190px; }
+.app[data-sidebar=dock].detail-open > .sidebar { opacity: 0; pointer-events: none; transform: translate(-50%, 20px); transition: opacity .2s, transform .2s; }
+.app[data-sidebar=dock] .top-nav { display: none; }
+.app[data-motion=reduced][data-sidebar=dock] .nav-item { transition: none; }
+
+/* ================= 正在播放：CD 随身听 ================= */
+.app[data-np=cd] .detail-art { overflow: visible auto; }
+.cd-player {
+  position: relative; width: min(340px, 82%, 40vh); margin-top: 16px; border-radius: 50% 50% 46% 46% / 48% 48% 40% 40%; padding: 0 0 18%;
+  background: linear-gradient(160deg, #eef0f3, #c9ced6 55%, #aeb4be); box-shadow: 0 26px 50px #0000004a, inset 0 2px 0 #fff, inset 0 -6px 14px #0000002b;
+}
+.cd-lid { position: relative; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 50% 50%, #d8dce2 0 61%, #b9bfc8 62%, #e4e7eb 64%, #c4c9d1 100%); box-shadow: inset 0 0 0 1px #0000001c; }
+.cd-disc { position: relative; width: 84%; aspect-ratio: 1; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 3px #ffffffb3, 0 6px 16px #00000047; }
+.cd-disc > .cover { width: 100%; height: 100%; border-radius: 0; }
+.cd-disc > .cover img { width: 100%; height: 100%; object-fit: cover; }
+/* 碟面的彩虹反光和中心孔。 */
+.cd-shine { position: absolute; inset: 0; border-radius: 50%; mix-blend-mode: screen; opacity: .55; background: conic-gradient(from 0deg, transparent 0 8%, #ff6ad577 12%, #6af0ff77 16%, #fff59a77 20%, transparent 26% 54%, #8affc377 58%, #7d9bff77 62%, #ff8ad877 66%, transparent 72%); }
+.cd-hole { position: absolute; left: 50%; top: 50%; width: 22%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: radial-gradient(circle, #2b2f36 0 22%, #d5d9df 23% 40%, #ffffff8c 41% 43%, #c2c7ce 44% 100%); box-shadow: 0 0 0 1px #0000002e, 0 2px 6px #0000003b; }
+.cd-player.spinning .cd-disc > .cover { animation: cd-spin 2.4s linear infinite; }
+@keyframes cd-spin { to { transform: rotate(1turn); } }
+/* 透明的上盖：一层高光和一道铰链。 */
+.cd-lid::after { content: ""; position: absolute; inset: 3%; border-radius: 50%; background: linear-gradient(140deg, #ffffff73 0, #ffffff14 30%, transparent 46%, transparent 70%, #ffffff26 100%); pointer-events: none; }
+.cd-hinge { position: absolute; top: -2%; left: 50%; width: 38%; height: 7%; transform: translateX(-50%); border-radius: 8px 8px 3px 3px; background: linear-gradient(#f4f5f7, #b8bec7); box-shadow: 0 2px 3px #0000002e; }
+.cd-brand { position: absolute; bottom: 6.5%; left: 0; right: 0; text-align: center; font: 700 8px/1 "Bahnschrift", "Segoe UI", sans-serif; letter-spacing: 3px; color: #6c727c; }
+.cd-front { position: absolute; left: 12%; right: 12%; bottom: 4%; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.cd-lcd {
+  width: 100%; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 10px; padding: 6px 12px; border-radius: 6px;
+  background: linear-gradient(#a9b99a, #93a585); color: #1d2a17; box-shadow: inset 0 2px 5px #00000047, 0 1px 0 #fff;
+  font-family: "Consolas", "Lucida Console", monospace;
+}
+.cd-lcd b { grid-row: span 2; align-self: center; font-size: 22px; line-height: 1; letter-spacing: 1px; }
+.cd-lcd span { font-size: 15px; font-weight: 700; text-align: right; }
+.cd-lcd small { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; opacity: .8; }
+.cd-keys { display: flex; gap: 8px; }
+.cd-keys button { min-width: 44px; height: 24px; padding: 0 8px; border: 0; border-radius: 12px; background: linear-gradient(#fafbfc, #c8cdd5); color: #3e444d; font-size: 10px; letter-spacing: -1px; box-shadow: 0 2px 0 #8d949e, 0 3px 5px #0000002e; cursor: pointer; }
+.cd-keys button:active { transform: translateY(2px); box-shadow: 0 0 0 #8d949e, 0 1px 2px #0000002e; }
+.cd-keys .cd-play { background: linear-gradient(color-mix(in srgb, var(--accent) 70%, #fff), var(--accent)); color: var(--accent-text); box-shadow: 0 2px 0 color-mix(in srgb, var(--accent) 60%, #000), 0 3px 5px #0000002e; }
+.app[data-np=cd] .detail-art > h1 { margin-top: 22px; }
+.app[data-motion=reduced] .cd-player.spinning .cd-disc > .cover { animation-duration: 12s; }
+
+/* ================= 歌词排版 ================= */
+/* 只改排版，颜色仍然跟着播放页和皮肤走。 */
+.app[data-lyrics] .detail-view .lyric-lines button { transition: opacity .35s, filter .35s, transform .35s, font-size .3s; }
+
+/* 居中渐隐：网易云、QQ 音乐那样一行行居中，离当前行越远越淡。 */
+.app[data-lyrics=center] .detail-view .lyrics-scroll { mask-image: linear-gradient(transparent, #000 14%, #000 82%, transparent); }
+.app[data-lyrics=center] .detail-view .lyric-lines { align-items: center; text-align: center; gap: 18px; padding: 24vh 0 40vh; }
+.app[data-lyrics=center] .detail-view .lyric-lines button { text-align: center; opacity: .45; }
+.app[data-lyrics=center] .detail-view .lyric-lines :is(button.current + button, button:has(+ button.current)) { opacity: .75; }
+.app[data-lyrics=center] .detail-view .lyric-lines button.current { opacity: 1; transform: scale(1.06); }
+
+/* 左对齐大字：Apple Music 那样整行大字，没唱到的行带一点模糊。 */
+.app[data-lyrics=left] .detail-view .lyrics-scroll { mask-image: linear-gradient(transparent, #000 10%, #000 78%, transparent); }
+.app[data-lyrics=left] .detail-view .lyric-lines { align-items: stretch; text-align: left; gap: 26px; padding: 18vh 8px 42vh 4px; }
+.app[data-lyrics=left] .detail-view .lyric-lines button { text-align: left; font-size: clamp(22px, 2.2vw, 34px); font-weight: 800; line-height: 1.25; opacity: .35; filter: blur(1.6px); transform-origin: 0 50%; }
+.app[data-lyrics=left] .detail-view .lyric-lines :is(button.current + button, button:has(+ button.current)) { filter: blur(.7px); opacity: .5; }
+.app[data-lyrics=left] .detail-view .lyric-lines button:hover { filter: none; opacity: .8; }
+.app[data-lyrics=left] .detail-view .lyric-lines button.current { font-size: clamp(22px, 2.2vw, 34px); opacity: 1; filter: none; transform: scale(1.03); }
+
+/* 整块色底：Spotify 那样整个歌词区是一块强调色，唱过的行亮起来。 */
+/* 在 .app 上先取强调色：部分皮肤会在播放页里局部改 --accent，色块不应跟着变。 */
+.app[data-lyrics=block] { --block-accent: var(--accent); --block-ink: var(--accent-text, #fff); }
+.app[data-lyrics=block] .detail-view .lyrics-scroll { mask-image: none; border-radius: 14px; margin: 8px 0 12px; padding: 0 28px; background: color-mix(in srgb, var(--block-accent) 88%, var(--block-ink)); --lyric-ink: var(--block-ink); --lyric-dim: color-mix(in srgb, var(--lyric-ink) 42%, transparent); }
+.app[data-lyrics=block] .detail-view .lyric-offset { color: color-mix(in srgb, var(--lyric-ink) 72%, transparent); }
+.app[data-lyrics=block] .detail-view .lyric-lines { align-items: stretch; gap: 14px; padding: 36px 0 30vh; }
+.app[data-lyrics=block] .detail-view .lyric-lines button { text-align: left; font-size: clamp(22px, 2vw, 30px); font-weight: 800; line-height: 1.3; color: var(--lyric-dim); filter: none; opacity: 1; }
+.app[data-lyrics=block] .detail-view .lyric-lines button:has(~ button.current) { color: color-mix(in srgb, var(--lyric-ink) 72%, transparent); }
+.app[data-lyrics=block] .detail-view .lyric-lines button.current { font-size: clamp(22px, 2vw, 30px); color: var(--lyric-ink); text-shadow: none; }
+.app[data-lyrics=block] .detail-view .lyric-lines button:hover { color: var(--lyric-ink); }
+.app[data-lyrics=block] .detail-view .lyric-lines .lyric-translation { color: inherit; opacity: .75; }
+.app[data-lyrics=block] .detail-view .lyric-attribution { color: color-mix(in srgb, var(--lyric-ink) 65%, transparent); }
+
+/* 竖排：从右往左一列一列读，像线装书。 */
+.app[data-lyrics=vertical] .detail-view .lyrics-scroll { overflow: auto hidden; scrollbar-width: thin; direction: rtl; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 88%, transparent); }
+.app[data-lyrics=vertical] .detail-view .lyrics-scroll > * { direction: ltr; }
+.app[data-lyrics=vertical] .detail-view .lyric-offset { position: sticky; right: 0; width: max-content; }
+.app[data-lyrics=vertical] .detail-view .lyric-lines {
+  writing-mode: vertical-rl; height: 100%; min-height: 0; flex-direction: column; flex-wrap: nowrap; align-items: flex-start; gap: 22px;
+  padding: 28px 44% 28px 44%; font-family: "Songti SC", "STSong", "SimSun", "Noto Serif CJK SC", serif;
+}
+.app[data-lyrics=vertical] .detail-view .lyric-lines button { text-align: start; font-size: 22px; font-weight: 500; line-height: 1.5; letter-spacing: .14em; opacity: .42; max-block-size: none; max-inline-size: 100%; text-orientation: mixed; }
+.app[data-lyrics=vertical] .detail-view .lyric-lines button.current { font-size: 26px; font-weight: 700; opacity: 1; border-inline-start: 0; box-shadow: 3px 0 0 -0.5px var(--accent); padding-right: 8px; }
+.app[data-lyrics=vertical] .detail-view .lyric-lines .lyric-translation { font-size: 13px; letter-spacing: .05em; margin-top: 0; margin-inline-start: 0; padding-right: 0; }
+.app[data-lyrics=vertical] .detail-view .lyric-attribution { writing-mode: vertical-rl; font-size: 12px; opacity: .6; }
+
+/* 提词器：只留当前行和前后两行，当前行占满视线。 */
+.app[data-lyrics=focus] .detail-view .lyrics-scroll { overflow: hidden; mask-image: none; }
+.app[data-lyrics=focus] .detail-view .lyric-lines { min-height: calc(100% - 40px); justify-content: center; align-items: center; text-align: center; gap: 16px; padding: 0 4%; }
+.app[data-lyrics=focus] .detail-view .lyric-lines > :not(button) { display: none; }
+.app[data-lyrics=focus] .detail-view .lyric-lines:has(button.current) button { display: none; }
+.app[data-lyrics=focus] .detail-view .lyric-lines:has(button.current) :is(button.current, button.current + button, button.current + button + button, button:has(+ button.current), button:has(+ button + button.current)) { display: block; }
+.app[data-lyrics=focus] .detail-view .lyric-lines:not(:has(button.current)) button:nth-of-type(n+5) { display: none; }
+.app[data-lyrics=focus] .detail-view .lyric-lines button { text-align: center; font-size: clamp(16px, 1.4vw, 21px); opacity: .4; filter: none; }
+.app[data-lyrics=focus] .detail-view .lyric-lines button.current { font-size: clamp(32px, 3.6vw, 58px); font-weight: 850; line-height: 1.2; opacity: 1; margin: 10px 0; }
+.app[data-lyrics=focus] .detail-view .lyric-lines button.current .lyric-translation { font-size: .42em; font-weight: 600; margin-top: 10px; opacity: .75; }
+
+/* 单行字幕：像电影字幕一样只在下方显示一行。 */
+.app[data-lyrics=single] .detail-view .lyrics-scroll { overflow: hidden; mask-image: none; }
+.app[data-lyrics=single] .detail-view .lyric-lines { min-height: calc(100% - 40px); justify-content: flex-end; align-items: center; padding: 0 4% 12vh; gap: 10px; }
+.app[data-lyrics=single] .detail-view .lyric-lines > :not(button) { display: none; }
+.app[data-lyrics=single] .detail-view .lyric-lines button { display: none; }
+.app[data-lyrics=single] .detail-view .lyric-lines:has(button.current) :is(button.current, button.current + button) { display: block; }
+.app[data-lyrics=single] .detail-view .lyric-lines:not(:has(button.current)) button:first-of-type { display: block; }
+.app[data-lyrics=single] .detail-view .lyric-lines button {
+  text-align: center; font-size: clamp(22px, 2.2vw, 32px); font-weight: 700; line-height: 1.35; opacity: 1; filter: none;
+  padding: 6px 18px; border-radius: 6px; background: #000000b3; color: #fff; text-shadow: 0 1px 2px #000;
+}
+.app[data-lyrics=single] .detail-view .lyric-lines button.current + button { font-size: clamp(13px, 1vw, 15px); font-weight: 500; background: none; color: inherit; opacity: .5; text-shadow: none; }
+.app[data-lyrics=single] .detail-view .lyric-lines button .lyric-translation { color: #ffffffc7; font-size: .6em; }
+
+/* 未计时的纯文本歌词也跟着竖排和居中。 */
+.app[data-lyrics=vertical] .detail-view .plain-lyrics { writing-mode: vertical-rl; height: 100%; padding: 20px 10vw; font-family: "Songti SC", "STSong", "SimSun", serif; letter-spacing: .14em; }
+.app[data-lyrics=center] .detail-view .plain-lyrics { text-align: center; }
+
+/* ================= 进度条：歌词刻度 ================= */
+.lyric-marks { display: none; }
+.app[data-progress=lyric] .progress-track { position: relative; height: 22px; }
+.app[data-progress=lyric] .lyric-marks { display: block; position: absolute; left: 0; right: 0; top: 50%; height: 0; pointer-events: none; z-index: 1; }
+.app[data-progress=lyric] .lyric-marks i { position: absolute; bottom: 3px; width: 2px; height: 5px; margin-left: -1px; border-radius: 1px; background: color-mix(in srgb, var(--text) 30%, transparent); transition: background .3s; }
+.app[data-progress=lyric] .lyric-marks i.chorus { height: 9px; background: color-mix(in srgb, var(--accent) 55%, transparent); }
+.app[data-progress=lyric] .lyric-marks i.passed { background: color-mix(in srgb, var(--text) 55%, transparent); }
+.app[data-progress=lyric] .lyric-marks i.chorus.passed { background: var(--accent); }
+.app[data-progress=lyric] .progress-row input { height: 3px; }
+.app[data-progress=lyric] .waveform { display: none; }
+
+/* ================= 背景：封面墙 ================= */
+.app[data-bg=mosaic] > .app-backdrop { background: var(--bg); }
+.cover-mosaic {
+  position: absolute; inset: -6%; display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px;
+  transform: rotate(-8deg) scale(1.12); opacity: .62; filter: saturate(1.15);
+  animation: mosaic-drift 120s linear infinite alternate;
+}
+.cover-mosaic span { display: block; aspect-ratio: 1; overflow: hidden; border-radius: 6px; background: var(--hover); }
+.cover-mosaic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cover-mosaic span.now { outline: 3px solid var(--accent); outline-offset: -3px; }
+.app[data-bg=mosaic] > .app-backdrop::after { inset: 0; background: color-mix(in srgb, var(--bg) 38%, transparent); }
+.app[data-bg=mosaic] .workspace, .app[data-bg=mosaic]:not(:where([data-chrome=solid])) .sidebar { background: color-mix(in srgb, var(--panel-solid, var(--bg)) 74%, transparent); backdrop-filter: blur(14px) saturate(1.2); }
+
+/* 背景部件靠给侧栏和内容区加 backdrop-filter 做毛玻璃，而 backdrop-filter 会让元素成为里面绝对、固定定位子元素的定位基准。
+   Spotify 系把标志和顶栏挂在窗口顶部的黑带上，开了背景就会掉进侧栏和内容区里。
+   这里把毛玻璃挪到侧栏和内容区的伪元素上，标志和顶栏改为相对窗口固定定位。 */
+.app[data-bg].theme-spotify { --sp-glass: color-mix(in srgb, var(--panel-solid, var(--bg)) 62%, transparent); --sp-side-glass: color-mix(in srgb, var(--sidebar, var(--bg)) 52%, transparent); --sp-blur: blur(22px) saturate(1.3); }
+.app[data-bg=mosaic].theme-spotify { --sp-glass: color-mix(in srgb, var(--panel-solid, var(--bg)) 74%, transparent); --sp-side-glass: color-mix(in srgb, var(--sidebar, var(--bg)) 74%, transparent); --sp-blur: blur(14px) saturate(1.2); }
+.app[data-bg]:not([data-bg=plain]).theme-spotify > .workspace,
+.app[data-bg]:not([data-bg=plain]).theme-spotify:not(:where([data-chrome=solid])):is(:not([data-sidebar]), [data-sidebar=full]) > .sidebar { position: relative; isolation: isolate; background: none; backdrop-filter: none; }
+.app[data-bg]:not([data-bg=plain]).theme-spotify > .workspace::before,
+.app[data-bg]:not([data-bg=plain]).theme-spotify:not(:where([data-chrome=solid])):is(:not([data-sidebar]), [data-sidebar=full]) > .sidebar::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: var(--sp-glass); backdrop-filter: var(--sp-blur);
+}
+.app[data-bg]:not([data-bg=plain]).theme-spotify:not(:where([data-chrome=solid])):is(:not([data-sidebar]), [data-sidebar=full]) > .sidebar::before { background: var(--sp-side-glass); }
+.app[data-bg]:not([data-bg=plain]).theme-spotify:is(:not([data-sidebar]), [data-sidebar=full]) .brand,
+.app[data-bg]:not([data-bg=plain]).theme-spotify:not([data-player=island]) .topbar { position: fixed; }
+/* Spotify 系的顶栏、播放栏和面板间的缝原本是一整块深色外框。开了背景后让它们一起透出背景，
+   再统一盖一层外框色，避免顶栏纯黑、标志区和缝隙露出清晰图片、播放栏又是毛玻璃这样各不相同。 */
+.app.theme-spotify { --sp-frame: #000; }
+:root[data-skin=bodian] .app.theme-spotify { --sp-frame: #0a0a0a; }
+:root:is([data-skin=audiomack], [data-skin=anghami]) .app.theme-spotify { --sp-frame: var(--g2-frame); }
+.app[data-bg]:not([data-bg=plain]).theme-spotify > .app-backdrop::after { inset: 0; background: color-mix(in srgb, var(--sp-frame) 68%, transparent); }
+.app[data-bg]:not([data-bg=plain]).theme-spotify .topbar,
+.app[data-bg]:not([data-bg=plain]).theme-spotify:not([data-player=island], [data-player=float]):not(:where([data-chrome=solid])) > .player { background: transparent; backdrop-filter: none; }
+.mosaic-empty { position: absolute; inset: 0; background: radial-gradient(80% 60% at 30% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%); }
+@keyframes mosaic-drift { to { transform: rotate(-8deg) scale(1.12) translateY(-6%); } }
+.app[data-motion=reduced] .cover-mosaic { animation: none; }
+}

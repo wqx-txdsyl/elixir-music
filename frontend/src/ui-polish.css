@@ -1,3 +1,4 @@
+@layer legacy {
 .select-menu{position:relative;display:inline-block;min-width:170px;font-size:13px}
 .select-trigger{width:100%;min-height:40px;border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:10px 13px;background:var(--panel);color:var(--text);text-align:left}
 .select-trigger:hover{background:var(--hover)}
@@ -88,5 +89,6 @@
 
 /* Transparent identity mark; the ocean artwork is reserved for the app icon. */
 .app .platform-brand img{border-radius:0;background:transparent;object-fit:contain}
-.app.theme-spotify .platform-brand img,.app.theme-qqmusic .platform-brand img{filter:invert(1)}
+.app.theme-spotify .platform-brand img{filter:invert(1)}
 .job-note>.icon-button:last-child{margin-left:auto;color:inherit}
+}

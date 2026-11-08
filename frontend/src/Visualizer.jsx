@@ -2,7 +2,7 @@ import React,{useEffect,useRef} from 'react';
 import {bandLevels,logBands,settle,simulatedLevels} from './visualizer-math.mjs';
 import './visualizer.css';
 
-const COUNT={bars:48,wave:48,ring:64};
+const COUNT={bars:48,wave:48,ring:64,mirror:40,dots:32};
 // Must match the negative inset of .visualizer-ring in visualizer.css.
 const RING_MARGIN=44;
 
@@ -41,6 +41,14 @@ export default function Visualizer({mode,getAnalyser,simulated,playing,className
         ctx.lineTo(width,mid);
         for(let i=count-1;i>0;i--){const [x0,a]=points[i],[x1,b]=points[i-1];ctx.quadraticCurveTo(x0,mid+a,(x0+x1)/2,mid+(a+b)/2);}
         ctx.closePath();ctx.globalAlpha=.28;ctx.fill();ctx.globalAlpha=.9;ctx.lineWidth=1.5;ctx.stroke();
+      }else if(mode==='mirror'){
+        // Media Player style: bars grow up and down from the middle line, with a faint reflection.
+        const mid=height/2,gap=Math.max(2,width/count*.3),bar=Math.max(1,(width-gap*(count-1))/count);
+        for(let i=0;i<count;i++){const h=Math.max(1.5,levels[i]*mid*.95),x=i*(bar+gap);ctx.globalAlpha=.45+.55*levels[i];ctx.fillRect(x,mid-h,bar,h);ctx.globalAlpha=.18+.3*levels[i];ctx.fillRect(x,mid+1,bar,h*.8);}
+      }else if(mode==='dots'){
+        // A dot-matrix meter like Winamp and 千千静听: lit cells stack up, the top one holds a little longer.
+        const rows=Math.max(4,Math.floor(height/7)),cell=Math.min(width/count,height/rows),size=Math.max(1.5,cell*.62),offsetX=(width-cell*count)/2;
+        for(let i=0;i<count;i++){const lit=Math.round(levels[i]*rows);for(let r=0;r<rows;r++){const on=r<lit;ctx.globalAlpha=on?(r===lit-1?1:.55+.4*r/rows):.08;ctx.fillRect(offsetX+i*cell+(cell-size)/2,height-(r+1)*cell+(cell-size)/2,size,size);}}
       }else{
         const gap=Math.min(Math.max(2,width/count*.35),width/count*.5),bar=Math.max(1,(width-gap*(count-1))/count),radius=Math.max(0,Math.min(bar/2,3));
         for(let i=0;i<count;i++){const h=Math.max(2,levels[i]*height);ctx.globalAlpha=.35+.65*levels[i];ctx.beginPath();ctx.roundRect(i*(bar+gap),height-h,bar,h,[radius,radius,0,0]);ctx.fill();}

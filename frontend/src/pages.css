@@ -1,3 +1,4 @@
+@layer legacy {
 /* Page header shared by likes, history, ranking, library, playlists, my music, accounts and settings. */
 .page-hero{position:relative;display:flex;align-items:flex-end;gap:28px;margin:6px 0 24px;min-width:0}
 .page-hero-art{width:180px;height:180px;flex-shrink:0;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;background:var(--hero-tint);box-shadow:0 14px 34px #0f1b3a26;overflow:hidden}
@@ -27,8 +28,8 @@
 /* The table toolbar follows the hero directly, so the old heading spacing is not needed. */
 .page-hero+.history-filters{margin-top:0}
 
-.theme-qqmusic .page-hero{padding:26px;border-radius:16px;background:linear-gradient(115deg,#ffffff0d,#ffffff03 70%);border:1px solid #ffffff08}
-.theme-qqmusic .page-hero-art{border-radius:10px;box-shadow:0 14px 34px #0006}
+.theme-qqmusic .page-hero{padding:26px;border-radius:16px;background:linear-gradient(115deg,#eef9f3,#f7f8fa 70%);border:1px solid #0000000a}
+.theme-qqmusic .page-hero-art{border-radius:10px;box-shadow:0 12px 30px #1f232926}
 .theme-qqmusic .page-hero.compact{padding:20px 26px}
 .theme-qqmusic .page-hero-stats dd{color:var(--accent)}
 
@@ -89,8 +90,27 @@
 .accounts-page .account-content small{margin-top:8px}
 .app .accounts-page .account-actions{flex-direction:row;flex-wrap:wrap;align-items:center;align-self:stretch;gap:6px 12px;min-width:0;margin-top:auto;padding:12px 22px 20px}
 .accounts-page .account-card:not(.connected-card) .account-actions .button{width:100%}
-.theme-qqmusic .accounts-page,.theme-spotify .accounts-page{--panel-solid:#1f1f1f}
-.theme-qqmusic .accounts-page{--panel-solid:#202638}
+/* 三张卡片同一结构：名称与状态、会员信息、接入方式列表、底部操作。 */
+.app .accounts-page .account-center{align-items:start}
+.app .accounts-page .account-center .account-card{min-height:0}
+.accounts-page .account-content>p{color:var(--subtle);margin-top:4px}
+.accounts-page .account-reason{display:block;color:var(--muted)}
+.accounts-page .account-methods{display:grid;gap:10px;margin-top:16px}
+.accounts-page .account-method{display:grid;gap:6px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--panel,#fff) 70%,transparent)}
+.accounts-page .account-method.active{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));box-shadow:inset 3px 0 0 var(--accent)}
+.accounts-page .account-method-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.accounts-page .account-method-head strong{font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.accounts-page .account-method-state{flex:none;font-size:11px;padding:2px 8px;border-radius:99px;color:var(--subtle);background:color-mix(in srgb,var(--text) 7%,transparent)}
+.accounts-page .account-method.active .account-method-state{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.accounts-page .account-method small{margin:0;font-size:12px;line-height:1.6;color:var(--muted);max-width:none}
+.accounts-page .account-method .account-method-error{color:#d64545}
+.accounts-page .account-method-actions,.accounts-page .account-method-form{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:2px}
+.accounts-page .account-method-form input{flex:1 1 180px;min-width:0;height:34px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:13px}
+.accounts-page .account-method-form .field-help{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:0;font-size:11px;color:var(--muted)}
+.accounts-page .account-method .button{min-height:34px}
+.accounts-page .bridge-pairing{margin:2px 0 0;padding-left:18px;display:grid;gap:4px;font-size:12px;color:var(--subtle)}
+.theme-spotify .accounts-page{--panel-solid:#1f1f1f}
+.theme-qqmusic .accounts-page{--panel-solid:#f7f8fa}
 .theme-aurora .accounts-page{--panel-solid:#1b1d33}
 .theme-aurora .accounts-page .account-card{background:#ffffff08;border-color:#ffffff14;border-radius:22px}
 
@@ -147,3 +167,4 @@
 .page-hero-art-action{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#fff;font-size:13px;font-weight:500;background:#0008;opacity:0;transition:opacity .16s}
 .page-hero-art.editable:hover .page-hero-art-action,.page-hero-art-action:focus-visible{opacity:1}
 .page-hero-art-action:disabled{opacity:0!important}
+}

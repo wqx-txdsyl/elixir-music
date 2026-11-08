@@ -1,3 +1,4 @@
+@layer legacy {
 /* NetEase: a banner carousel up top, square list covers in rows, compact numbered songs. */
 .home-netease .home-greeting {
   display: flex;
@@ -191,4 +192,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .home-banner-slide { animation: none; }
+}
 }

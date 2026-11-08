@@ -1,3 +1,4 @@
+@layer legacy {
 /* Full-window "now playing" for themes whose original apps work that way (Apple Music, QQ Music):
    the page covers the sidebar, the artwork is blurred into the background, text turns white. */
 .detail-backdrop { display: none; }
@@ -113,3 +114,4 @@
 .theme-qqmusic .lyric-translation { font-size: .72em; color: inherit; opacity: .8; }
 .theme-qqmusic .plain-lyrics { font-size: 17px; line-height: 2.2; color: #ffffffbf; }
 .theme-qqmusic .comments-scroll, .theme-qqmusic .track-information { padding-top: 10px; }
+}

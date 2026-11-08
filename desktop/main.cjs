@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const crypto = require('node:crypto');
 const {canonicalRuntimeExecutable,canonicalDataDirectory}=require('./runtime-paths.cjs');
 const {SpotifyPlayer}=require('./spotify-player.cjs');
+const {createPlatformWindows}=require('./platform-window.cjs');
 const {readLyricsPreferences,saveLyricsPreferences,lyricsWindowHeight,normalizeLyricData}=require('./lyrics-preferences.cjs');
 const {retainInBackground,showWindow}=require('./background-window.cjs');
 canonicalRuntimeExecutable(app);
@@ -16,6 +17,13 @@ let mainWindow, service, closing = false;
 let lyricWindow, tray;
 let lyricData={title:'桌面歌词',line:'播放音乐后显示歌词',next:''};
 const loginWindows = new Map();
+const platformWindows=createPlatformWindows(()=>mainWindow, async (source, verified) => {
+  const result = await backend('/api/accounts/'+source+'/web-status',{verified},'PUT');
+  mainWindow?.webContents.send('accounts-updated',source);
+  return result;
+}, state => {
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('platform-playback',state);
+});
 let spotifyHeaders = { access_token: '', client_token: '' };
 let spotifyCaptureInstalled = false;
 let inAppSpotify;
@@ -55,7 +63,7 @@ async function startBackend() {
   const args = app.isPackaged ? [] : [path.join(root, 'backend', 'run.py')];
   const binary = app.isPackaged ? executable : (process.env.MUSICPLATFORM_PYTHON || 'python');
   const logfile = fs.openSync(path.join(dataRoot, 'service.log'), 'a');
-  service = spawn(binary, args, {cwd:root, windowsHide:true, stdio:['ignore',logfile,logfile], env:{...process.env,MUSICPLATFORM_TOKEN:token,MUSICPLATFORM_PORT:'18740',MUSICPLATFORM_DATA:dataRoot,MUSICPLATFORM_DATA_DIR:dataRoot,MUSICPLATFORM_WEB:app.isPackaged?path.join(root,'web'):path.join(root,'dist','web'),PYTHONUTF8:'1'}});
+  service = spawn(binary, args, {cwd:root, windowsHide:true, stdio:['ignore',logfile,logfile], env:{...process.env,MUSICPLATFORM_TOKEN:token,MUSICPLATFORM_PORT:'18740',MUSICPLATFORM_DATA:dataRoot,MUSICPLATFORM_DATA_DIR:dataRoot,MUSICPLATFORM_WEB:app.isPackaged?path.join(root,'web'):path.join(root,'dist','web'),...(app.isPackaged?{ELIXIR_LIBRESPOT_DIR:path.join(root,'backend','librespot')}:{}),PYTHONUTF8:'1'}});
   fs.closeSync(logfile);
   let spawnError;
   service.on('error', error => { spawnError = error; });
@@ -73,7 +81,10 @@ function spotifyPlayer(){
     onSession:async data=>{const profile=await backend('/api/accounts/spotify/web-session',data);mainWindow?.webContents.send('accounts-updated','spotify');return profile;},
     // Each state report from the web player also wakes the renderer, so progress and pauses show without waiting for a poll.
     onObservation:data=>backend('/api/spotify/player-observation',data).finally(()=>mainWindow?.webContents.send('spotify-player-state',{observation:data.debug_source})),
-    onState:state=>{fs.appendFileSync(path.join(dataRoot,'spotify-player-status.jsonl'),JSON.stringify({at:Date.now(),...state})+'\n');mainWindow?.webContents.send('spotify-player-state',state);}
+    onState:state=>{fs.appendFileSync(path.join(dataRoot,'spotify-player-status.jsonl'),JSON.stringify({at:Date.now(),...state})+'\n');
+      // 已经切到别的音源，Spotify 却因为晚到的播放命令自己开播了：马上再暂停一次。
+      if(state.media_started&&!spotifyWanted)pauseSpotify(spotifyPlaySequence);
+      mainWindow?.webContents.send('spotify-player-state',state);}
   });return inAppSpotify;
 }
 async function syncLogin(source) {
@@ -190,15 +201,79 @@ ipcMain.handle('window',(event,action)=>{trusted(event);if(action==='minimize')m
 ipcMain.handle('window-state',event=>{trusted(event);return {maximized:mainWindow.isMaximized(),minimized:mainWindow.isMinimized()};});
 ipcMain.handle('version',event=>{trusted(event);return app.getVersion();});
 ipcMain.handle('open-external',(event,url)=>{trusted(event);if(!allowedExternal(url))throw new Error('无效链接');return shell.openExternal(url);});
+ipcMain.handle('platform-window',(event,source,url,play,trackId,track)=>{
+  trusted(event);
+  if(play===true && (typeof trackId!=='string' || !trackId.startsWith(source+':')))throw new Error('歌曲标识无效');
+  const match=source==='migu' && track ? {title:String(track.title||'').slice(0,350),artist:String(track.artist||'').slice(0,350),
+    album:String(track.album||'').slice(0,350),duration_ms:Number(track.duration_ms)||0} : null;
+  return platformWindows.open(source,url,play===true,trackId,match);
+});
+ipcMain.handle('platform-control',(event,trackId,resume)=>{trusted(event);return platformWindows.control(trackId,resume===true);});
+ipcMain.handle('platform-logout',(event,source)=>{trusted(event);return platformWindows.clear(source);});
+ipcMain.handle('platform-track-read',async(event,source,url)=>{
+  trusted(event);
+  const track=await platformWindows.readTrack(source,url);
+  return backend('/api/accounts/'+source+'/browser-track',track);
+});
+ipcMain.handle('platform-search',async(event,source,query)=>{
+  trusted(event);
+  const rows=await platformWindows.search(source,query);
+  return rows.length?backend('/api/accounts/'+source+'/browser-search',{rows}):{tracks:[]};
+});
+ipcMain.handle('platform-stop',event=>{trusted(event);platformWindows.stop();});
 ipcMain.handle('login',(event,source)=>{trusted(event);return login(source);});
 ipcMain.handle('finish-login',(event,source)=>{trusted(event);return syncLogin(source);});
 ipcMain.handle('refresh-spotify-session',event=>{trusted(event);return spotifyPlayer().refreshSession();});
 ipcMain.handle('cookie-login',(event,source,cookie)=>{trusted(event);if(source!=='spotify')throw new Error('该入口仅接受 Spotify Cookie');return importSpotifyCookie(cookie);});
-function submitSpotifyCommand(endpoint,body,sequence){backend(endpoint,body).catch(error=>{if(sequence!==undefined&&sequence!==spotifyPlaySequence)return;mainWindow?.webContents.send('spotify-player-state',{command_error:true,reason:error.message});});}
-ipcMain.handle('spotify-play',async(event,trackId)=>{trusted(event);if(!/^[A-Za-z0-9]{22}$/.test(trackId))throw Error('无效的Spotify歌曲编号');const request=++spotifyPlaySequence;const player=await spotifyPlayer().ready();if(request!==spotifyPlaySequence)return {cancelled:true};submitSpotifyCommand('/api/spotify/play',{track_id:trackId,device_id:player.device_id},request);return {pending:true,confirmed:false,...player};});
+// Spotify 只用应用内网页播放器。每条命令带上递增序号，后端会丢弃比已提交命令更旧的那条：
+// 快速切歌时，晚到的旧播放命令不会盖过新的播放或停止。
+let spotifyWanted=false;
+function submitSpotifyCommand(endpoint,body,sequence){
+  return backend(endpoint,sequence===undefined?body:{...body,sequence}).catch(error=>{if(sequence!==undefined&&sequence!==spotifyPlaySequence)return;mainWindow?.webContents.send('spotify-player-state',{command_error:true,reason:error.message});});
+}
+function pauseSpotify(sequence){
+  const deviceId=inAppSpotify?.deviceId;
+  if(deviceId)return submitSpotifyCommand('/api/spotify/control',{action:'pause',device_id:deviceId},sequence);
+}
+ipcMain.handle('spotify-play',async(event,trackId)=>{
+  trusted(event);
+  if(!/^[A-Za-z0-9]{22}$/.test(trackId))throw Error('无效的 Spotify 歌曲编号');
+  const request=++spotifyPlaySequence;spotifyWanted=true;spotifyPlayer().setMuted(false);
+  const player=await spotifyPlayer().ready();
+  if(request!==spotifyPlaySequence)return {cancelled:true};
+  // 播放命令发出期间如果切到了别的音源，命令完成后再补一次暂停，保证不会和别的音源同时出声。
+  submitSpotifyCommand('/api/spotify/play',{track_id:trackId,device_id:player.device_id},request).then(()=>{if(!spotifyWanted)pauseSpotify(spotifyPlaySequence);});
+  return {pending:true,confirmed:false,...player,transport:'web'};
+});
+// 切到其他音源时调用：作废还没发出的播放命令，并暂停网页播放器。
+ipcMain.handle('spotify-stop',event=>{
+  trusted(event);
+  const sequence=++spotifyPlaySequence;spotifyWanted=false;inAppSpotify?.setMuted(true);
+  for(const timer of spotifyControlTimers.values())clearTimeout(timer);
+  spotifyControlTimers.clear();
+  pauseSpotify(sequence);
+  return {stopped:true};
+});
 ipcMain.handle('spotify-state',async event=>{trusted(event);const player=spotifyPlayer();const state=await backend('/api/spotify/state',undefined,'GET');const media=await player.sampleMedia();if(media&&state.device?.id===media.device_id&&media.ready_state>=3&&!media.seeking&&Math.abs((state.duration_ms||0)-media.duration_ms)<1500&&(!media.title||!state.track?.title||media.title.normalize('NFKC').replace(/\s+/g,'').toLocaleLowerCase()===state.track.title.normalize('NFKC').replace(/\s+/g,'').toLocaleLowerCase()))backend('/api/spotify/player-observation',{device_id:media.device_id,position_ms:media.position_ms,debug_source:media.paused||media.ended?'pause':'progress'}).catch(()=>{});return {...state,owned_device_id:player.deviceId,owned_media_playing:player.playing,owned_license_error:player.licenseError,owned_media_sample:media};});
-ipcMain.handle('spotify-queue',(event,trackId)=>{trusted(event);if(!/^[A-Za-z0-9]{22}$/.test(trackId))throw Error('无效的Spotify歌曲编号');const player=spotifyPlayer();if(!player.deviceId)throw Error('Spotify 应用内播放器尚未就绪');submitSpotifyCommand('/api/spotify/queue',{track_id:trackId,device_id:player.deviceId});return {pending:true};});
-ipcMain.handle('spotify-control',async(event,action,value)=>{trusted(event);if(!['pause','resume','next','previous','seek','volume'].includes(action))throw Error('不支持此操作');const player=spotifyPlayer();if(!player.deviceId)throw Error('Spotify 应用内播放器尚未就绪');const send=()=>submitSpotifyCommand('/api/spotify/control',{action,value,device_id:player.deviceId});if(['seek','volume'].includes(action)){clearTimeout(spotifyControlTimers.get(action));spotifyControlTimers.set(action,setTimeout(send,120));}else send();return {pending:true,confirmed:false};});
+ipcMain.handle('spotify-queue',(event,trackId)=>{
+  trusted(event);
+  if(!/^[A-Za-z0-9]{22}$/.test(trackId))throw Error('无效的 Spotify 歌曲编号');
+  const player=spotifyPlayer();
+  if(!player.deviceId)throw Error('Spotify 应用内播放器尚未就绪');
+  submitSpotifyCommand('/api/spotify/queue',{track_id:trackId,device_id:player.deviceId});
+  return {pending:true};
+});
+ipcMain.handle('spotify-control',async(event,action,value)=>{
+  trusted(event);
+  if(!['pause','resume','next','previous','seek','volume'].includes(action))throw Error('不支持此操作');
+  const player=spotifyPlayer();
+  if(!player.deviceId)throw Error('Spotify 应用内播放器尚未就绪');
+  if(action==='resume'){spotifyWanted=true;player.setMuted(false);}
+  const sequence=spotifyPlaySequence;
+  const send=()=>{if(sequence===spotifyPlaySequence)submitSpotifyCommand('/api/spotify/control',{action,value,device_id:player.deviceId},sequence);};
+  if(['seek','volume'].includes(action)){clearTimeout(spotifyControlTimers.get(action));spotifyControlTimers.set(action,setTimeout(send,120));}else send();
+  return {pending:true,confirmed:false};
+});
 ipcMain.handle('configure-playback-proxy',(event,proxy)=>{trusted(event);if(typeof proxy!=='string'||proxy.length>2000||(proxy&&!['http:','https:','socks5:'].includes(new URL(proxy).protocol)))throw Error('代理地址格式无效');fs.writeFileSync(playbackConfig,JSON.stringify({proxy}));return true;});
 ipcMain.handle('oauth-login',async(event)=>{trusted(event);const result=await backend('/api/accounts/spotify/login-url',undefined,'GET');if(!result.url||!result.url.startsWith('https://accounts.spotify.com/'))throw new Error('OAuth 地址无效');await shell.openExternal(result.url);return {opened:true};});
 ipcMain.handle('clear-login',async(event,source)=>{trusted(event);if(!['netease','qqmusic','spotify'].includes(source))throw new Error('未知平台');await session.fromPartition('persist:musicplatform-'+source).clearStorageData();if(source==='spotify'){spotifyHeaders={access_token:'',client_token:''};spotifyPlaySequence++;inAppSpotify?.reset();}return true;});
@@ -206,6 +281,15 @@ if(!app.requestSingleInstanceLock()) app.quit();
 else {
   app.on('second-instance',()=>showWindow(mainWindow));
   app.whenReady().then(async()=>{try{await startBackend();createWindow();trayAndKeys();session.fromPartition('persist:musicplatform-spotify').cookies.get({name:'sp_dc'}).then(c=>{if(c.some(x=>x.value))return spotifyPlayer().refreshSession().then(()=>backend('/api/spotify/state',undefined,'GET'));}).catch(()=>{});}catch(error){dialog.showErrorBox('Elixir 启动失败',error.message);app.quit();}});
-  app.on('window-all-closed',()=>app.quit());
-  app.on('before-quit',()=>{if(!closing){closing=true;for(const timer of spotifyControlTimers.values())clearTimeout(timer);inAppSpotify?.close();globalShortcut.unregisterAll();tray?.destroy();lyricWindow?.close();for(const win of loginWindows.values())if(!win.isDestroyed())win.close();if(service&&!service.killed)service.kill();}});
+  app.on('window-all-closed',()=>{if(!closing)app.quit();});
+  app.on('before-quit',event=>{
+    if(closing)return;
+    event.preventDefault();closing=true;
+    for(const timer of spotifyControlTimers.values())clearTimeout(timer);
+    inAppSpotify?.close();platformWindows.close();globalShortcut.unregisterAll();tray?.destroy();lyricWindow?.close();
+    for(const win of loginWindows.values())if(!win.isDestroyed())win.close();
+    Promise.race([backend('/api/spotify/native/stop').catch(()=>{}),new Promise(resolve=>setTimeout(resolve,1500))]).finally(()=>{
+      if(service&&!service.killed)service.kill();app.quit();
+    });
+  });
 }

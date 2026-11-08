@@ -1,3 +1,5 @@
+import platforms from '../../backend/providers/platforms.json';
+
 const initialToken = new URLSearchParams(location.search).get('token');
 if (initialToken) { sessionStorage.setItem('musicplatform-token', initialToken); const query=new URLSearchParams(location.search);query.delete('token');history.replaceState(null, '', location.pathname+(query.size?'?'+query:'')); }
 export const appToken = () => sessionStorage.getItem('musicplatform-token') || '';
@@ -29,7 +31,10 @@ export function mediaUrl(url) {
   return url;
 }
 export const trackPath = id => '/api/tracks/' + encodeURIComponent(id);
-export const SOURCE_NAMES = { netease: '网易云音乐', qqmusic: 'QQ音乐', spotify: 'Spotify', local: '本地音乐', all: '全部平台' };
+export const SOURCE_NAMES = { netease: '网易云音乐', qqmusic: 'QQ音乐', spotify: 'Spotify', local: '本地音乐', all: '全部平台',
+  ...Object.fromEntries(Object.entries(platforms).map(([id, platform]) => [id, platform.name])) };
+// 暂停接入的平台不再出现在搜索、账号和首页里；已收藏的歌曲仍按原平台显示。
+export const CATALOG_SOURCES = Object.keys(platforms).filter(id => !platforms[id].paused && (platforms[id].catalog || platforms[id].links));
 export const THEME_NAMES = { netease: '网易云音乐', qqmusic: 'QQ音乐', spotify: 'Spotify', aurora: '极光', ink: '墨刻', apple: 'Apple Music' };
 export function formatDuration(ms) { const seconds = Math.max(0, Math.floor(Number(ms || 0) / 1000)); return Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0'); }
 export function parseLrc(text = '') {

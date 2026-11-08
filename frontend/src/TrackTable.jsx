@@ -90,7 +90,7 @@ export const PlaybackTrackTable=memo(function PlaybackTrackTable({items:sourceIt
     </div>
     :<div className="track-toolbar">
       {controls&&<div className="track-toolbar-primary">
-        <button className="button primary" disabled={!items.length} onClick={()=>actions.current.play(items[0],items)}><Play size={17} weight="fill"/>{filtering?'播放搜索结果':'播放全部'}</button>
+        <button className="button primary" disabled={!items.length} onClick={()=>actions.current.playAll(items)}><Play size={17} weight="fill"/>{filtering?'播放搜索结果':'播放全部'}</button>
         <button className="button quiet" disabled={!items.length} onClick={()=>actions.current.batch('queue',items)}><Queue size={17}/>加入队列</button>
         <button className="button quiet" disabled={!items.length} onClick={()=>actions.current.batch('playlist',items,playlistId)}><Playlist size={17}/>加入歌单</button>
       </div>}

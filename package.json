@@ -1,6 +1,6 @@
 {
   "name": "elixir-music",
-  "version": "0.2.6",
+  "version": "2.0.0",
   "description": "纯净听歌聚合桌面平台",
   "main": "desktop/main.cjs",
   "author": "Elixir",
@@ -41,6 +41,8 @@
       "package.json",
       "desktop/icon.png",
       "desktop/spotify-player.cjs",
+      "desktop/platform-window.cjs",
+      "backend/providers/platforms.json",
       "desktop/icon.ico"
     ],
     "extraResources": [

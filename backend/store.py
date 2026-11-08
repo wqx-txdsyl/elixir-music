@@ -259,6 +259,21 @@ class Store:
             'scope':'本应用记录；时长仅计算实际观察到的播放进度，旧记录不补造时长',
             'period_scope':'会话开始时间' if since or until else '全部记录'}
 
+    def listening_calendar(self,days=182,now=None):
+        """Minutes listened and plays per local calendar day, oldest first, for the last `days` days."""
+        import datetime
+        days=max(7,min(371,int(days)))
+        today=datetime.date.fromtimestamp(time.time() if now is None else now)
+        first=today-datetime.timedelta(days=days-1)
+        since=time.mktime(first.timetuple())
+        with self.lock:rows=self.db.execute('SELECT started,listened_ms FROM listening_sessions WHERE started>=?',(since,)).fetchall()
+        totals={}
+        for row in rows:
+            key=datetime.date.fromtimestamp(row['started']).isoformat()
+            item=totals.setdefault(key,[0,0]);item[0]+=row['listened_ms'];item[1]+=1
+        return {'days':[{'day':(first+datetime.timedelta(days=i)).isoformat(),'listened_ms':totals.get((first+datetime.timedelta(days=i)).isoformat(),[0,0])[0],'plays':totals.get((first+datetime.timedelta(days=i)).isoformat(),[0,0])[1]} for i in range(days)],
+            'scope':'本应用记录的实际播放时长'}
+
     def export_listening(self,source='all',since=0,until=0):
         self.history_scope(source,since,until)
         where=['1=1'];params=[]

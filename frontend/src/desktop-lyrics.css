@@ -1,3 +1,4 @@
+@layer legacy {
 /* Desktop lyrics: a transparent, always-on-top overlay window. */
 html.desktop-lyrics-root,
 html.desktop-lyrics-root body,
@@ -169,4 +170,5 @@ html.desktop-lyrics-root #root {
   .desktop-lyrics-window,
   .desktop-lyrics-window header,
   .lyric-unlock { transition: none; }
+}
 }

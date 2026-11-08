@@ -1,3 +1,4 @@
+@layer legacy {
 /* Home: built from the listener's own history and connected accounts; no editorial content.
    Shared pieces live here; each theme arranges them in home-<theme>.css. */
 .home {
@@ -531,4 +532,5 @@
   .home-card-play,
   .home-shortcut-play,
   .home-hero-art { transition: none; }
+}
 }

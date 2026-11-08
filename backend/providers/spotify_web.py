@@ -255,12 +255,19 @@ class SpotifyWeb:
             if len(connection_id)>65536 or any(c in connection_id for c in ('\r','\n')):
                 raise ValueError('Spotify 连接状态格式不正确')
             headers['X-Spotify-Connection-Id'] = connection_id
-        try:
-            with self._session_lock:
-                self.session.cookies.clear()
-                response = self.session.request(method, url, headers=headers, timeout=20, verify=True, allow_redirects=False, **kwargs)
-        except requests.RequestException:
-            raise RuntimeError('Spotify 网络连接失败，请检查网络或代理后重试') from None
+        # 空闲的长连接可能已被对方关闭，读取类请求遇到断连时重试一次；播放控制不重试，免得重复执行。
+        attempts=2 if method.upper()=='GET' or parsed.hostname=='api-partner.spotify.com' else 1
+        for attempt in range(attempts):
+            try:
+                with self._session_lock:
+                    self.session.cookies.clear()
+                    response = self.session.request(method, url, headers=headers, timeout=20, verify=True, allow_redirects=False, **kwargs)
+                break
+            except requests.ConnectionError:
+                if attempt+1<attempts:continue
+                raise RuntimeError('Spotify 网络连接失败，请检查网络或代理后重试') from None
+            except requests.RequestException:
+                raise RuntimeError('Spotify 网络连接失败，请检查网络或代理后重试') from None
         if response.status_code == 429:
             self.cooldowns.limit(cooldown_host, response.headers.get('Retry-After'))
         if not response.ok:
@@ -283,9 +290,14 @@ class SpotifyWeb:
             raise ValueError('无效的 Spotify 页面路径')
         self.cooldowns.check('open.spotify.com')
         headers = {'Cookie': self.cookie} if self.cookie else {}
-        with self._session_lock:
-            self.session.cookies.clear()
-            response = self.session.get('https://open.spotify.com' + path, headers=headers, timeout=20, verify=True, allow_redirects=False)
+        for attempt in range(2):
+            try:
+                with self._session_lock:
+                    self.session.cookies.clear()
+                    response = self.session.get('https://open.spotify.com' + path, headers=headers, timeout=20, verify=True, allow_redirects=False)
+                break
+            except requests.ConnectionError:
+                if attempt:raise RuntimeError('Spotify 网络连接失败，请检查网络或代理后重试') from None
         if response.status_code == 429:
             self.cooldowns.limit('open.spotify.com',response.headers.get('Retry-After'))
         if not response.ok:
@@ -542,7 +554,16 @@ class SpotifyWeb:
     def _accept_cluster(self, cluster):
         if not isinstance(cluster,dict) or not ('player_state' in cluster or 'devices' in cluster):
             raise RuntimeError('Spotify 未返回可验证的 Connect 播放状态')
+        # 本机时钟可能和 Spotify 服务器差几秒（系统未对时）。用集群里的服务器时间估出时差，
+        # 网络延迟只会让估计偏小，所以取最近几次里最大的那个。
+        try:server_ms=int(cluster.get('server_timestamp_ms') or 0)
+        except (TypeError,ValueError):server_ms=0
         with self._connect_condition:
+            if server_ms:
+                samples=[x for x in self.__dict__.get('_clock_samples',[]) if time.monotonic()-x[0]<600][-9:]
+                samples.append((time.monotonic(),server_ms-time.time()*1000))
+                self._clock_samples=samples
+                self._server_clock_offset_ms=max(offset for _,offset in samples)
             self._connect_cluster=cluster
             self._connect_revision+=1
             self._connect_condition.notify_all()
@@ -734,7 +755,8 @@ class SpotifyWeb:
             duration=max(0,int(state.get('duration') or 0));position=max(0,int(state.get('position_as_of_timestamp') or 0))
             reported_position=position;reported_timestamp=int(state.get('timestamp') or 0);estimated=False
             if active and state.get('is_playing') and not state.get('is_paused'):
-                position+=max(0,int(time.time()*1000)-int(state.get('timestamp') or time.time()*1000))
+                server_now=int(time.time()*1000+self.__dict__.get('_server_clock_offset_ms',0))
+                position+=max(0,server_now-int(state.get('timestamp') or server_now))
                 estimated=True
             if duration:position=min(position,duration)
         except (TypeError,ValueError,OverflowError):duration=position=reported_position=reported_timestamp=0;estimated=False
@@ -762,7 +784,7 @@ class SpotifyWeb:
         if target['is_restricted'] or not target['can_play']:raise RuntimeError('当前 Spotify 设备不允许远程播放控制，请在官方播放器检查账号与设备状态')
         return target
 
-    def _command(self,endpoint,payload=None,device_id='',confirm=None,connect_command=False,on_submitted=None):
+    def _command(self,endpoint,payload=None,device_id='',confirm=None,connect_command=False,on_submitted=None,sequence=None):
         target=self._target(device_id)
         kind='connect/'+endpoint if connect_command else 'player/command'
         # Device IDs are path components, never host names or arbitrary URLs.
@@ -771,8 +793,15 @@ class SpotifyWeb:
         body=dict(payload or {})
         if connect_command:body['command_id']=command_id
         else:body={'command':dict(body,endpoint=endpoint,logging_params={'command_id':command_id})}
-        if on_submitted is not None:on_submitted(target['id'],time.monotonic())
-        self._json('PUT' if connect_command and endpoint=='volume' else 'POST',path,json=body)
+        # 桌面端给每条命令带序号：快速切歌时，比已提交命令更旧的播放命令直接丢弃，免得晚到的旧歌盖过新操作。
+        stale=False
+        with self.__dict__.setdefault('_order_lock',threading.Lock()):
+            if sequence is not None and sequence<self.__dict__.get('_latest_sequence',-1):stale=True
+            else:
+                if sequence is not None:self._latest_sequence=sequence
+                if on_submitted is not None:on_submitted(target['id'],time.monotonic())
+                self._json('PUT' if connect_command and endpoint=='volume' else 'POST',path,json=body)
+        if stale:return {'accepted':False,'cancelled':True,'confirmed':False,'state':self.state(),'transport':'spotify-web-connect','reason':''}
         # Successful HTTP submission is not evidence that sound started playing.
         deadline=time.monotonic()+3;confirmed=False;current=self.state()
         while confirm is not None and not (confirmed:=bool(confirm(current))) and time.monotonic()<deadline:
@@ -782,7 +811,7 @@ class SpotifyWeb:
         return {'accepted':True,'confirmed':confirmed,'state':current,'transport':'spotify-web-connect',
             'reason':'' if confirmed else '指令已提交，但尚未从 Spotify 设备确认状态变化'}
 
-    def play(self,source_id,device_id=''):
+    def play(self,source_id,device_id='',sequence=None):
         sid=_source_id(source_id,'track');uri='spotify:track:'+sid
         try:self._drop_queued(device_id)
         except (RuntimeError,ValueError,TypeError):pass
@@ -791,9 +820,10 @@ class SpotifyWeb:
             with self._connect_condition:
                 submitted.update(device_id=target,monotonic=when,sequence=self._player_observation_sequence)
         result=self._command('play',{'context':{'uri':uri,'url':'context://'+uri,'metadata':{}},
-            'play_origin':{'feature_identifier':'music-platform'},'options':{'initially_paused':False}},device_id,
+            'play_origin':{'feature_identifier':'music-platform'},'options':{'initially_paused':False}},device_id,sequence=sequence,
             confirm=lambda s:s['is_playing'] and (s.get('track') or {}).get('source_id')==sid
                 and (s.get('device') or {}).get('id')==submitted.get('device_id'),on_submitted=mark_submission)
+        if result.get('cancelled'):return result
         result['state_confirmed']=result['confirmed']
         result['confirmed']=False;result['progress_confirmed']=False
         result['verification_status']='pending';result['remote_position_semantics']='reference-clock'
@@ -856,7 +886,7 @@ class SpotifyWeb:
             with self._connect_condition:self._connect_condition.wait(timeout=remaining)
         return self._json('GET',self._connect_base+'/cluster')
 
-    def control(self,action,value=None,device_id=''):
+    def control(self,action,value=None,device_id='',sequence=None):
         endpoints={'pause':'pause','resume':'resume','next':'skip_next','previous':'skip_prev','seek':'seek_to','volume':'volume'}
         if action not in endpoints:raise ValueError('不支持的 Spotify 播放操作')
         before=self.state();payload={};connect=False
@@ -871,4 +901,4 @@ class SpotifyWeb:
         else:
             old=(before.get('track') or {}).get('source_id')
             confirm=lambda s:s['has_active_device'] and ((s.get('track') or {}).get('source_id')!=old or s['position_ms']<before['position_ms']-1000)
-        return self._command(endpoints[action],payload,device_id=device_id,confirm=confirm,connect_command=connect)
+        return self._command(endpoints[action],payload,device_id=device_id,confirm=confirm,connect_command=connect,sequence=sequence)

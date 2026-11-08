@@ -1,0 +1,7 @@
+/* Cascade order for the whole interface. Later layers always win, whatever the selector:
+   legacy     — the original stylesheets and the six built-in looks;
+   skins      — the platform and Elixir skins added in 2.0, each built on one legacy look;
+   components — replaceable parts chosen in the studio (sidebar, player, now playing, …);
+   tuning     — colour, corner, font and scale adjustments;
+   user       — the listener's own CSS. */
+@layer legacy, skins, components, tuning, user;

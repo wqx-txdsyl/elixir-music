@@ -1,32 +1,27 @@
-/* QQ Music (PC 21): a dark "dynamic skin" made from the playing cover, a transparent full-height sidebar,
-   and the page plus the player as rounded panels floating on that skin. */
+@layer legacy {
+/* QQ Music (PC 21) default light skin: a light-grey full-height sidebar, a white page and player bar,
+   and the green accent on the selected entry, the play button and the progress line. */
 .nav-cover { display: none; }
 
 :root[data-theme=qqmusic] {
-  --bg: #12151d; --sidebar: transparent; --panel: #232733; --panel-solid: #232733;
-  --text: #f1f3f7; --muted: #868c9b; --subtle: #b2b8c4; --line: #ffffff12; --hover: #ffffff10;
-  --accent: #31c27c; --accent-tint: #31c27c24; --accent-text: #fff;
-  --side-width: 232px; --player-height: 86px; --skin-panel: #171b25d6;
-  --shadow: 0 20px 60px #0009; color-scheme: dark;
+  --bg: #ffffff; --sidebar: #f5f6f8; --panel: #ffffff; --panel-solid: #ffffff;
+  --text: #1f2329; --muted: #8f959e; --subtle: #5c626b; --line: #0000000f; --hover: #0000000a;
+  --accent: #31c27c; --accent-hover: #2bb371; --accent-tint: #31c27c1a; --accent-text: #fff;
+  --side-width: 232px; --player-height: 80px;
+  --shadow: 0 16px 48px #1f23291f; color-scheme: light;
 }
 
-.app.theme-qqmusic { position: relative; isolation: isolate; background: var(--bg); }
-.app.theme-qqmusic::before {
-  content: ""; position: absolute; inset: -12%; z-index: -2;
-  background: var(--now-cover) center / cover, #1b2030;
-  filter: blur(90px) saturate(1.35) brightness(.55); transform: scale(1.1);
-}
-.app.theme-qqmusic::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(160deg, #0d1018b3, #0d1018e6 55%, #0b0d14f2); }
+.app.theme-qqmusic { background: var(--bg); }
 
-/* Layout: sidebar spans both rows; page and player float to its right. */
-.theme-qqmusic .sidebar { grid-row: 1 / -1; grid-column: 1; background: transparent; padding: 0 14px 0 16px; }
-.theme-qqmusic .workspace { grid-row: 1; grid-column: 2; margin: 10px 10px 8px 0; border-radius: 14px; background: var(--skin-panel); border: 1px solid #ffffff0f; overflow: hidden; }
+/* Layout: the grey sidebar spans both rows; the white page and the player bar sit to its right. */
+.theme-qqmusic .sidebar { grid-row: 1 / -1; grid-column: 1; background: var(--sidebar); padding: 0 14px 0 16px; }
+.theme-qqmusic .workspace { grid-row: 1; grid-column: 2; background: var(--bg); overflow: hidden; }
 .theme-qqmusic .player {
-  grid-row: 2; grid-column: 2; margin: 0 10px 10px 0; padding: 0 20px;
-  border: 1px solid #ffffff0f; border-radius: 14px; background: var(--skin-panel);
+  grid-row: 2; grid-column: 2; padding: 0 22px;
+  border-top: 1px solid var(--line); background: var(--bg);
   grid-template-columns: minmax(220px, 1fr) minmax(300px, 1.25fr) minmax(220px, 1fr);
 }
-.theme-qqmusic .queue-panel { top: 50px; right: 18px; bottom: calc(var(--player-height) + 2px); border-radius: 14px; }
+.theme-qqmusic .queue-panel { top: 62px; right: 12px; bottom: calc(var(--player-height) + 8px); border-radius: 12px; box-shadow: var(--shadow); }
 .theme-qqmusic .toast { bottom: calc(var(--player-height) + 18px); }
 
 /* Sidebar */
@@ -36,65 +31,79 @@
 .theme-qqmusic .sidebar nav .nav-item svg { width: 20px; height: 20px; }
 .theme-qqmusic .sidebar nav .nav-item:nth-child(3) { margin-top: 12px; }
 /* The first two entries are the icon tiles at the top of QQ Music's sidebar. */
-.theme-qqmusic .sidebar nav .nav-item:nth-child(-n+2) { grid-column: auto; height: 50px; justify-content: center; background: #ffffff0d; border-radius: 10px; }
+.theme-qqmusic .sidebar nav .nav-item:nth-child(-n+2) { grid-column: auto; height: 50px; justify-content: center; background: #0000000a; border-radius: 10px; }
 .theme-qqmusic .sidebar nav .nav-item:nth-child(-n+2) > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .theme-qqmusic .sidebar nav .nav-item:nth-child(-n+2) svg { width: 22px; height: 22px; }
 .theme-qqmusic .sidebar nav .nav-item small { margin-left: -10px; font-size: inherit; color: inherit; opacity: 1; }
 .theme-qqmusic .sidebar nav .nav-item small::before { content: "·"; }
-.theme-qqmusic .nav-item:hover { background: #ffffff10; color: var(--text); }
-.theme-qqmusic .sidebar .nav-item.selected { background: #ffffff1c; color: #fff; }
-.theme-qqmusic .sidebar .nav-item.selected svg { color: #fff; }
+.theme-qqmusic .nav-item:hover { background: #0000000d; color: var(--text); }
+/* The selected entry is a solid green pill with white text. */
+.theme-qqmusic .sidebar .nav-item.selected, .theme-qqmusic .sidebar nav .nav-item.selected:nth-child(-n+2) { background: var(--accent); color: #fff; }
+.theme-qqmusic .sidebar .nav-item.selected:hover, .theme-qqmusic .sidebar nav .nav-item.selected:nth-child(-n+2):hover { background: var(--accent-hover); }
+.theme-qqmusic .sidebar .nav-item.selected :is(svg, small) { color: #fff; }
 .theme-qqmusic .library-heading { padding: 22px 6px 8px; font-size: 13px; font-weight: 600; letter-spacing: 0; color: var(--text); }
 .theme-qqmusic .playlist-navigation .nav-item { height: 46px; padding: 0 8px; gap: 10px; font-size: 13.5px; color: var(--text); border-radius: 9px; }
 .theme-qqmusic .playlist-navigation .nav-item:has(.nav-cover) > svg { display: none; }
-.theme-qqmusic .nav-cover { display: block; width: 32px; height: 32px; flex: none; border-radius: 6px; overflow: hidden; background: #ffffff14; }
+.theme-qqmusic .nav-cover { display: block; width: 32px; height: 32px; flex: none; border-radius: 6px; overflow: hidden; background: #0000000d; }
 .theme-qqmusic .nav-cover img { width: 100%; height: 100%; object-fit: cover; }
-.theme-qqmusic .appearance-button { background: #ffffff0a; border-color: transparent; }
+.theme-qqmusic .appearance-button { background: #0000000a; border-color: transparent; }
 .theme-qqmusic .sidebar-bottom { color: var(--muted); }
 
-/* Top bar inside the page panel */
+/* Top bar */
 .theme-qqmusic .topbar { height: 62px; padding: 0 18px 0 22px; gap: 14px; }
 .theme-qqmusic .topbar-navigation .icon-button { border: 0; background: none; color: var(--subtle); }
-.theme-qqmusic .search-box { height: 36px; max-width: 340px; border: 0; border-radius: 18px; background: #ffffff12; color: var(--muted); }
-.theme-qqmusic .search-box:focus-within { background: #ffffff1c; }
-.theme-qqmusic .search-box input::placeholder { color: #7d8496; }
+.theme-qqmusic .search-box { height: 36px; max-width: 340px; border: 1px solid transparent; border-radius: 18px; background: #f2f3f5; color: var(--muted); }
+.theme-qqmusic .search-box:focus-within { background: #fff; }
+.theme-qqmusic .search-box input::placeholder { color: #a1a6ae; }
 .theme-qqmusic .topbar-account { display: none; }
 .theme-qqmusic .main-scroll { padding: 6px 30px 36px; }
 
 /* Controls */
 .theme-qqmusic .button { border-radius: 20px; }
 .theme-qqmusic .button.primary { background: var(--accent); color: #fff; }
-.theme-qqmusic .button.quiet { background: #ffffff10; border-color: transparent; }
-.theme-qqmusic .button.quiet:hover:not(:disabled) { background: #ffffff1c; }
-.theme-qqmusic :is(.modal, .select-options, .more-menu-popover, .quality-popover, .queue-panel) { background: #232733; border-color: #ffffff14; }
+.theme-qqmusic .button.primary:hover:not(:disabled) { background: var(--accent-hover); }
+.theme-qqmusic .button.quiet { background: #f2f3f5; border-color: transparent; }
+.theme-qqmusic .button.quiet:hover:not(:disabled) { background: #e8eaed; }
+.theme-qqmusic :is(.modal, .select-options, .more-menu-popover, .quality-popover, .queue-panel) { background: #fff; border-color: #00000014; }
 
 /* Player bar */
 .theme-qqmusic .now-cover .cover { border-radius: 7px; }
 .theme-qqmusic .now-title button { font-size: 13.5px; }
 .theme-qqmusic .play-main { width: 40px; height: 40px; background: var(--accent); color: #fff; }
+.theme-qqmusic .play-main:hover { background: var(--accent-hover); }
 .theme-qqmusic .play-main svg { width: 20px; height: 20px; }
 .theme-qqmusic .player-controls { gap: 22px; }
-.theme-qqmusic .player-controls .icon-button { color: #dfe3ea; }
-.theme-qqmusic .player-controls .icon-button.active { color: #dfe3ea; }
-.theme-qqmusic .progress-row input { background: linear-gradient(to right, var(--accent) var(--range), #ffffff1f var(--range)); }
-.theme-qqmusic .player-right .icon-button { color: #c9ced8; }
-/* On the full-window player page the bar loses its panel and spans the window. */
-.app.theme-qqmusic.detail-open .player { grid-column: 1 / -1; margin: 0; border-radius: 0; background: transparent; border-color: transparent; }
+.theme-qqmusic .player-controls .icon-button { color: var(--text); }
+.theme-qqmusic .player-controls .icon-button.active { color: var(--accent); }
+.theme-qqmusic .progress-row input { background: linear-gradient(to right, var(--accent) var(--range), #0000001a var(--range)); }
+.theme-qqmusic .player-right .icon-button { color: var(--subtle); }
+.theme-qqmusic .player-right .icon-button:hover:not(:disabled) { color: var(--text); }
+/* The full-window player page keeps QQ Music's blurred-cover backdrop, so over it the bar drops its
+   background, spans the window and switches to white text. */
+.app.theme-qqmusic.detail-open:is(:not([data-np]), [data-np=immersive]) .player {
+  grid-column: 1 / -1; background: transparent; border-color: transparent; color: #fff;
+  --text: #fff; --muted: #ffffff8c; --subtle: #ffffffb8; --line: #ffffff1f; --hover: #ffffff17;
+}
+.app.theme-qqmusic.detail-open:is(:not([data-np]), [data-np=immersive]) .player .progress-row input { background: linear-gradient(to right, var(--accent) var(--range), #ffffff33 var(--range)); }
 
 /* Lists and page headers */
 .theme-qqmusic .track-row { border-radius: 8px; }
 .theme-qqmusic .track-row:nth-child(odd) { background: transparent; }
-.theme-qqmusic .track-row:hover { background: #ffffff0d; }
+.theme-qqmusic .track-row:hover { background: #f2f3f5; }
 .theme-qqmusic .track-row.current .song-title { color: var(--accent); }
 .theme-qqmusic .track-name .cover { border-radius: 6px; }
 .theme-qqmusic .table-header { color: var(--muted); }
 .theme-qqmusic .page-hero { gap: 28px; }
-.theme-qqmusic .page-hero-art { width: 200px; height: 200px; border-radius: 12px; box-shadow: 0 16px 40px #0007; }
+.theme-qqmusic .page-hero-art { width: 200px; height: 200px; border-radius: 12px; box-shadow: 0 12px 30px #1f232926; }
 .theme-qqmusic .page-hero.compact .page-hero-art { width: 88px; height: 88px; border-radius: 18px; }
 .app.theme-qqmusic .page-hero h1 { font-size: 30px; font-weight: 650; }
 .theme-qqmusic .page-hero-eyebrow { color: var(--accent); }
 
-.preview-qqmusic { background: linear-gradient(140deg, #3a2a52, #13161f 70%); padding: 4px 4px 21px; gap: 4px; }
-.preview-qqmusic .preview-sidebar { background: transparent; }
-.preview-qqmusic .preview-main { background: #171b25d6; border-radius: 4px; }
-.preview-qqmusic .preview-player { left: 27%; right: 4px; bottom: 3px; border-radius: 4px; background: #171b25d6; border: 0; }
+.preview-qqmusic { background: #fff; }
+.preview-qqmusic .preview-sidebar { background: #f2f3f5; }
+.preview-qqmusic .preview-sidebar b:not(:first-child) { background: #d5d8dd; }
+.preview-qqmusic .preview-main { background: #fff; }
+.preview-qqmusic .preview-main > b { background: #c9ccd1; }
+.preview-qqmusic .preview-main > span i { background: #eceef1; }
+.preview-qqmusic .preview-player { left: 27%; background: #fff; border-color: #e6e8eb; }
+}

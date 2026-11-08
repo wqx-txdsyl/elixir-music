@@ -1,3 +1,4 @@
+@layer legacy {
 /* Quality picker in the player bar. */
 .quality-menu { position: relative; display: inline-flex; }
 .quality-popover {
@@ -138,3 +139,17 @@
 .theme-popover button[aria-checked=true] .theme-choice strong{color:var(--accent);font-weight:600}
 .queue-next-tag { display: inline-block; margin-left: 6px; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-style: normal; font-weight: 600; vertical-align: 1px; color: var(--accent); background: var(--accent-tint); }
 .queue-item .queue-play-next:hover { color: var(--accent); }
+}
+
+/* 进度条上的副歌标记：下方一道细线标出副歌区间，起点一个小圆点，点击跳到副歌。 */
+.chorus-marks { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.chorus-range { position: absolute; top: calc(50% + 5px); height: 2px; border-radius: 2px; background: color-mix(in srgb, var(--accent) 45%, transparent); }
+.chorus-dot { position: absolute; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; padding: 0; border: 0; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--panel-solid, var(--bg)); cursor: pointer; pointer-events: auto; transition: transform .12s; }
+.chorus-dot::before { content: ''; position: absolute; inset: -6px; }
+.chorus-dot:hover, .chorus-dot:focus-visible { transform: scale(1.4); }
+.chorus-dot:disabled { cursor: default; pointer-events: none; }
+.app[data-motion=reduced] .chorus-dot { transition: none; }
+/* 贴边进度条在播放栏最上沿、波形进度条较高，区间线改放在底边。 */
+.app[data-progress=edge] .chorus-range { top: auto; bottom: -3px; }
+.app[data-progress=wave] .chorus-range { top: auto; bottom: 1px; }
+.app[data-player=mini] .chorus-range { display: none; }

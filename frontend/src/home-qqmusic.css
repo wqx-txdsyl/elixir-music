@@ -1,3 +1,4 @@
+@layer legacy {
 /* QQ Music home ("今日为你推荐"): feature cards, playlist supply shelf, song columns, chart cards. */
 .home-qqmusic { max-width: 1500px; margin: 0 auto; }
 .qq-hello { margin: 6px 0 18px; }
@@ -5,7 +6,7 @@
 .qq-hello p { margin: 7px 0 0; font-size: 12px; color: var(--muted); }
 .home-qqmusic .home-section { margin-bottom: 32px; }
 .home-qqmusic .home-section-head h2 { font-size: 19px; font-weight: 650; }
-.home-qqmusic .home-arrow { border: 0; background: #ffffff10; }
+.home-qqmusic .home-arrow { border: 0; background: #f2f3f5; }
 
 /* Feature row */
 .qq-feature { display: grid; grid-template-columns: minmax(0, 2.1fr) repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 34px; height: 204px; }
@@ -13,8 +14,13 @@
   position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 22px;
   padding: 22px; border-radius: 14px; background: #283044;
 }
-.qq-feature-main::before { content: ""; position: absolute; inset: -40px; z-index: -1; background: var(--hero-cover) center / cover, #283044; filter: blur(40px) saturate(1.4) brightness(.6); }
+.qq-feature-main::before { content: ""; position: absolute; inset: -40px; z-index: -1; background: var(--hero-cover) center / cover, #283044; filter: blur(40px) saturate(1.4) brightness(.7); }
 .qq-feature-main.home-hero-loading, .qq-feature-main.home-hero-empty { display: block; height: 100%; margin: 0; }
+.qq-feature-main.home-hero-loading { background: var(--hover); }
+.qq-feature-main.home-hero-empty { background: linear-gradient(135deg, #36bfa6, #2f7fd6); }
+.qq-feature-main:is(.home-hero-loading, .home-hero-empty)::before, .qq-feature-main:is(.home-hero-loading, .home-hero-empty)::after { display: none; }
+.qq-feature-main.home-hero-empty .button.primary { background: #fff; color: #23866f; }
+.qq-feature-main.home-hero-empty .button.primary:hover:not(:disabled) { background: #f0fbf5; }
 .qq-feature-art { width: 160px; height: 160px; padding: 0; border-radius: 10px; overflow: hidden; box-shadow: 0 12px 30px #0006; }
 .qq-feature-art .music-art { width: 100%; height: 100%; border-radius: 0; }
 .qq-feature-copy { position: relative; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: center; }
@@ -22,7 +28,7 @@
 .qq-feature-state .home-now-bars { position: static; padding: 0; background: none; height: 12px; }
 .qq-feature-title { display: block; margin: 10px 0 8px; padding: 0; text-align: left; font-size: 26px; font-weight: 650; line-height: 1.25; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
 .qq-feature-title:hover { text-decoration: underline; }
-.qq-feature-copy p { margin: 0; font-size: 13px; color: #ffffffa6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qq-feature-copy p { margin: 0; padding-right: 54px; font-size: 13px; color: #ffffffa6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .qq-play-round { position: absolute; right: 0; bottom: 0; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--accent); color: #fff; box-shadow: 0 8px 22px #0006; transition: transform .15s; }
 .qq-play-round:hover { transform: scale(1.06); }
 .qq-feature-card {
@@ -37,9 +43,10 @@
 .qq-collage-card { padding-top: 0; }
 .qq-collage { position: absolute; inset: 0; z-index: -1; display: grid; grid-template-columns: 1fr 1fr; }
 .qq-collage .music-art { width: 100%; height: 100%; border-radius: 0; }
-.qq-collage-card::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, #0000 30%, #000c); }
-.qq-cover-card { background: #2b3347; }
-.qq-cover-card::before { content: ""; position: absolute; inset: -30px; z-index: -1; background: var(--card-cover) center / cover, linear-gradient(150deg, #6a7ff0, #3c4aa8); filter: blur(18px) brightness(.62) saturate(1.3); }
+/* 暗色渐变要用 ::after：和拼贴同为 z-index -1 时按文档顺序绘制，::before 会被拼贴盖住。 */
+.qq-collage-card::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, #0000 30%, #000c); pointer-events: none; }
+.qq-cover-card { background: #4c5a8f; }
+.qq-cover-card::before { content: ""; position: absolute; inset: -30px; z-index: -1; background: var(--card-cover) center / cover, linear-gradient(150deg, #6a7ff0, #3c4aa8); filter: blur(18px) brightness(.72) saturate(1.3); }
 
 /* Playlist supply shelf: square covers with a count badge and hover play button. */
 .home-qqmusic .qq-lists .home-cover-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 24px 18px; }
@@ -75,8 +82,21 @@
 .qq-chart li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .qq-chart li small { flex: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: #ffffffa6; }
 
-@media (max-width: 1200px) {
+/* 按首页自身的宽度排版：打开右侧栏、换窄侧栏时中间变窄，也要跟着收。 */
+@container home (max-width: 940px) {
   .qq-feature { grid-template-columns: minmax(0, 1.6fr) repeat(2, minmax(0, 1fr)); }
   .qq-cover-card { display: none; }
   .home-qqmusic .qq-songs .home-track-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container home (max-width: 720px) {
+  .qq-feature { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: 180px 116px; height: auto; }
+  .qq-feature-main { grid-column: 1 / -1; }
+  .qq-feature-art { width: 136px; height: 136px; }
+  .qq-charts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container home (max-width: 520px) {
+  .qq-feature-art { width: 96px; height: 96px; }
+  .qq-feature-title { font-size: 21px; }
+  .home-qqmusic .qq-songs .home-track-grid, .qq-charts { grid-template-columns: minmax(0, 1fr); }
+}
 }

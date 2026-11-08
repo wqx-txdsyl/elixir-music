@@ -22,8 +22,10 @@ from .lyrics_db import lookup as lyrics_lookup
 from .providers.netease import NeteaseProvider
 from .providers.qqmusic import QQMusicProvider
 from .providers.spotify import SpotifyProvider
+from .providers.public_music import KINDS, PLATFORMS, PublicMusicProvider, public_track_id
+from .providers.linked_music import CATALOG_AUTH, SOURCES as LINKED_SOURCES, LinkedMusicProvider, link_identity, observed_track, safe_url, short_track_link
 
-VERSION='0.2.6'
+VERSION='2.0.0'
 TOKEN=os.environ.get('MUSICPLATFORM_TOKEN') or secrets.token_urlsafe(32)
 store=Store()
 
@@ -32,8 +34,12 @@ def saved_cookie(source):
     except Exception: return ''
 
 providers={'netease':NeteaseProvider(saved_cookie('netease')),'qqmusic':QQMusicProvider(saved_cookie('qqmusic')),'spotify':SpotifyProvider(store)}
+providers.update({name:PublicMusicProvider(name,store) for name in KINDS})
+providers.update({name:LinkedMusicProvider(name,store) for name in LINKED_SOURCES})
 jobs={}
 media_tickets={}
+search_accounts={}
+WEB_ACCOUNT_TTL=12*60*60
 app=FastAPI(title='Elixir',version=VERSION,docs_url=None,redoc_url=None,openapi_url=None)
 
 @app.middleware('http')
@@ -121,14 +127,39 @@ async def cached_remote(key,fn,*args,max_age=3600):
             return dict(prior,cached=True,stale=True,warning='当前平台请求失败，正在展示之前保存的资料') if isinstance(prior,dict) else prior
         raise
 
+def connected_for_search(source):
+    until=search_accounts.get(source,0)
+    return time.monotonic()<until
+
+
+def remember_search_account(source,logged_in,ttl=WEB_ACCOUNT_TTL):
+    if logged_in:search_accounts[source]=time.monotonic()+ttl
+    else:search_accounts.pop(source,None)
+
+
+# 暂停接入的平台：保留已有歌曲的播放与资料，但不出现在账号、搜索和首页推荐里。
+PAUSED={name for name,platform in PLATFORMS.items() if platform.get('paused')}
+
+
+def search_platforms(source,kind='track'):
+    if source=='local':return []
+    if source!='all' and source not in providers:raise ValueError('未知平台')
+    return [name for name,provider in providers.items() if (source=='all' or name==source)
+            and name not in PAUSED and connected_for_search(name) and kind in getattr(provider,'kinds',{kind})]
+
+
 async def search_sources(q,source='all',limit=30):
-    names=list(providers) if source=='all' else [source]
+    names=search_platforms(source)
     if source=='local': return store.tracks('local',q,10000),[]
-    if any(n not in providers for n in names): raise ValueError('未知平台')
     async def one(name):
+        provider=providers[name]
+        if isinstance(provider,LinkedMusicProvider) and not provider.has_catalog():
+            return provider.search(q,limit),None
         catalog=Path(__file__).parent/'providers'/(name+'_catalog.json')
         version=str(catalog.stat().st_mtime_ns) if catalog.is_file() else 'none'
+        revision=getattr(provider,'catalog_revision','')
         key='search:'+name+':'+version+':'+q+':'+str(limit)
+        if revision:key+=':'+revision
         try:
             result=await cached_remote(key,providers[name].search,q,limit,max_age=300)
             store.upsert_many(result)
@@ -146,17 +177,19 @@ async def search_sources(q,source='all',limit=30):
     return tracks,[error for _,error in results if error]
 
 @app.get('/api/health')
-def health(): return {'ok':True,'version':VERSION,'build':'20261101.5','name':'Elixir','instance':hashlib.sha256(TOKEN.encode()).hexdigest()[:16]}
+def health(): return {'ok':True,'version':VERSION,'build':'20261108.4','name':'Elixir','instance':hashlib.sha256(TOKEN.encode()).hexdigest()[:16]}
 
 @app.get('/api/search')
 async def search(q:str='',source:str='all',limit:int=30):
-    q=q.strip()[:200]
+    q=q.strip()
+    q=q[:2048] if q.startswith('https://') else q[:200]
     if not q: return {'tracks':[],'errors':[]}
     store.search_record(q)
     limit=max(1,min(limit,100))
+    names=search_platforms(source)
     # Exact IDs / official links are useful when an item is absent from search.
     direct=None
-    if re.fullmatch(r'(netease|qqmusic|spotify):[A-Za-z0-9_-]+',q): direct=q
+    if re.fullmatch(r'[a-z]+:[A-Za-z0-9_-]{1,160}',q) and q.split(':',1)[0] in providers: direct=q
     elif 'music.163.com' in q:
         m=re.search(r'(?:id=|/song/)(\d+)',q)
         if m: direct='netease:'+m[1]
@@ -166,9 +199,23 @@ async def search(q:str='',source:str='all',limit:int=30):
     elif 'open.spotify.com/track/' in q:
         m=re.search(r'/track/([A-Za-z0-9]+)',q)
         if m: direct='spotify:'+m[1]
-    if direct: return {'tracks':[public_track(await track_get(direct,True))],'errors':[]}
+    direct=direct or public_track_id(q)
+    if not direct and q.startswith('https://'):
+        platform=next((name for name in LINKED_SOURCES if link_identity(name,q) or short_track_link(name,q)),None)
+        if platform:
+            if platform not in names:return {'tracks':[],'errors':[],'login_required':not connected_for_search(platform),'sources':names}
+            result=await asyncio.to_thread(providers[platform].from_link,q)
+            store.upsert(result)
+            return {'tracks':[public_track(result)],'errors':[],'sources':[platform]}
+        return {'tracks':[],'errors':[],'sources':[]}
+    if direct:
+        platform=direct.split(':',1)[0]
+        if platform not in names:return {'tracks':[],'errors':[],'login_required':not connected_for_search(platform),'sources':names}
+        return {'tracks':[public_track(await track_get(direct,refresh=platform not in KINDS))],'errors':[],'sources':names}
     tracks,errors=await search_sources(q,source,limit)
-    return {'tracks':public_tracks(tracks),'errors':errors}
+    return {'tracks':public_tracks(tracks),'errors':errors,'sources':names,
+            'web_search':[name for name in names if name in LINKED_SOURCES and PLATFORMS[name].get('search') and not providers[name].has_catalog()],
+            'login_required':source not in {'all','local'} and not connected_for_search(source)}
 
 @app.get('/api/home')
 async def home():
@@ -228,7 +275,11 @@ async def stream(track_id:str,quality:str='standard'):
         if not path or not Path(path).is_file(): raise HTTPException(404,'文件已移动或不存在，请重新导入')
         return {'url':f'/api/local/{quote(track_id)}/audio?token={TOKEN}','quality':'original','trial':False,'reason':''}
     result=await asyncio.to_thread(providers[source].stream,sid,quality)
+    return ticket_media(result,source)
+
+def ticket_media(result,source):
     if result.get('url'):
+        if not allowed_media(result['url'],source): raise RuntimeError('平台返回了未识别的媒体地址')
         ticket=secrets.token_urlsafe(24)
         now=time.time()
         for k in list(media_tickets):
@@ -237,6 +288,16 @@ async def stream(track_id:str,quality:str='standard'):
         result=dict(result,url=f'/api/media/{ticket}?token={TOKEN}')
     return result
 
+@app.get('/api/music/mv/{source}/{sid}/play')
+async def mv_play(source:str,sid:str):
+    if not re.fullmatch(r'[A-Za-z0-9_-]{1,160}',sid): raise ValueError('无效的 MV 编号')
+    if source=='ytmusic' and re.fullmatch(r'[A-Za-z0-9_-]{11}',sid):
+        return {'embed':f'https://www.youtube.com/embed/{sid}?autoplay=1'}
+    if source not in {'netease','qqmusic'}:raise HTTPException(501,'该平台尚未提供可用的 MV 播放方式')
+    from .video import resolve
+    result=await asyncio.to_thread(resolve,providers[source],source,sid)
+    return ticket_media(result,source)
+
 @app.get('/api/local/{track_id}/audio')
 def local_audio(track_id:str):
     source_of(track_id)
@@ -244,32 +305,40 @@ def local_audio(track_id:str):
     if not track_id.startswith('local:') or not path or not Path(path).is_file(): raise HTTPException(404,'文件不存在')
     return FileResponse(path,content_disposition_type='inline')
 
-def allowed_media(url):
-    p=urlparse(url)
-    host=(p.hostname or '').lower()
-    suffixes=('music.126.net','music.163.com','qqmusic.qq.com','music.tc.qq.com','aqqmusic.tc.qq.com','stream.qqmusic.qq.com','isure.stream.qqmusic.qq.com','scdn.co','spotifycdn.com','audio-ak-spotify-com.akamaized.net')
-    return p.scheme in {'http','https'} and not p.username and not p.password and p.port in {None,80,443} and any(host==s or host.endswith('.'+s) for s in suffixes)
+def allowed_media(url,source=None):
+    try:
+        p=urlparse(url)
+        host=(p.hostname or '').lower()
+        if source=='bodian':
+            return p.scheme=='https' and host in {'bd-lv.kuwo.cn','bd-er.kuwo.cn'} and not p.username and not p.password and p.port in {None,443}
+        if source=='qishui':
+            return p.scheme=='https' and host.endswith('.douyinvod.com') and not p.username and not p.password and p.port in {None,443}
+        suffixes=('music.126.net','music.163.com','qqmusic.qq.com','music.tc.qq.com','aqqmusic.tc.qq.com','stream.qqmusic.qq.com','isure.stream.qqmusic.qq.com','scdn.co','spotifycdn.com','audio-ak-spotify-com.akamaized.net','vod.126.net')
+        return p.scheme in {'http','https'} and not p.username and not p.password and p.port in {None,80,443} and any(host==s or host.endswith('.'+s) for s in suffixes)
+    except (TypeError,ValueError):return False
 
 @app.get('/api/media/{ticket}')
 async def media(ticket:str,request:Request):
     item=media_tickets.get(ticket)
     if not item or time.time()-item['time']>3600: raise HTTPException(410,'播放地址已过期，请重新播放')
     url=item['url']
-    headers={'User-Agent':'Mozilla/5.0','Referer':'https://y.qq.com/' if item['source']=='qqmusic' else 'https://music.163.com/'}
+    referers={'qqmusic':'https://y.qq.com/','bodian':'https://h5app.kuwo.cn/','qishui':'https://music.douyin.com/'}
+    referer=referers.get(item['source'],'https://music.163.com/')
+    headers={'User-Agent':'Mozilla/5.0','Referer':referer}
     if request.headers.get('range'): headers['Range']=request.headers['range']
     proxy=store.settings().get('proxy') if item['source']=='spotify' else None
     client=httpx.AsyncClient(timeout=httpx.Timeout(25,read=90),proxy=proxy or None)
     try:
         for _ in range(5):
-            if not allowed_media(url): raise HTTPException(400,'平台返回了未识别的音频地址')
+            if not allowed_media(url,item['source']): raise HTTPException(400,'平台返回了未识别的媒体地址')
             response=await client.send(client.build_request('GET',url,headers=headers),stream=True)
             if response.is_redirect:
                 from urllib.parse import urljoin
                 url=urljoin(url,response.headers.get('location','')); await response.aclose(); continue
             break
-        else: raise HTTPException(502,'音频地址重定向过多')
+        else: raise HTTPException(502,'媒体地址重定向过多')
         if response.status_code not in (200,206):
-            await response.aclose(); raise HTTPException(502,'音频服务拒绝了播放请求')
+            await response.aclose(); raise HTTPException(502,'媒体服务拒绝了播放请求')
     except Exception:
         await client.aclose(); raise
     async def chunks():
@@ -482,15 +551,121 @@ def playlist_remove(pid:str,track_id:str): store.playlist_remove(pid,track_id); 
 async def account(source):
     try:
         p=await asyncio.to_thread(providers[source].profile)
+        remember_search_account(source,p.get('logged_in'))
+        if source=='spotify':p=dict(p,mode=providers['spotify'].tokens.get('mode') or '')
         return dict(p,source=source)
     except Exception as e:
+        remember_search_account(source,False)
         return {'source':source,'logged_in':False,'nickname':{'netease':'网易云音乐','qqmusic':'QQ音乐','spotify':'Spotify'}[source],'membership':'待验证','reason':str(e) if isinstance(e,RuntimeError) else '网络不可用，无法验证登录状态','can_refresh':getattr(e,'code','')=='spotify_session_expired'}
 
 @app.get('/api/accounts')
-async def accounts(): return {'accounts':await asyncio.gather(*(account(s) for s in providers))}
+async def accounts():
+    native=await asyncio.gather(*(account(s) for s in ('netease','qqmusic','spotify')))
+    cookie='qishui' not in PAUSED and saved_cookie('qishui')
+    qishui={}
+    if cookie:
+        try:
+            qishui=await asyncio.to_thread(providers['qishui'].qishui_profile,cookie)
+        except RuntimeError:
+            qishui={'logged_in':connected_for_search('qishui'),'reason':'汽水暂时无法验证会话'}
+        else:
+            remember_search_account('qishui',qishui['logged_in'])
+    bodian='bodian' not in PAUSED and providers['bodian'].bodian.session()
+    remember_search_account('bodian',bool(bodian))
+    web=[{'source':source,'nickname':p['name'],'logged_in':connected_for_search(source),'mode':'official-web',
+          'catalog_saved':source in CATALOG_AUTH and bool(providers[source].credentials),
+          'catalog_scope': 'links' if source in LINKED_SOURCES and not providers[source].has_catalog() else 'catalog',
+          **(qishui if source=='qishui' else {'nickname':bodian['nickname']} if source=='bodian' and bodian else {})}
+         for source,p in PLATFORMS.items() if not p.get('companion') and source not in PAUSED]
+    return {'accounts':[*native,*web]}
+
+
+class WebLoginStatus(BaseModel):
+    verified:bool
+
+
+class CatalogAuthorization(BaseModel):
+    fields:dict[str,str]=Field(min_length=1,max_length=3)
+
+
+@app.put('/api/accounts/{source}/catalog-authorization')
+def configure_catalog(source:str,body:CatalogAuthorization):
+    if source not in CATALOG_AUTH:raise HTTPException(404)
+    providers[source].configure_catalog(body.fields)
+    return {'catalog_saved':True}
+
+
+@app.delete('/api/accounts/{source}/catalog-authorization')
+def clear_catalog(source:str):
+    if source not in CATALOG_AUTH:raise HTTPException(404)
+    providers[source].clear_catalog()
+    return {'catalog_saved':False}
+
+
+@app.put('/api/accounts/{source}/web-status')
+def account_web_status(source:str,body:WebLoginStatus):
+    if source not in PLATFORMS or PLATFORMS[source].get('companion') or PLATFORMS[source].get('siteOnly'):raise HTTPException(404)
+    remember_search_account(source,body.verified)
+    return {'source':source,'logged_in':body.verified}
+
+
+class LinkTrackRequest(BaseModel):
+    url:str=Field(min_length=8,max_length=2048)
+
+
+class BrowserTrackRequest(LinkTrackRequest):
+    loaded:str=Field(min_length=8,max_length=2048)
+    title:str=Field(min_length=1,max_length=350)
+    artist:str=Field(default='',max_length=250)
+    cover:str=Field(default='',max_length=2048)
+
+
+class BrowserSearchRequest(BaseModel):
+    rows:list[BrowserTrackRequest]=Field(max_length=40)
+
+
+@app.post('/api/accounts/{source}/import-track')
+async def import_platform_track(source:str,body:LinkTrackRequest):
+    if source not in LINKED_SOURCES or not safe_url(source,body.url.strip()):raise ValueError('请输入该平台的单曲分享链接')
+    entry=await asyncio.to_thread(providers[source].from_link,body.url.strip())
+    store.upsert(entry)
+    return public_track(entry)
+
+
+@app.post('/api/accounts/{source}/browser-track')
+def import_browser_track(source:str,body:BrowserTrackRequest):
+    if source not in LINKED_SOURCES:raise HTTPException(404)
+    entry=observed_track(source,body.url,body.loaded,body.title,body.artist,body.cover)
+    store.upsert(entry)
+    return public_track(entry)
+
+
+@app.post('/api/accounts/{source}/browser-search')
+def browser_search(source:str,body:BrowserSearchRequest):
+    if source not in LINKED_SOURCES or not PLATFORMS[source].get('search'):raise HTTPException(404)
+    if not connected_for_search(source):raise HTTPException(403,'请先登录该音乐平台')
+    rows={}
+    for row in body.rows:
+        try:
+            entry=observed_track(source,row.url,row.loaded,row.title,row.artist,row.cover)
+            rows[entry['id']]=entry
+        except ValueError:continue
+    result=list(rows.values())
+    store.upsert_many(result)
+    return {'tracks':public_tracks(result)}
 
 @app.post('/api/accounts/{source}/cookie')
 async def set_cookie(source:str,body:CookieRequest):
+    if source=='qishui':
+        cookie=body.cookie.strip()
+        if not cookie.isascii() or re.search(r'[\x00-\x1f\x7f]',cookie) or not re.search(r'(?:^|;\s*)sessionid(?:_ss)?=[^;\s]+',cookie):
+            raise ValueError('请输入有效的汽水音乐会话 Cookie')
+        profile=await asyncio.to_thread(providers[source].qishui_profile,cookie)
+        if not profile['logged_in']:
+            raise HTTPException(400,profile['reason'])
+        store.set_secret(source,cookie)
+        remember_search_account(source,True)
+        return dict(profile,source=source)
     if source not in {'netease','qqmusic'}: raise HTTPException(400,'该平台使用 OAuth 登录')
     if '\r' in body.cookie or '\n' in body.cookie: raise ValueError('登录状态格式不正确')
     providers[source].set_cookie(body.cookie)
@@ -503,9 +678,12 @@ async def set_cookie(source:str,body:CookieRequest):
 
 @app.delete('/api/accounts/{source}')
 def logout(source:str):
-    if source not in providers: raise HTTPException(404)
+    if source not in {'netease','qqmusic','spotify','qishui','bodian'}: raise HTTPException(404)
     if source=='spotify': providers[source].logout()
+    elif source=='qishui': store.set_secret(source,'')
+    elif source=='bodian': providers[source].bodian.logout()
     else: providers[source].set_cookie(''); store.set_secret(source,'')
+    remember_search_account(source,False)
     return {'ok':True}
 
 @app.get('/api/accounts/spotify/login-url')
@@ -514,11 +692,28 @@ def spotify_login(): return providers['spotify'].login_url()
 @app.post('/api/accounts/spotify/web-session')
 async def spotify_web_session(body:WebSessionRequest):
     profile=await asyncio.to_thread(providers['spotify'].set_web_session,body.access_token,body.client_token,body.cookie)
+    remember_search_account('spotify',profile.get('logged_in'))
     return dict(profile,source='spotify')
 
 @app.get('/api/accounts/netease/qr')
 async def netease_qr():
     return await asyncio.to_thread(providers['netease'].login_qr)
+
+@app.get('/api/accounts/bodian/qr')
+def bodian_qr():
+    return providers['bodian'].bodian.start()
+
+@app.delete('/api/accounts/bodian/qr')
+def bodian_cancel(key:str):
+    providers['bodian'].bodian.cancel(key)
+    return {'ok':True}
+
+@app.get('/api/accounts/bodian/check')
+def bodian_check(key:str):
+    result=providers['bodian'].bodian.check(key)
+    if result.get('status')=='authorized':
+        remember_search_account('bodian',True)
+    return result
 
 @app.get('/api/accounts/netease/check')
 async def netease_check(key:str):
@@ -526,21 +721,23 @@ async def netease_check(key:str):
     cookie=result.pop('cookie',None)
     if result.get('code')==803 and cookie:
         store.set_secret('netease',cookie)
+        remember_search_account('netease',True)
     return result
 
 @app.get('/api/accounts/spotify/callback')
 async def spotify_callback(code:str='',state:str='',error:str=''):
     if error: return HTMLResponse('<h2>你已取消 Spotify 授权，可以关闭此页。</h2>',status_code=400)
     try:
-        await asyncio.to_thread(providers['spotify'].callback,code,state)
-        return HTMLResponse('<meta charset="utf-8"><h2>Spotify 登录成功</h2><p>请返回声屿 MusicPlatform，刷新账号状态。</p>')
+        profile=await asyncio.to_thread(providers['spotify'].callback,code,state)
+        remember_search_account('spotify',profile.get('logged_in'))
+        return HTMLResponse('<meta charset="utf-8"><h2>Spotify 登录成功</h2><p>请返回 Elixir。</p>')
     except Exception as e:
         message=str(e) if isinstance(e,(RuntimeError,ValueError)) else '网络请求失败'
         return HTMLResponse('<meta charset="utf-8"><h2>授权未完成</h2><p>'+html.escape(message)+'</p>',status_code=400)
 
 @app.get('/api/accounts/{source}/playlists')
 async def account_playlists(source:str):
-    if source not in providers: raise HTTPException(404)
+    if source not in {'netease','qqmusic','spotify'}: raise HTTPException(404)
     if source=='netease':
         profile=await asyncio.to_thread(providers[source].profile)
         if not profile.get('logged_in'):raise RuntimeError('网易云登录尚未验证，不能判断云端歌单是否为空，请重新连接账号')
@@ -551,6 +748,7 @@ async def account_playlists(source:str):
 @app.get('/api/remote-playlists/{source}/{pid}')
 async def remote_playlist(source:str,pid:str):
     if source not in providers: raise HTTPException(404)
+    if source in KINDS and not re.fullmatch(r'[A-Za-z0-9_-]{1,160}',pid):raise ValueError('无效的歌单编号')
     result=await asyncio.to_thread(providers[source].playlist,pid)
     sid=pid.split(':')[-1]
     result.update(id=f'{source}:playlist:{sid}',source=source,source_id=sid,kind='playlist')
@@ -563,12 +761,41 @@ async def remote_playlist(source:str,pid:str):
 @app.get('/api/spotify/devices')
 async def spotify_devices(): return {'devices':await asyncio.to_thread(providers['spotify'].devices)}
 
-class SpotifyPlay(BaseModel): track_id:str; device_id:str=''
-class SpotifyControl(BaseModel): action:str; value:int|None=None; device_id:str=''
+class SpotifyPlay(BaseModel): track_id:str; device_id:str=''; sequence:int|None=None
+class SpotifyControl(BaseModel): action:str; value:int|None=None; device_id:str=''; sequence:int|None=None
 class SpotifyObservation(BaseModel):
     device_id:str=Field(min_length=1,max_length=160,pattern=r'^[A-Za-z0-9_-]+$')
     position_ms:int=Field(ge=0,le=86400000)
     debug_source:str=Field(min_length=1,max_length=80)
+
+@app.get('/api/spotify/native/ready')
+async def spotify_native_ready():
+    return {'ready':await asyncio.to_thread(providers['spotify'].native_ready)}
+
+@app.get('/api/spotify/native/state')
+def spotify_native_state():
+    state=providers['spotify'].bridge().state()
+    return dict(state,owned_device_id=state['device_id'],playing=state['is_playing'] and not state['buffering'])
+
+@app.post('/api/spotify/native/play')
+def spotify_native_play(body:SpotifyPlay):
+    if not re.fullmatch(r'[A-Za-z0-9]{22}',body.track_id):raise ValueError('无效的 Spotify ID')
+    return providers['spotify'].play_native(body.track_id)
+
+@app.post('/api/spotify/native/queue')
+def spotify_native_queue(body:SpotifyPlay):
+    if not re.fullmatch(r'[A-Za-z0-9]{22}',body.track_id):raise ValueError('无效的 Spotify ID')
+    providers['spotify'].bridge().queue(body.track_id)
+    return {'ok':True}
+
+@app.post('/api/spotify/native/control')
+def spotify_native_control(body:SpotifyControl):
+    return providers['spotify'].bridge().control(body.action,body.value)
+
+@app.post('/api/spotify/native/stop')
+def spotify_native_stop():
+    providers['spotify'].stop_native()
+    return {'ok':True}
 
 @app.post('/api/spotify/player-observation')
 def spotify_observation(body:SpotifyObservation):
@@ -578,7 +805,7 @@ def spotify_observation(body:SpotifyObservation):
 async def spotify_play(body:SpotifyPlay):
     tid=body.track_id.removeprefix('spotify:')
     if not re.fullmatch(r'[A-Za-z0-9]{22}',tid): raise ValueError('无效的 Spotify ID')
-    result=await asyncio.to_thread(providers['spotify'].play,tid,body.device_id)
+    result=await asyncio.to_thread(providers['spotify'].play,tid,body.device_id,body.sequence)
     return dict(result or {},ok=True)
 
 @app.post('/api/spotify/queue')
@@ -591,7 +818,7 @@ async def spotify_queue(body:SpotifyPlay):
 @app.post('/api/spotify/control')
 async def spotify_control(body:SpotifyControl):
     if body.action not in {'pause','resume','next','previous','seek','volume'}: raise ValueError('不支持该播放操作')
-    result=await asyncio.to_thread(providers['spotify'].control,body.action,body.value,body.device_id)
+    result=await asyncio.to_thread(providers['spotify'].control,body.action,body.value,body.device_id,body.sequence)
     return dict(result or {},ok=True)
 
 @app.get('/api/settings')
@@ -608,7 +835,7 @@ def save_settings(body:dict):
     return store.set_settings(body)
 
 from .music_routes import install as install_music_routes
-install_music_routes(app,lambda:store,lambda:providers,public_track,track_get,public_tracks)
+install_music_routes(app,lambda:store,lambda:providers,public_track,track_get,public_tracks,search_platforms)
 
 WEB=Path(os.environ.get('MUSICPLATFORM_WEB',str(Path(__file__).resolve().parents[1]/'dist'/'web')))
 if WEB.is_dir(): app.mount('/',StaticFiles(directory=WEB,html=True),name='web')

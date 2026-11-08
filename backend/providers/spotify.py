@@ -15,7 +15,7 @@ class SpotifyProvider:
     def __init__(self,store):
         self.store=store; self.pending={}; self.lock=threading.RLock()
         self.cooldowns=SpotifyCooldowns();self._web_client=None;self._web_context=None
-        self._bridge=None
+        self._bridge=None;self._account_identity=None
         try: self.tokens=json.loads(store.secret('spotify') or '{}')
         except Exception: self.tokens={}
 
@@ -28,6 +28,31 @@ class SpotifyProvider:
                 self._bridge=LibrespotBridge(DATA,proxy=self.store.settings().get('proxy',''))
             return self._bridge
 
+    def native_ready(self):
+        bridge=self.bridge()
+        if not bridge.exe.is_file():return False
+        if self._account_identity and str(self._account_identity.get('membership','')).lower() in {'free','open','ad-supported'}:return False
+        if not bridge.is_running():
+            if not bridge.state_path.is_file():return False
+            try:bridge.ensure()
+            except RuntimeError:return False
+        if not bridge.logged_in:bridge.refresh_login_state()
+        if not bridge.logged_in:return False
+        if self.tokens.get('access_token'):
+            try:profile=self._account_identity or self.profile()
+            except (RuntimeError, requests.RequestException, ValueError):return False
+            membership=str(profile.get('membership','')).lower()
+            if profile.get('user_id')!=bridge.state()['username'] or membership in {'free','open','ad-supported'}:return False
+            if membership=='premium':return True
+        return bridge.membership_state()=='premium'
+
+    def play_native(self,track_id):
+        if not self.native_ready():raise RuntimeError('请先配对同一个 Spotify Premium 账号')
+        return self.bridge().play(track_id,membership_verified=True)
+
+    def stop_native(self):
+        if self._bridge is not None:self._bridge.stop()
+
     @property
     def redirect_uri(self): return 'http://127.0.0.1:18740/api/accounts/spotify/callback'
 
@@ -39,7 +64,7 @@ class SpotifyProvider:
 
     def login_url(self):
         client_id=self.store.settings().get('spotify_client_id','').strip()
-        if not client_id: raise ValueError('请在设置填写你在 Spotify Developer Dashboard 注册的 Client ID，并登记回调地址 '+self.redirect_uri)
+        if not client_id: raise ValueError('请在 Spotify 登录的「开发者登录」填写 Client ID，并登记回调地址 '+self.redirect_uri)
         verifier=secrets.token_urlsafe(64)
         state=secrets.token_urlsafe(32)
         with self.lock:
@@ -54,8 +79,20 @@ class SpotifyProvider:
         if not flow or time.time()-flow['time']>600: raise ValueError('授权会话已失效，请重新登录')
         r=self.session().post('https://accounts.spotify.com/api/token',data={'client_id':flow['client_id'],'grant_type':'authorization_code','code':code,'redirect_uri':self.redirect_uri,'code_verifier':flow['verifier']},timeout=20)
         if r.status_code!=200: raise RuntimeError(f'Spotify 授权失败 HTTP {r.status_code}')
-        self.save_tokens(r.json(),flow['client_id'])
-        return self.profile()
+        with self.lock:
+            previous=self.tokens;previous_identity=self._account_identity
+            web=previous if previous.get('mode')=='web' else previous.get('web_session')
+            token_data=r.json()
+            self.tokens={**token_data,'mode':'oauth','client_id':flow['client_id'],'expires_at':time.time()+token_data.get('expires_in',3600)}
+            if web:self.tokens['web_session']=web
+            try:
+                profile=self.profile()
+                if not profile.get('user_id'):raise RuntimeError('Spotify 未确认开发者登录账号')
+                self.store.set_secret('spotify',json.dumps(self.tokens))
+                return profile
+            except Exception:
+                self.tokens=previous;self._account_identity=previous_identity
+                raise
 
     def save_tokens(self,data,client_id=None):
         with self.lock:
@@ -112,9 +149,15 @@ class SpotifyProvider:
         if self.tokens.get('mode')=='web': return self.web().detail(id)
         return self.normalize(self.api('tracks/'+id))
 
+    def _web_session(self):
+        return self.tokens if self.tokens.get('mode')=='web' else (self.tokens.get('web_session') or {})
+
     def web(self):
-        context=(self.token(),self.tokens.get('client_token',''),self.tokens.get('cookie',''),self.store.settings().get('proxy',''))
         with self.lock:
+            credentials=self._web_session()
+            if not credentials.get('access_token') or time.time()>credentials.get('expires_at',0):
+                raise SpotifySessionExpired('Spotify 网页会话需要刷新')
+            context=(credentials['access_token'],credentials.get('client_token',''),credentials.get('cookie',''),self.store.settings().get('proxy',''))
             if self._web_client is None or self._web_context!=context:
                 if self._web_client is not None:self._web_client.close()
                 self._web_client=SpotifyWeb(*context,cooldowns=self.cooldowns);self._web_context=context
@@ -170,9 +213,13 @@ class SpotifyProvider:
 
     def profile(self):
         if not self.tokens.get('access_token'): return {'logged_in':False,'nickname':'Spotify','avatar':'','membership':'未登录','user_id':'','reason':'可在账号页导入你自己的 Cookie 或打开官方网页登录'}
-        if self.tokens.get('mode')=='web': return self.web().profile()
-        p=self.api('me'); imgs=p.get('images') or []
-        return {'logged_in':True,'nickname':p.get('display_name') or p.get('id','Spotify'),'avatar':imgs[0]['url'] if imgs else '', 'membership':p.get('product','未知'),'user_id':p.get('id','')}
+        if self.tokens.get('mode')=='web':
+            profile=self.web().profile()
+        else:
+            p=self.api('me'); imgs=p.get('images') or []
+            profile={'logged_in':True,'nickname':p.get('display_name') or p.get('id','Spotify'),'avatar':imgs[0]['url'] if imgs else '', 'membership':p.get('product','未知'),'user_id':p.get('id','')}
+        self._account_identity=profile
+        return profile
 
     def playlists(self,user_id=''):
         if self.tokens.get('mode')=='web':return self.web().playlists(user_id)
@@ -202,31 +249,30 @@ class SpotifyProvider:
         return {'id':'spotify:'+id,'title':data.get('name',''),'cover':(data.get('images') or [{}])[0].get('url',''),'tracks':tracks}
 
     def devices(self):
-        if self.tokens.get('mode')=='web':
+        if self._web_session():
             return self.web().devices()
         return self.api('me/player/devices').get('devices',[])
     def state(self):
-        if self.tokens.get('mode')=='web':
+        if self._web_session():
             return self.web().state()
         return self.api('me/player')
     def observe_player(self,device_id,position_ms,debug_source):
-        if self.tokens.get('mode')!='web':raise ValueError('本地播放器观察仅适用于 Spotify 官方网页会话')
         return self.web().observe_player(device_id,position_ms,debug_source)
-    def play(self,id,device_id=''):
-        if self.tokens.get('mode')=='web':
-            return self.web().play(id,device_id)
+    def play(self,id,device_id='',sequence=None):
+        if self._web_session():
+            return self.web().play(id,device_id,sequence)
         return self.api('me/player/play',method='PUT',params={'device_id':device_id} if device_id else {},json={'uris':['spotify:track:'+id]})
     def queue(self,id,device_id=''):
-        if self.tokens.get('mode')=='web':return self.web().queue(id,device_id)
+        if self._web_session():return self.web().queue(id,device_id)
         return self.api('me/player/queue',method='POST',params=dict({'uri':'spotify:track:'+id},**({'device_id':device_id} if device_id else {})))
-    def control(self,action,value=None,device_id=''):
-        if self.tokens.get('mode')=='web':return self.web().control(action,value,device_id)
+    def control(self,action,value=None,device_id='',sequence=None):
+        if self._web_session():return self.web().control(action,value,device_id,sequence)
         paths={'pause':('PUT','pause',{}),'resume':('PUT','play',{}),'next':('POST','next',{}),'previous':('POST','previous',{}),'seek':('PUT','seek',{'position_ms':int(value or 0)}),'volume':('PUT','volume',{'volume_percent':min(100,max(0,int(value or 0)))})}
         method,path,params=paths[action]
         return self.api('me/player/'+path,method=method,params=dict(params,**({'device_id':device_id} if device_id else {})))
     def logout(self):
         if self._web_client is not None:self._web_client.close()
-        self._web_client=None;self._web_context=None
+        self._web_client=None;self._web_context=None;self._account_identity=None
         if self._bridge is not None:
             self._bridge.stop();self._bridge.forget_credentials()
         self.tokens={}; self.store.set_secret('spotify','')
@@ -235,14 +281,17 @@ class SpotifyProvider:
         if not access_token or len(access_token)>20000 or '\n' in access_token or '\r' in access_token:
             raise ValueError('无效的 Spotify 网页登录凭证')
         if any(c in client_token+cookie for c in ('\r','\n')): raise ValueError('登录状态格式不正确')
-        previous=dict(self.tokens)
         with self.lock:
-            self.tokens={'access_token':access_token,'client_token':client_token,'cookie':cookie,'mode':'web','expires_at':time.time()+3500}
+            previous=self.tokens;previous_identity=self._account_identity
+            web={'access_token':access_token,'client_token':client_token,'cookie':cookie,'mode':'web','expires_at':time.time()+3500}
+            has_oauth=bool(previous.get('refresh_token') and previous.get('mode')!='web')
+            self.tokens={**previous,'web_session':web} if has_oauth else web
             try:
-                profile=self.profile()
+                profile=self.web().profile()
                 if not profile.get('logged_in'): raise RuntimeError('Spotify 尚未确认登录，请在官方窗口完成登录后重试')
+                if not has_oauth:self._account_identity=profile
                 self.store.set_secret('spotify',json.dumps(self.tokens))
                 return profile
             except Exception:
-                self.tokens=previous
+                self.tokens=previous;self._account_identity=previous_identity
                 raise

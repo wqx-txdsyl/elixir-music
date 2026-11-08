@@ -118,7 +118,7 @@ def search(provider, source, kind, query, limit=30, offset=0):
 
 
 def album(provider, source, sid, offset=0, limit=100):
-    if source=='spotify':return provider.album(sid,offset,limit)
+    if source not in ('netease','qqmusic'):return provider.album(sid,offset,limit)
     if source == 'netease':
         data = provider._get('/api/album/'+provider._id(sid))
         raw = data.get('album')
@@ -170,7 +170,7 @@ def artist_profile(provider, source, sid, name=''):
 
 
 def artist(provider, source, sid, offset=0, limit=50):
-    if source=='spotify':return provider.artist(sid,offset,limit)
+    if source not in ('netease','qqmusic'):return provider.artist(sid,offset,limit)
     warnings = []
     if source == 'netease':
         data = provider._get('/api/artist/'+provider._id(sid))
@@ -305,5 +305,5 @@ def discovery(provider, source, mode):
         elif mode == 'guess':
             tracks = _gather(lambda i: _tracks(provider, [x.get('songInfo') or x for x in provider._call('music.radioProxy.MbTrackRadioSvr','get_radio_track',{'id':99,'num':20,'from':0,'scene':0,'song_ids':[]}).get('tracks', [])]), 25, 8)
     else:
-        raise ValueError('该音乐模式需在官方客户端完成')
+        return dict(provider.discovery(mode),source=source,mode=mode)
     return {'tracks':tracks,'items':items,'source':source,'mode':mode}

@@ -1,0 +1,232 @@
+/* Elixir 原创：brutal */
+@layer skins {
+
+/* ================= 新粗野 ================= */
+/* 奶黄底配纯黑 2~3px 描边和无模糊硬投影，卡片轮换亮黄/粉/天蓝/草绿/橙撞色块，粗体大字；按钮按下去整块平移 4px 陷进投影里。列表等密集区只用细线分隔。 */
+:root[data-skin=brutal]{--bg:#fff4cf;--sidebar:#ffde59;--panel:#ffffff;--panel-solid:#ffffff;--text:#111111;--muted:#4a4536;--subtle:#2a271f;--line:#111111;--hover:#ffde5966;--accent:#ff5ca8;--accent-tint:#ff5ca833;--accent-text:#111111;--radius:0px;--chip:#ffffff;--shadow:4px 4px 0 #111;
+  --br-ink:#111;
+  --br-edge:2px solid #111;
+  --br-hard:4px 4px 0 #111;
+  --br-hard-sm:3px 3px 0 #111;
+  --br-yellow:#ffde59;--br-pink:#ff5ca8;--br-blue:#5ce1ff;--br-green:#7bf29a;--br-orange:#ff914d;
+  --br-thin:#1111112e;
+  --br-font:"Arial Black","Segoe UI Black","Microsoft YaHei UI","PingFang SC",sans-serif;
+  color-scheme:light}
+:root[data-skin=brutal] ::selection{background:#111;color:#ffde59}
+:root[data-skin=brutal] .app{background:#fff4cf}
+/* 侧栏：亮黄底，右侧粗黑分界，导航项是带硬投影的贴纸 */
+:root[data-skin=brutal] .sidebar{background:#ffde59;border-radius:0;box-shadow:inset -3px 0 0 #111}
+:root[data-skin=brutal] .workspace{background:transparent;border-radius:0}
+:root[data-skin=brutal] .brand{color:#111;font-family:var(--br-font);font-weight:900;letter-spacing:-.5px}
+:root[data-skin=brutal] .brand .brand-icon{color:#111}
+:root[data-skin=brutal] .nav-item{border-radius:0;border:2px solid transparent;color:#111;font-weight:700;transition:transform .08s,box-shadow .08s}
+:root[data-skin=brutal] .nav-item svg{color:#111}
+:root[data-skin=brutal] .nav-item:hover{background:#fff;border-color:#111;box-shadow:var(--br-hard-sm);color:#111}
+:root[data-skin=brutal] .nav-item.selected{background:#ff5ca8;border-color:#111;color:#111;font-weight:900;box-shadow:var(--br-hard)}
+:root[data-skin=brutal] .nav-item.selected svg{color:#111}
+:root[data-skin=brutal] .nav-item:active{transform:translate(3px,3px);box-shadow:none}
+:root[data-skin=brutal] .nav-item small{background:#111;color:#ffde59;border-radius:0}
+:root[data-skin=brutal] :is(.library-heading,.playlist-heading){color:#111;font-weight:900;letter-spacing:1px}
+:root[data-skin=brutal] .playlist-navigation .nav-item svg{background:#fff;border:2px solid #111;border-radius:0}
+:root[data-skin=brutal] .create-first{color:#111;font-weight:700}
+:root[data-skin=brutal] .appearance-button{background:#fff;border:2px solid #111;border-radius:0;color:#111;font-weight:800;box-shadow:var(--br-hard-sm)}
+:root[data-skin=brutal] .appearance-button:hover{background:#5ce1ff}
+:root[data-skin=brutal] .appearance-button:active{transform:translate(3px,3px);box-shadow:none}
+:root[data-skin=brutal] .sidebar-bottom{color:#111}
+/* 顶栏：白色搜索框粗描边，聚焦时投影出现 */
+:root[data-skin=brutal] .topbar{background:#fff4cf;box-shadow:inset 0 -2px 0 #111}
+:root[data-skin=brutal] .search-box{background:#fff;border:2px solid #111;border-radius:0;color:#111;box-shadow:var(--br-hard-sm)}
+:root[data-skin=brutal] .search-box:focus-within{background:#fff}
+:root[data-skin=brutal] .search-box input{color:#111;font-weight:600;caret-color:#ff5ca8}
+:root[data-skin=brutal] .search-box input::placeholder{color:#6b6450}
+:root[data-skin=brutal] .search-box kbd{background:#ffde59;border:2px solid #111;color:#111;border-radius:0;font-weight:800}
+:root[data-skin=brutal] :is(.topbar-account button,.topbar-navigation>.icon-button){background:#fff;border:2px solid #111;border-radius:0;color:#111;box-shadow:2px 2px 0 #111}
+:root[data-skin=brutal] :is(.topbar-account button,.topbar-navigation>.icon-button):hover{background:#7bf29a}
+:root[data-skin=brutal] :is(.topbar-account button,.topbar-navigation>.icon-button):active{transform:translate(2px,2px);box-shadow:none}
+/* 首页：超粗大标题、黑底贴条小节标题 */
+:root[data-skin=brutal] :is(.home-greeting h1,.apple-title h1,.qq-hello h1){color:#111;font-family:var(--br-font);font-weight:900;letter-spacing:-1px}
+:root[data-skin=brutal] .home-modular .home-greeting h1{font-size:40px;display:inline-block;padding:0 6px;background:linear-gradient(transparent 58%,#ff5ca8 58% 92%,transparent 92%)}
+:root[data-skin=brutal] :is(.home-greeting p,.apple-title p){color:#111;font-weight:700}
+:root[data-skin=brutal] .apple-title{border-color:#111}
+:root[data-skin=brutal] :is(.home-section-head h2,.section-title h2){display:inline-block;color:#111;font-family:var(--br-font);font-weight:900;background:#ffde59;border:2px solid #111;padding:2px 10px;box-shadow:var(--br-hard-sm)}
+:root[data-skin=brutal] .home-text-button{color:#111;font-weight:800;text-decoration:underline;text-decoration-thickness:2px}
+:root[data-skin=brutal] .home-text-button:hover:not(:disabled){color:#111;background:#ff5ca8}
+:root[data-skin=brutal] .home-hero{color:#111;background:#5ce1ff;border:3px solid #111;border-radius:0;box-shadow:6px 6px 0 #111}
+:root[data-skin=brutal] :is(.home-hero,.home-banner)::before,:root[data-skin=brutal] .home-hero::after{display:none}
+:root[data-skin=brutal] :is(.home-hero h2,.home-hero-main h2){color:#111;font-family:var(--br-font);font-weight:900}
+:root[data-skin=brutal] .home-hero :is(p,span,small,.artist-name,.home-hero-state){color:#111}
+:root[data-skin=brutal] .home-hero-state{display:inline-flex;width:fit-content;background:#111;color:#ffde59!important;padding:2px 8px;font-weight:800}
+:root[data-skin=brutal] .home-hero-art{border:3px solid #111;box-shadow:var(--br-hard)}
+:root[data-skin=brutal] .home-recent{background:#fff;border:2px solid #111;border-radius:0;box-shadow:var(--br-hard-sm)}
+:root[data-skin=brutal] .home-recent :is(strong,small,h3,span){color:#111}
+:root[data-skin=brutal] .home-recent li:hover{background:#ffde59}
+/* 模块化首页（默认）：组件层定死了 border/background，这里改它引用的变量，撞色轮换 */
+:root[data-skin=brutal] .home-modular .home-shortcut{--line:#111;border-width:2px;box-shadow:var(--br-hard);transition:transform .08s,box-shadow .08s}
+:root[data-skin=brutal] .home-modular .home-shortcut:nth-child(5n+1){--panel:#ffde59}
+:root[data-skin=brutal] .home-modular .home-shortcut:nth-child(5n+2){--panel:#ff5ca8}
+:root[data-skin=brutal] .home-modular .home-shortcut:nth-child(5n+3){--panel:#5ce1ff}
+:root[data-skin=brutal] .home-modular .home-shortcut:nth-child(5n+4){--panel:#7bf29a}
+:root[data-skin=brutal] .home-modular .home-shortcut:nth-child(5n+5){--panel:#ff914d}
+:root[data-skin=brutal] .home-modular .home-shortcut:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #111}
+:root[data-skin=brutal] .home-modular .home-shortcut:active{transform:translate(4px,4px);box-shadow:none}
+:root[data-skin=brutal] .home-modular .home-shortcut-art{--accent-tint:#fff;--accent:#111;box-shadow:inset 0 0 0 2px #111}
+:root[data-skin=brutal] .home-modular .home-shortcut-text strong{color:#111;font-weight:900;font-size:15px}
+:root[data-skin=brutal] .home-modular .home-shortcut-text small{--muted:#111;color:#111}
+:root[data-skin=brutal] .home-modular .modular-chart{--line:#111;--hover:#ffde59;border-width:2px;box-shadow:var(--br-hard)}
+:root[data-skin=brutal] .home-modular .modular-chart-grid>.modular-chart:nth-child(3n+1) h3{background:#ff5ca8}
+:root[data-skin=brutal] .home-modular .modular-chart-grid>.modular-chart:nth-child(3n+2) h3{background:#5ce1ff}
+:root[data-skin=brutal] .home-modular .modular-chart-grid>.modular-chart:nth-child(3n+3) h3{background:#7bf29a}
+:root[data-skin=brutal] .home-modular .modular-chart h3{margin:-14px -10px 8px;padding:8px 12px;border-bottom:2px solid #111;color:#111;font-weight:900;font-size:15px}
+:root[data-skin=brutal] .home-modular .modular-chart li+li{border-top:1px solid var(--br-thin)}
+:root[data-skin=brutal] .home-modular .modular-chart li:nth-child(-n+3) b{--accent:#111;color:#111;font-family:var(--br-font)}
+:root[data-skin=brutal] .home-modular .modular-chart-art{box-shadow:0 0 0 2px #111}
+/* 卡片：封面粗框加硬投影，悬停上抬 */
+:root[data-skin=brutal] :is(.home-card .music-art,.album-art .cover,.home-rank-art .music-art,.home-recent-art .music-art){border-radius:0;box-shadow:0 0 0 2px #111}
+:root[data-skin=brutal] .home-card .music-art{box-shadow:0 0 0 3px #111,6px 6px 0 3px #111;transition:transform .1s}
+:root[data-skin=brutal] .home-card:hover .music-art{transform:translate(-2px,-2px)}
+:root[data-skin=brutal] .home-card strong{color:#111;font-weight:900}
+:root[data-skin=brutal] .home-card small{color:#4a4536;font-weight:600}
+:root[data-skin=brutal] :is(.home-card:hover,.album-card:hover){background:transparent}
+:root[data-skin=brutal] :is(.home-card-play,.floating-play,.home-shortcut-play,.qq-play-round){background:#ff5ca8;color:#111;border:2px solid #111;border-radius:0;box-shadow:var(--br-hard-sm)}
+:root[data-skin=brutal] :is(.home-card-play,.floating-play,.home-shortcut-play,.qq-play-round):active{transform:translate(3px,3px);box-shadow:none}
+/* 标签/筛选：白底黑框小贴纸，选中变粉 */
+:root[data-skin=brutal] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.top-nav button.top-nav-item){background:#fff;border:2px solid #111;border-radius:0;color:#111;font-weight:800;box-shadow:2px 2px 0 #111}
+:root[data-skin=brutal] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.top-nav button.top-nav-item):hover{background:#ffde59;color:#111}
+:root[data-skin=brutal] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.top-nav button.top-nav-item):active{transform:translate(2px,2px);box-shadow:none}
+:root[data-skin=brutal] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected){background:#ff5ca8;border-color:#111;color:#111;font-weight:900}
+:root[data-skin=brutal] .home-shortcut{background:#fff;border:2px solid #111;border-radius:0;box-shadow:var(--br-hard)}
+:root[data-skin=brutal] .home-shortcut:active{transform:translate(4px,4px);box-shadow:none}
+:root[data-skin=brutal] .home-shortcut-likes .home-shortcut-art{background:#ff5ca8;color:#111}
+:root[data-skin=brutal] .home-shortcut-history .home-shortcut-art{background:#5ce1ff;color:#111}
+:root[data-skin=brutal] .home-shortcut-ranking .home-shortcut-art{background:#7bf29a;color:#111}
+:root[data-skin=brutal] .home-shortcut-library .home-shortcut-art{background:#ff914d;color:#111}
+:root[data-skin=brutal] :is(.home-card-icon,.apple-pick-icon){background:#ffde59;color:#111;box-shadow:inset 0 0 0 3px #111}
+:root[data-skin=brutal] :is(.home-hero-empty,.feature-banner,.qq-feature-main.home-hero-empty){background:#ff914d}
+:root[data-skin=brutal] .home-rank-row:hover,:root[data-skin=brutal] .home-track:hover{background:#ffde59}
+:root[data-skin=brutal] :is(.home-now-bars i,.equalizer i){background:#ff5ca8;box-shadow:0 0 0 1px #111}
+/* 页头与歌曲列表：页头大块撞色，列表只用细线 */
+:root[data-skin=brutal] .page-heading h1{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:#111;font-family:var(--br-font);font-weight:900}
+:root[data-skin=brutal] .page-hero{border:3px solid #111;border-radius:0;background:#ff5ca8;box-shadow:6px 6px 0 #111}
+:root[data-skin=brutal] .page-hero h1{color:#111;font-family:var(--br-font);font-weight:900;letter-spacing:-1px}
+:root[data-skin=brutal] .page-hero :is(p,span,small){color:#111}
+:root[data-skin=brutal] .page-hero-eyebrow{width:fit-content;align-self:flex-start;background:#111;color:#ffde59!important;padding:2px 8px;font-weight:900}
+:root[data-skin=brutal] .page-hero-art{border:3px solid #111;border-radius:0;box-shadow:var(--br-hard)}
+:root[data-skin=brutal] .track-table{background:#fff;border:2px solid #111;box-shadow:var(--br-hard)}
+:root[data-skin=brutal] .table-header{color:#111;background:#ffde59;border-color:#111;border-bottom:2px solid #111;font-weight:900}
+:root[data-skin=brutal] .track-row{border-radius:0;box-shadow:inset 0 -1px 0 var(--br-thin)}
+:root[data-skin=brutal] .track-row:nth-child(odd){background:none}
+:root[data-skin=brutal] .track-row:hover{background:#fff4cf}
+:root[data-skin=brutal] .track-row.current{background:#ff5ca833;box-shadow:inset 6px 0 0 #ff5ca8,inset 0 -1px 0 var(--br-thin)}
+:root[data-skin=brutal] .track-row.current .song-title{color:#111;font-weight:900}
+:root[data-skin=brutal] .song-title{font-weight:700;color:#111}
+:root[data-skin=brutal] .track-name .cover{border-radius:0;box-shadow:0 0 0 1.5px #111}
+:root[data-skin=brutal] :is(.track-filter,.select-trigger){background:#fff;border:2px solid #111;border-radius:0;color:#111;box-shadow:2px 2px 0 #111}
+
+/* 播放栏：白底顶部粗线，播放键是会陷下去的粉色方块 */
+:root[data-skin=brutal] .player{background:#fff;border:0;border-radius:0;box-shadow:inset 0 3px 0 #111}
+:root[data-skin=brutal] .now-cover .cover{border-radius:0;box-shadow:0 0 0 2px #111,3px 3px 0 2px #111}
+:root[data-skin=brutal] .now-title button{color:#111;font-weight:900}
+:root[data-skin=brutal] .now-title span{color:#4a4536;font-weight:600}
+:root[data-skin=brutal] .app .play-main{background:#ff5ca8;color:#111;border:2px solid #111;border-radius:0;box-shadow:var(--br-hard);transition:transform .06s,box-shadow .06s}
+:root[data-skin=brutal] .app .play-main:hover{background:#ffde59;transform:none}
+:root[data-skin=brutal] .app .play-main:active{transform:translate(4px,4px);box-shadow:none}
+:root[data-skin=brutal] .player-controls>.icon-button{color:#111}
+:root[data-skin=brutal] .player-controls>.icon-button:hover{color:#111;background:#ffde59}
+:root[data-skin=brutal] .player-controls>.icon-button.active{color:#111;background:#7bf29a;box-shadow:inset 0 0 0 2px #111}
+:root[data-skin=brutal] :is(.progress-row input,.progress-row input:hover){border-radius:0;background:linear-gradient(to right,#ff5ca8 var(--range),#fff var(--range));outline:2px solid #111;outline-offset:0}
+:root[data-skin=brutal] input[type=range]::-webkit-slider-thumb{width:12px;height:16px;border-radius:0;background:#ffde59;border:2px solid #111;box-shadow:2px 2px 0 #111}
+:root[data-skin=brutal] .volume-slider{border-radius:0;height:6px;background:linear-gradient(to right,#ff5ca8 var(--range),#fff var(--range));outline:2px solid #111}
+:root[data-skin=brutal] :is(.progress-row span,.progress-time){color:#111;font-weight:800;font-variant-numeric:tabular-nums}
+/* 正在播放（poster，默认）：组件层给了粉底黑字，这里补粗框、硬投影和贴纸标签 */
+:root[data-skin=brutal] .app[data-np=poster] .detail-view{box-shadow:inset 0 -3px 0 #111}
+:root[data-skin=brutal] .app[data-np=poster] .poster-no{width:fit-content;background:#111;color:#ffde59;padding:5px 8px}
+:root[data-skin=brutal] .app[data-np=poster] .poster-title{font-family:var(--br-font);color:#111;text-shadow:6px 6px 0 #fff}
+:root[data-skin=brutal] .app[data-np=poster] .poster-meta{opacity:1;font-weight:900}
+:root[data-skin=brutal] .app[data-np=poster] .poster-state{width:fit-content;opacity:1;background:#ffde59;border:2px solid #111;padding:4px 8px;box-shadow:3px 3px 0 #111}
+:root[data-skin=brutal] .app[data-np=poster] .large-cover{outline:3px solid #111}
+:root[data-skin=brutal] .app[data-np=poster] .detail-view :is(.detail-close,.source-tag){background:#fff;color:#111;border:2px solid #111;box-shadow:3px 3px 0 #111;font-weight:800}
+:root[data-skin=brutal] .app[data-np=poster] .detail-view .detail-close:active{transform:translate(3px,3px);box-shadow:none}
+:root[data-skin=brutal] .app[data-np=poster] .detail-actions .button.primary{border:2px solid #111;box-shadow:4px 4px 0 #fff;color:#ffde59}
+:root[data-skin=brutal] .app[data-np=poster] .detail-actions .button.primary:active{transform:translate(4px,4px);box-shadow:none}
+:root[data-skin=brutal] .app[data-np=poster] .detail-tabs{border-bottom:3px solid #111}
+:root[data-skin=brutal] .app[data-np=poster] .detail-tabs button{font-weight:800}
+:root[data-skin=brutal] .detail-tabs button.active::after{height:5px;border-radius:0;background:#111}
+:root[data-skin=brutal] .app[data-np=poster] .lyric-lines button.current{text-shadow:3px 3px 0 #fff}
+:root[data-skin=brutal] .large-cover,:root[data-skin=brutal] .large-cover .cover{border-radius:0}
+/* 弹窗、菜单：白底粗框硬投影，悬停项亮黄 */
+:root[data-skin=brutal] :is(.modal,.queue-panel,.more-menu-popover,.select-options,.theme-popover,.quality-popover,.action-menu,.track-toolbar.selection-bar){background:#fff;color:#111;border:3px solid #111;border-radius:0;box-shadow:6px 6px 0 #111}
+:root[data-skin=brutal] :is(.more-menu-popover,.select-options,.action-menu,.theme-popover,.quality-popover) button{border-radius:0;font-weight:700}
+:root[data-skin=brutal] :is(.more-menu-popover,.select-options,.action-menu,.theme-popover,.quality-popover) button:hover{background:#ffde59;color:#111}
+:root[data-skin=brutal] :is(.theme-popover button[aria-checked=true],.quality-popover>button[aria-checked=true]){background:#ff5ca8;color:#111}
+:root[data-skin=brutal] .modal-head{border-bottom:2px solid #111}
+:root[data-skin=brutal] .modal-head h2{font-family:var(--br-font);font-weight:900;color:#111}
+:root[data-skin=brutal] .queue-item.active{background:#ff5ca833;box-shadow:inset 5px 0 0 #ff5ca8}
+:root[data-skin=brutal] .toast{background:#111;color:#ffde59;border:2px solid #111;border-radius:0;box-shadow:4px 4px 0 #ff5ca8;font-weight:800}
+/* 通用按钮：会陷下去 */
+:root[data-skin=brutal] .button{border-radius:0;font-weight:800;transition:transform .06s,box-shadow .06s}
+:root[data-skin=brutal] .button.primary{background:#ff5ca8;color:#111;border:2px solid #111;box-shadow:var(--br-hard-sm)}
+:root[data-skin=brutal] .button.primary:hover:not(:disabled){background:#ffde59;filter:none;transform:none}
+:root[data-skin=brutal] :is(.button.quiet,.button.home-ghost){background:#fff;color:#111;border:2px solid #111;box-shadow:var(--br-hard-sm)}
+:root[data-skin=brutal] :is(.button.quiet,.button.home-ghost):hover:not(:disabled){background:#5ce1ff;color:#111}
+:root[data-skin=brutal] .button:active:not(:disabled){transform:translate(3px,3px);box-shadow:none}
+:root[data-skin=brutal] .text-button{color:#111;font-weight:800}
+:root[data-skin=brutal] .empty-icon{background:#ffde59;color:#111;border:3px solid #111;border-radius:0;box-shadow:var(--br-hard)}
+/* 设置页：分区是白色大卡，左侧导航贴纸化 */
+:root[data-skin=brutal] .section-nav button{border-radius:0;color:#111;font-weight:700;border:2px solid transparent}
+:root[data-skin=brutal] .section-nav button:hover{background:#fff;border-color:#111}
+:root[data-skin=brutal] .section-nav button[aria-current]{background:#7bf29a;border-color:#111;color:#111;font-weight:900;box-shadow:var(--br-hard-sm)}
+:root[data-skin=brutal] :is(.settings-section,.account-card){background:#fff;border:3px solid #111;border-radius:0;box-shadow:6px 6px 0 #111}
+:root[data-skin=brutal] .settings-section h2{font-family:var(--br-font);font-weight:900;color:#111}
+:root[data-skin=brutal] .setting-row{border-color:var(--br-thin)}
+:root[data-skin=brutal] .setting-row strong{color:#111;font-weight:800}
+:root[data-skin=brutal] .source-segment button[aria-pressed=true]{background:#ff5ca8;color:#111;font-weight:900}
+:root[data-skin=brutal] .sleep-options>button.chosen{background:#ff5ca8;color:#111}
+/* 非默认首页（qqmusic/apple/aurora）：色块换成撞色，去掉底层的红与暗渐变 */
+:root[data-skin=brutal] .qq-feature-main{border:3px solid #111;box-shadow:var(--br-hard);background:#5ce1ff}
+:root[data-skin=brutal] .qq-feature-main::before{display:none}
+:root[data-skin=brutal] :is(.qq-feature-card,.qq-chart){border:3px solid #111;box-shadow:var(--br-hard);color:#111}
+:root[data-skin=brutal] :is(.qq-feature-card.tone-green,.qq-chart.tone-green){background:#7bf29a}
+:root[data-skin=brutal] .qq-chart.tone-blue{background:#5ce1ff}
+:root[data-skin=brutal] :is(.qq-chart.tone-amber,.qq-cover-card){background:#ff914d}
+:root[data-skin=brutal] :is(.qq-chart,.qq-feature-card,.qq-feature-main) :is(h2,h3,strong,small,p,span){color:#111}
+:root[data-skin=brutal] :is(.qq-feature-title,.qq-feature-state,.qq-feature-copy p){color:#111;font-weight:900}
+:root[data-skin=brutal] .qq-feature-title{font-family:var(--br-font)}
+:root[data-skin=brutal] .qq-feature-art{border:3px solid #111;box-shadow:var(--br-hard)}
+:root[data-skin=brutal] .qq-cover-card::before,:root[data-skin=brutal] .qq-cover-card::after{display:none}
+:root[data-skin=brutal] .qq-collage-card :is(strong,small){position:relative;z-index:1;width:fit-content;background:#ffde59;padding:0 5px;box-shadow:0 0 0 2px #111}
+:root[data-skin=brutal] :is(.qq-feature-card,.qq-chart):active{transform:translate(4px,4px);box-shadow:none}
+:root[data-skin=brutal] .apple-pick{border:3px solid #111;box-shadow:var(--br-hard);background:#fff;transition:transform .08s,box-shadow .08s}
+:root[data-skin=brutal] .apple-pick:active{transform:translate(4px,4px);box-shadow:none}
+:root[data-skin=brutal] .apple-pick-eyebrow{display:none}
+:root[data-skin=brutal] .apple-pick .apple-pick-icon{box-shadow:none}
+:root[data-skin=brutal] .apple-pick-art{border-bottom:3px solid #111}
+:root[data-skin=brutal] .apple-pick-caption{background:#fff;color:#111}
+:root[data-skin=brutal] .apple-pick-caption::before{display:none}
+:root[data-skin=brutal] .apple-pick.icon .apple-pick-caption{background:#ff5ca8}
+:root[data-skin=brutal] .apple-pick-caption strong{font-weight:900}
+:root[data-skin=brutal] .apple-pick-caption small{color:#4a4536}
+:root[data-skin=brutal] .home-banner{border:3px solid #111;border-radius:0;background:#ff914d;box-shadow:var(--br-hard);color:#111}
+:root[data-skin=brutal] .home-banner::after{display:none}
+:root[data-skin=brutal] .home-banner :is(h2,p){color:#111}
+:root[data-skin=brutal] .home-banner-tag{border-radius:0;background:#111;color:#ffde59}
+:root[data-skin=brutal] .home-arrow{background:#fff;border:2px solid #111;border-radius:0;color:#111;box-shadow:2px 2px 0 #111}
+:root[data-skin=brutal] .home-bento-hero{background:#ffde59;border:3px solid #111;box-shadow:var(--br-hard);color:#111}
+:root[data-skin=brutal] .home-bento-hero::before{display:none}
+:root[data-skin=brutal] .page-hero~.library-summary>button{border:2px solid #111;border-radius:0;box-shadow:var(--br-hard-sm);--tile:#5ce1ff;color:#111}
+/* 页头撞色：每个页面一种底色，封面块去掉网易云的红 */
+:root[data-skin=brutal] .hero-likes{--band:#ff5ca8;--hero-tint:linear-gradient(135deg,#ffde59,#ff914d)}
+:root[data-skin=brutal] :is(.hero-history,.hero-accounts){--band:#5ce1ff;--hero-tint:linear-gradient(135deg,#ff5ca8,#ffde59)}
+:root[data-skin=brutal] :is(.hero-ranking,.hero-settings){--band:#7bf29a;--hero-tint:linear-gradient(135deg,#5ce1ff,#ff5ca8)}
+:root[data-skin=brutal] :is(.hero-library,.hero-playlist,.hero-music){--band:#ff914d;--hero-tint:linear-gradient(135deg,#7bf29a,#5ce1ff)}
+:root[data-skin=brutal] .page-hero:is(.hero-history,.hero-accounts){background:#5ce1ff}
+:root[data-skin=brutal] .page-hero:is(.hero-ranking,.hero-settings){background:#7bf29a}
+:root[data-skin=brutal] .page-hero:is(.hero-library,.hero-playlist,.hero-music){background:#ff914d}
+/* 新组件跟随撞色 */
+:root[data-skin=brutal] :is(.record-crate,.listening-calendar,.cd-player){border:3px solid #111;border-radius:0;box-shadow:var(--br-hard)}
+:root[data-skin=brutal] .lyric-marks i{background:#111}
+:root[data-skin=brutal] .lyric-marks i.chorus{background:#ff914d}
+/* 杂项 */
+:root[data-skin=brutal] ::-webkit-scrollbar-thumb{border-radius:0;background:#111;border:3px solid #fff4cf}
+:root[data-skin=brutal] :focus-visible{outline:3px solid #111;outline-offset:2px}
+
+}

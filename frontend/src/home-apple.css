@@ -1,3 +1,4 @@
+@layer legacy {
 /* Apple Music home: large title, tall "Top Picks" cards, then square-artwork shelves. */
 .home-apple { max-width: 1480px; margin: 0 auto; }
 .apple-title { margin: 8px 0 22px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
@@ -43,3 +44,4 @@
 .apple-pick-caption small { font-size: 12px; color: #ffffffbf; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .apple-pick:hover .apple-pick-art { filter: brightness(.94); }
 .apple-pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 10px; }
+}

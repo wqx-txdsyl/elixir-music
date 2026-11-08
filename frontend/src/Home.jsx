@@ -1,7 +1,9 @@
+import { openPlatform } from './PlatformAccounts';
 import React,{useEffect,useRef,useState} from 'react';
 import {ArrowSquareOut,ArrowsClockwise,CaretLeft,CaretRight,ClockCounterClockwise,FolderSimple,Heart,LockSimple,MagnifyingGlass,MusicNotes,Pause,Play,Queue,UserCircle} from '@phosphor-icons/react';
 import {api,mediaUrl,formatDuration,SOURCE_NAMES} from './api';
 import {MusicArt} from './MusicWorkspace';
+import {RecordCrate,ListeningCalendar} from './Crate';
 import './home.css';
 import './home-netease.css';
 import './home-qqmusic.css';
@@ -11,7 +13,7 @@ import './home-ink.css';
 import './home-apple.css';
 
 const DAY=86400;
-const LAYOUTS=['netease','qqmusic','spotify','aurora','ink','apple'];
+const LAYOUTS=['netease','qqmusic','spotify','aurora','ink','apple','modular','crate'];
 // Platform picks are cached for the session so returning to the home page does not refetch them.
 const pickCache=new Map();
 
@@ -176,6 +178,7 @@ function PlatformPicks({id,title='平台推荐',accounts,actions,currentId,playi
   },[modes,accounts,waited]);
   async function select(mode,force=false){
     if(mode.mode==='official'){external(mode.url);return;}
+    if(mode.mode==='platform'){openPlatform(mode.source,mode.url).catch(e=>setError(e.message));return;}
     const id=++request.current;setActive(mode);setExpanded(false);setError('');
     if(!usable(mode)){setData(null);setBusy(false);return;}
     localStorage.setItem('elixir-home-pick',mode.id);
@@ -185,7 +188,7 @@ function PlatformPicks({id,title='平台推荐',accounts,actions,currentId,playi
     catch(e){if(id===request.current)setError(e.message);}
     finally{if(id===request.current)setBusy(false);}
   }
-  const groups=['netease','qqmusic','spotify'].map(source=>[source,modes.filter(m=>m.source===source)]).filter(([,list])=>list.length);
+  const groups=[...new Set(modes.map(mode=>mode.source))].map(source=>[source,modes.filter(m=>m.source===source)]).filter(([,list])=>list.length);
   const tracks=data?.tracks||[],items=data?.items||[],shown=expanded?tracks:tracks.slice(0,12),shownItems=expanded?items:items.slice(0,12);
   let body;
   if(error)body=<div className="home-pick-note"><p>{error}</p>{active&&<button className="button quiet" onClick={()=>select(active,true)}><ArrowsClockwise size={16}/>重试</button>}</div>;
@@ -193,7 +196,7 @@ function PlatformPicks({id,title='平台推荐',accounts,actions,currentId,playi
   else if(!usable(active))body=<div className="home-pick-note"><p>连接{SOURCE_NAMES[active.source]}账号后，这里会显示你的{active.title}。</p><button className="button quiet" onClick={()=>actions.current.navigate('accounts')}><UserCircle size={16}/>连接账号</button></div>;
   else if(busy)body=<div className="home-pick-loading" aria-label="正在读取推荐"><i/><i/><i/><i/><i/><i/></div>;
   else if(tracks.length)body=<>
-    <div className="home-pick-actions"><button className="button primary" onClick={()=>actions.current.play(tracks[0],tracks)}><Play size={16} weight="fill"/>播放全部</button><button className="button quiet" onClick={()=>actions.current.batch('queue',tracks)}><Queue size={16}/>加入队列</button><span>{tracks.length} 首</span></div>
+    <div className="home-pick-actions"><button className="button primary" onClick={()=>actions.current.playAll(tracks)}><Play size={16} weight="fill"/>播放全部</button><button className="button quiet" onClick={()=>actions.current.batch('queue',tracks)}><Queue size={16}/>加入队列</button><span>{tracks.length} 首</span></div>
     <TrackGrid tracks={shown} actions={actions} currentId={currentId} playing={playing} onToggle={onToggle}/>
     {tracks.length>shown.length&&<button className="home-text-button home-more" onClick={()=>setExpanded(true)}>显示全部 {tracks.length} 首</button>}
   </>;
@@ -203,14 +206,14 @@ function PlatformPicks({id,title='平台推荐',accounts,actions,currentId,playi
     <div className="home-section-head"><h2>{title}</h2>{active&&usable(active)&&<button className="home-text-button" disabled={busy} onClick={()=>select(active,true)}><ArrowsClockwise size={14}/>刷新</button>}</div>
     <div className="home-pick-modes">{groups.map(([source,list])=><div className="home-pick-group" key={source}><span>{SOURCE_NAMES[source]}</span>
       {list.map(mode=><button key={mode.id} className={'home-pick-chip'+(active?.id===mode.id?' chosen':'')} title={mode.description} aria-pressed={active?.id===mode.id} onClick={()=>select(mode)}>{mode.title}
-        {mode.mode==='official'?<ArrowSquareOut size={13} aria-label="在官方页面打开"/>:!usable(mode)&&<LockSimple size={12} aria-label="需要连接账号"/>}
+        {mode.mode!=='read'?<ArrowSquareOut size={13} aria-label="在官方页面打开"/>:!usable(mode)&&<LockSimple size={12} aria-label="需要连接账号"/>}
       </button>)}
     </div>)}</div>
     {body}
   </section>;
 }
 
-export default function Home({theme,actions,current,currentId,playing,liked,labels,accounts,onToggle,onImport,external}){
+export default function Home({theme,modules,actions,current,currentId,playing,liked,labels,accounts,onToggle,onImport,external}){
   const [history,setHistory]=useState(null),[library,setLibrary]=useState(null),[stats,setStats]=useState(null),[ranking,setRanking]=useState(null),[filter,setFilter]=useState('all');
   useEffect(()=>{
     let alive=true;
@@ -238,6 +241,7 @@ export default function Home({theme,actions,current,currentId,playing,liked,labe
   const lists=(library?.playlists||[]).map(p=>({key:p.id,cover:p.cover,title:p.title,detail:(p.count??p.total??0)+' 首',go:()=>p.kind==='playlist'?run.openEntity(p):run.navigate('playlist',p.id)}));
   const openArtist=artist=>artist.entity?run.openEntity({...artist.entity,cover:artist.cover}):run.search(artist.name,'all','artist');
   const common={history,currentId,playing,onToggle,run};
+  const crate=title=><RecordCrate title={title} tracks={[hero,...recent,...topTracks].filter(Boolean)} currentId={currentId} playing={playing} onToggle={toggle} onOpen={track=>run.openDetail(track)}/>;
 
   const greet=<header className="home-greeting"><h1>{greeting(now.getHours())}</h1><p><span>{now.toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'long'})}</span>{stats&&<span>{weekSummary(stats)}</span>}</p></header>;
   const heroSection=(count=4)=>loading?<div className="home-hero home-hero-loading" aria-label="正在读取听歌记录"/>
@@ -318,7 +322,7 @@ export default function Home({theme,actions,current,currentId,playing,liked,labe
         {greet}
         {loading?<div className="home-shortcuts home-quick-loading" aria-label="正在读取听歌记录"><i/><i/><i/><i/></div>:<nav className="home-shortcuts" aria-label="快捷入口">{tiles.map(item=><Shortcut key={item.key} item={item} playing={playing}/>)}</nav>}
         {!loading&&!hero&&<EmptyHero run={run} onImport={onImport}/>}
-        {recentCards.length>0&&<Shelf title="最近播放" action={<button className="home-text-button" onClick={()=>run.play(history[0],history)}>全部播放</button>}>{recentCards}</Shelf>}
+        {recentCards.length>0&&<Shelf title="最近播放" action={<button className="home-text-button" onClick={()=>run.playAll(history)}>全部播放</button>}>{recentCards}</Shelf>}
         {topTracks.length>0&&<Shelf title="最近常听" action={rankingLink}>{topCards}</Shelf>}
         {picks('为你打造')}
       </>}
@@ -336,7 +340,7 @@ export default function Home({theme,actions,current,currentId,playing,liked,labe
     const recentCards=(history||[]).slice(0,14).map(track=><CoverCard key={track.id} cover={track.cover} title={track.title} detail={track.artist} playable now={track.id===currentId} playing={playing} label={'播放 '+track.title} onClick={()=>toggle(track,history)}/>);
     body=<>
       <header className="apple-title"><h1>{labels.home}</h1><p>{greeting(now.getHours())}{stats?' · '+weekSummary(stats):''}</p></header>
-      {loading?<div className="apple-picks home-hero-loading" aria-label="正在读取听歌记录"/>:<Shelf title="置顶精选" className="apple-picks-shelf">{pickCards.map(item=><ApplePick key={item.key} {...item} playing={playing} onClick={item.go}/>)}</Shelf>}
+      {loading?<div className="apple-picks home-hero-loading" aria-label="正在读取听歌记录"/>:<Shelf title="置顶精选" className="apple-picks-shelf">{pickCards.map(({key,...item})=><ApplePick key={key} {...item} playing={playing} onClick={item.go}/>)}</Shelf>}
       {!loading&&!hero&&<EmptyHero run={run} onImport={onImport}/>}
       {recentCards.length>0&&<Shelf title="最近播放" action={<button className="home-text-button" onClick={()=>run.navigate('history')}>查看全部<CaretRight size={12}/></button>}>{recentCards}</Shelf>}
       {topTracks.length>0&&<Shelf title="最近常听" action={rankingLink}>{topCards}</Shelf>}
@@ -344,6 +348,38 @@ export default function Home({theme,actions,current,currentId,playing,liked,labe
       {artists.length>1&&<Shelf title="常听艺人" action={rankingLink}>{artistCards}</Shelf>}
       {albums.length>0&&<Shelf title="收藏的专辑" action={musicLink}>{albumCards(albums)}</Shelf>}
       {lists.length>1&&<Shelf title="我的歌单" action={musicLink}>{lists.map(item=><CoverCard key={item.key} cover={item.cover} title={item.title} detail={item.detail} label={'打开 '+item.title} onClick={item.go}/>)}</Shelf>}
+    </>;
+  }else if(layout==='modular'){
+    // Blocks the listener turned on in the workshop, in the order they chose.
+    const recentCards=recent.slice(0,12).map(track=><CoverCard key={track.id} cover={track.cover} title={track.title} detail={track.artist} playable now={track.id===currentId} playing={playing} label={'播放 '+track.title} onClick={()=>toggle(track,history)}/>);
+    const blocks={
+      greeting:()=>greet,
+      hero:()=>heroSection(5),
+      shortcuts:()=><nav className="home-shortcuts modular-shortcuts" aria-label="快捷入口">{nav.map(item=><Shortcut key={item.key} item={item} playing={playing}/>)}</nav>,
+      recent:()=>recentCards.length>0&&<Shelf title="最近播放" action={<button className="home-text-button" onClick={()=>run.navigate('history')}>查看全部<CaretRight size={12}/></button>}>{recentCards}</Shelf>,
+      top:()=>topTracks.length>0&&<section className="home-section"><div className="home-section-head"><h2>最近常听</h2>{rankingLink}</div><RankList tracks={topTracks.slice(0,10)} {...common}/></section>,
+      crate:()=>crate('唱片箱'),
+      calendar:()=><ListeningCalendar/>,
+      picks:()=>picks('平台推荐'),
+      artists:()=>artists.length>0&&<Shelf title="常听歌手" action={rankingLink}>{artistCards}</Shelf>,
+      albums:()=>albums.length>0&&<Shelf title="收藏的专辑" action={musicLink}>{albumCards(albums)}</Shelf>,
+      playlists:()=>lists.length>0&&<Shelf grid title="我的歌单" action={musicLink}>{lists.slice(0,12).map(item=><CoverCard key={item.key} cover={item.cover} title={item.title} detail={item.detail} label={'打开 '+item.title} onClick={item.go}/>)}</Shelf>,
+      charts:()=>topTracks.length>0&&<section className="home-section modular-charts"><div className="home-section-head"><h2>排行榜</h2>{rankingLink}</div><div className="modular-chart-grid">
+        {[['歌曲',topTracks.map(t=>[t.id,t.title,t.artist,t.cover,()=>toggle(t,topTracks)])],['歌手',artists.map(a=>[a.name,a.name,a.play_count+' 次',a.cover,()=>openArtist(a)])],['专辑',(ranking?.albums||albums).map(a=>[a.id,a.title,a.artist,a.cover,()=>run.openEntity(a)])]].filter(([,items])=>items.length).map(([title,items])=><div className="modular-chart" key={title}><h3>{title}榜</h3><ol>{items.slice(0,5).map(([key,name,sub,art,go],i)=><li key={key}><button onClick={go}><b>{i+1}</b><span className="modular-chart-art"><MusicArt src={art} title={name}/></span><span><strong>{name}</strong><small>{sub}</small></span></button></li>)}</ol></div>)}
+      </div></section>,
+    };
+    const shown=(modules||[]).filter(m=>m.on&&blocks[m.key]);
+    body=<>{shown.map(m=><div className={'modular-block modular-'+m.key} key={m.key}>{blocks[m.key]()}</div>)}{!shown.length&&<div className="home-pick-note"><p>首页上的模块都被收起来了。到个性化工坊的“导航与首页”里打开想看的模块。</p><button className="button quiet" onClick={()=>run.navigate('studio')}>打开个性化工坊</button></div>}</>;
+  }else if(layout==='crate'){
+    // A record shop: flip through a crate of recent and favourite songs, then the listening diary.
+    body=<>
+      {greet}
+      {loading?<div className="home-hero home-hero-loading" aria-label="正在读取听歌记录"/>:hero?crate('最近与常听'):<EmptyHero run={run} onImport={onImport}/>}
+      <ListeningCalendar/>
+      {albums.length>0&&<Shelf title="收藏的专辑" action={musicLink}>{albumCards(albums)}</Shelf>}
+      {lists.length>0&&<Shelf grid title="我的歌单" action={musicLink}>{lists.slice(0,12).map(item=><CoverCard key={item.key} cover={item.cover} title={item.title} detail={item.detail} label={'打开 '+item.title} onClick={item.go}/>)}</Shelf>}
+      {artists.length>0&&<Shelf title="常听歌手" action={rankingLink}>{artistCards}</Shelf>}
+      {picks('平台推荐')}
     </>;
   }else if(layout==='ink'){
     // A record sleeve and a listening journal; the shelves use the same live data and actions.

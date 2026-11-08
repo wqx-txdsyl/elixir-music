@@ -41,6 +41,11 @@ class SpotifyPlayer{
     })().catch(error=>{this.componentsReady=null;throw error;});
     return this.componentsReady;
   }
+  // 不需要 Spotify 出声时直接静音它的窗口：停止命令到达设备前，或设备忽略了暂停，也不会和别的音源混在一起。
+  setMuted(muted){
+    this.muted=!!muted;
+    if(this.win&&!this.win.isDestroyed())this.win.webContents.setAudioMuted(this.muted);
+  }
   async initialize(){
     if(this.initializing)return this.initializing;
     this.initializing=this.createPlayerWindow().finally(()=>{this.initializing=null;});
@@ -85,6 +90,7 @@ class SpotifyPlayer{
     this.win=new BrowserWindow({width:1080,height:760,minWidth:680,minHeight:560,show:false,parent:this.parent(),title:'Elixir · Spotify 登录',autoHideMenuBar:false,
       webPreferences:{partition:'persist:musicplatform-spotify',nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,backgroundThrottling:false,autoplayPolicy:'no-user-gesture-required'}});
     this.win.webContents.setUserAgent(userAgent);
+    this.win.webContents.setAudioMuted(!!this.muted);
     this.win.setMenu(Menu.buildFromTemplate([{label:'完成登录，返回 Elixir',click:()=>this.sync().then(()=>this.win?.hide()).catch(e=>this.onState?.({reason:e.message}))},{label:'重新加载',click:()=>this.load()},{label:'返回 Elixir',click:()=>this.win?.hide()}]));
     this.win.webContents.setWindowOpenHandler(({url})=>{if(spotifyRequest({url}))this.win?.loadURL(url).catch(()=>{});return {action:'deny'};});
     this.win.webContents.on('will-navigate',(event,url)=>{if(!spotifyRequest({url}))event.preventDefault();});
