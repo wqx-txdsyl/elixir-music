@@ -23,6 +23,6 @@ if ($Sign) {
   # Requires an explicitly authorized EVS account; no signup or force-sign here.
   python scripts/sign_desktop.py
   if ($LASTEXITCODE -ne 0) {throw 'Production media signing did not pass'}
-  & node_modules/.bin/electron-builder.cmd --win portable --prepackaged $packagePath --config.directories.output=release/elixir --config.compression=store
+  & node_modules/.bin/electron-builder.cmd --win portable --prepackaged $packagePath --config.directories.output=release/elixir
   if ($LASTEXITCODE -ne 0) {throw 'Portable package failed'}
 } else {Write-Output 'Candidate built. Production media signing and real music playback verification remain pending.'}
