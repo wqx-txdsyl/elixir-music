@@ -177,7 +177,7 @@ async def search_sources(q,source='all',limit=30):
     return tracks,[error for _,error in results if error]
 
 @app.get('/api/health')
-def health(): return {'ok':True,'version':VERSION,'build':'20261108.4','name':'Elixir','instance':hashlib.sha256(TOKEN.encode()).hexdigest()[:16]}
+def health(): return {'ok':True,'version':VERSION,'build':'20261108.5','name':'Elixir','instance':hashlib.sha256(TOKEN.encode()).hexdigest()[:16]}
 
 @app.get('/api/search')
 async def search(q:str='',source:str='all',limit:int=30):
