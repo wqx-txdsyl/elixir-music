@@ -40,6 +40,12 @@ const dataRoot = canonicalDataDirectory(process.env.MUSICPLATFORM_DATA_DIR || (a
 const playbackConfig=path.join(dataRoot,'playback-runtime.json');
 const lyricsPreferencesFile=path.join(dataRoot,'desktop-lyrics.json');
 let lyricsPreferences=readLyricsPreferences(lyricsPreferencesFile),lyricsBoundsTimer;
+// 启动配色：渲染端每次换皮肤后写入，下次启动主窗底色就不会先白后黑。
+const bootFile=path.join(dataRoot,'desktop-boot.json'),BOOT_HEX=/^#[0-9a-f]{6}$/i,BOOT_DEFAULT={bg:'#f7f9fc',text:'#283244',accent:'#ef4655'};
+function sanitizeBoot(data){const out={};if(!data||typeof data!=='object')return out;for(const key of ['bg','text','accent'])if(BOOT_HEX.test(data[key]||''))out[key]=data[key].toLowerCase();if(['dark','light'].includes(data.scheme))out.scheme=data.scheme;return out;}
+let bootColors={...BOOT_DEFAULT};try{bootColors={...BOOT_DEFAULT,...sanitizeBoot(JSON.parse(fs.readFileSync(bootFile,'utf8')))};}catch{}
+// 主窗居中且不超出工作区
+function mainBounds(){const area=screen.getPrimaryDisplay().workArea,width=Math.min(1400,area.width),height=Math.min(920,area.height);return {x:Math.round(area.x+(area.width-width)/2),y:Math.round(area.y+(area.height-height)/2),width,height};}
 try{const proxy=JSON.parse(fs.readFileSync(playbackConfig,'utf8')).proxy;if(proxy&&['http:','https:','socks5:'].includes(new URL(proxy).protocol))app.commandLine.appendSwitch('proxy-server',proxy);}catch{}
 app.setPath('userData', path.join(dataRoot, 'desktop'));
 
@@ -132,7 +138,7 @@ async function importSpotifyCookie(cookie) {
   return login('spotify');
 }
 function createWindow() {
-  mainWindow = new BrowserWindow({width:1400,height:920,minWidth:1000,minHeight:680,show:false,frame:false,backgroundColor:'#f7f9fc',title:'Elixir',icon:brandAsset('ico'),webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true,backgroundThrottling:false}});
+  mainWindow = new BrowserWindow({...mainBounds(),minWidth:1000,minHeight:680,show:false,frame:false,backgroundColor:bootColors.bg,title:'Elixir',icon:brandAsset('ico'),webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true,backgroundThrottling:false}});
   mainWindow.setMenuBarVisibility(false);
   if(process.platform==='win32'){mainWindow.setIcon(brandAsset('ico'));mainWindow.setAppDetails({appId:'local.musicplatform.desktop',appIconPath:brandAsset('ico'),appIconIndex:0,relaunchCommand:'\"'+app.getPath('exe')+'\"',relaunchDisplayName:'Elixir'});}
   mainWindow.webContents.setWindowOpenHandler(({url})=>{if(allowedExternal(url))shell.openExternal(url);return {action:'deny'};});
@@ -218,6 +224,7 @@ ipcMain.handle('pick-folder',async(event)=>{trusted(event);const result=await di
 ipcMain.handle('window',(event,action)=>{trusted(event);if(action==='minimize')mainWindow.minimize();else if(action==='maximize')mainWindow.isMaximized()?mainWindow.unmaximize():mainWindow.maximize();else if(action==='close')mainWindow.close();else if(action==='quit')app.quit();});
 ipcMain.handle('window-state',event=>{trusted(event);return {maximized:mainWindow.isMaximized(),minimized:mainWindow.isMinimized()};});
 ipcMain.handle('version',event=>{trusted(event);return app.getVersion();});
+ipcMain.handle('boot-colors-set',(event,data)=>{trusted(event);const next={...BOOT_DEFAULT,...sanitizeBoot(data)};if(JSON.stringify(next)===JSON.stringify(bootColors))return true;bootColors=next;try{fs.writeFileSync(bootFile,JSON.stringify(next));}catch{}return true;});
 ipcMain.handle('open-external',(event,url)=>{trusted(event);if(!allowedExternal(url))throw new Error('无效链接');return shell.openExternal(url);});
 ipcMain.handle('platform-window',(event,source,url,play,trackId,track)=>{
   trusted(event);

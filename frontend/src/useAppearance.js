@@ -5,6 +5,19 @@ import { mediaUrl } from './api';
 
 const darkQuery = () => window.matchMedia?.('(prefers-color-scheme: dark)');
 
+// Resolves --bg / --text / --accent to plain hex through a probe element, whatever the skin wrote
+// (color-mix, nested var(), named colours).
+function bootColors() {
+  const probe = document.createElement('i');
+  probe.style.cssText = 'position:fixed;left:-9999px;width:1px;height:1px;pointer-events:none';
+  document.body.appendChild(probe);
+  const hex = value => { const m = value.match(/\d+(\.\d+)?/g); return m && m.length >= 3 ? '#' + m.slice(0, 3).map(n => Math.round(Number(n)).toString(16).padStart(2, '0')).join('') : ''; };
+  const read = name => { probe.style.backgroundColor = 'var(' + name + ')'; return hex(getComputedStyle(probe).backgroundColor); };
+  const out = { bg: read('--bg'), text: read('--text'), accent: read('--accent') };
+  probe.remove();
+  return out;
+}
+
 // Reads the dominant colour of a cover. Covers from other hosts may refuse canvas access; then the
 // skin's own accent stays.
 function useCoverAccent(cover, enabled, dark) {
@@ -112,6 +125,18 @@ export function useAppearance(cover) {
     root.dataset.scheme = dark ? 'dark' : 'light';
     try { localStorage.setItem('musicplatform-theme', resolved.skin.base); } catch { /* storage full */ }
   }, [resolved.skin, dark]);
+
+  // Remembers the skin's real colours for the next start: index.html paints them before React
+  // mounts and the desktop shell uses them for the window background.
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const boot = { ...bootColors(), scheme: dark ? 'dark' : 'light' };
+      const json = JSON.stringify(boot);
+      try { if (localStorage.getItem('elixir-boot') !== json) localStorage.setItem('elixir-boot', json); } catch { /* storage full */ }
+      window.desktop?.setBootColors?.(boot)?.catch?.(() => {});
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [resolved.skin, dark, accent]);
 
   useEffect(() => {
     const style = document.documentElement.style;
