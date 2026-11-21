@@ -1,0 +1,215 @@
+/* Elixir 原创：constructivist */
+@layer skins {
+
+/* ================= 构成变换 ================= */
+/* 米纸底上只用红与黑：斜切色块、圆与楔形、对角线分区和压缩粗体大字，像一张构成主义海报。色块只在标题、选中态和页头出现，列表区保持纸面和细线。 */
+:root[data-skin=constructivist]{--bg:#efe6d2;--sidebar:#1b1b1b;--panel:#f7f0e0;--panel-solid:#f7f0e0;--text:#141414;--muted:#5a5247;--subtle:#2e2a24;--line:#141414;--hover:#d7261e1a;--accent:#d7261e;--accent-tint:#d7261e22;--accent-text:#f7f0e0;--radius:0px;--chip:#f7f0e0;--shadow:5px 5px 0 #d7261e;
+  --cx-ink:#141414;--cx-red:#d7261e;--cx-paper:#efe6d2;--cx-card:#f7f0e0;--cx-grey:#8b8378;
+  --cx-edge:2px solid #141414;
+  --cx-hard:5px 5px 0 #d7261e;
+  --cx-hard-ink:4px 4px 0 #141414;
+  --cx-thin:#14141426;
+  --cx-cut:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);
+  --cx-cut-sm:polygon(0 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%);
+  --cx-font:"Impact","Haettenschweiler","Arial Narrow","Microsoft YaHei UI","PingFang SC",sans-serif;
+  color-scheme:light}
+:root[data-skin=constructivist] ::selection{background:#d7261e;color:#f7f0e0}
+/* 整体：纸底上一条贯穿的细黑斜线和一角淡红，把页面分成海报式的两区 */
+:root[data-skin=constructivist] .app{background:linear-gradient(112deg,transparent 0 64%,#14141418 64% 64.3%,transparent 64.3% 82%,#d7261e12 82%),#efe6d2}
+/* 侧栏：黑底，右缘一道红边，选中项是斜切的红色块 */
+:root[data-skin=constructivist] .sidebar{background:#1b1b1b;border-radius:0;box-shadow:inset -4px 0 0 #d7261e}
+:root[data-skin=constructivist] .workspace{background:transparent;border-radius:0}
+:root[data-skin=constructivist] .brand{color:#f7f0e0;font-family:var(--cx-font);font-weight:400;font-size:24px;letter-spacing:2px;text-transform:uppercase}
+
+:root[data-skin=constructivist] .nav-item{border-radius:0;color:#e6ddc8;font-weight:700;letter-spacing:.5px;transition:background .1s,box-shadow .1s}
+:root[data-skin=constructivist] .nav-item svg{color:#e6ddc8}
+:root[data-skin=constructivist] .nav-item:hover{background:#ffffff14;box-shadow:inset 4px 0 0 #d7261e;color:#fff}
+:root[data-skin=constructivist] .nav-item.selected{background:#d7261e;color:#f7f0e0;font-weight:900;clip-path:var(--cx-cut-sm)}
+:root[data-skin=constructivist] .nav-item.selected svg{color:#f7f0e0}
+:root[data-skin=constructivist] .nav-item small{background:#f7f0e0;color:#141414;border-radius:0;font-weight:800}
+:root[data-skin=constructivist] :is(.library-heading,.playlist-heading){color:#8b8378;font-weight:900;letter-spacing:2px;text-transform:uppercase}
+:root[data-skin=constructivist] .playlist-navigation .nav-item svg{background:#f7f0e0;color:#141414;border-radius:0}
+:root[data-skin=constructivist] .create-first{color:#e6ddc8;font-weight:700}
+:root[data-skin=constructivist] .appearance-button{background:#f7f0e0;border:2px solid #f7f0e0;border-radius:0;color:#141414;font-weight:800;clip-path:var(--cx-cut-sm)}
+:root[data-skin=constructivist] .appearance-button:hover{background:#d7261e;border-color:#d7261e;color:#f7f0e0}
+:root[data-skin=constructivist] .sidebar-bottom{color:#a39b8c}
+/* 顶栏：纸底压一条黑线，搜索框方角黑框 */
+:root[data-skin=constructivist] .topbar{background:#efe6d2;box-shadow:inset 0 -2px 0 #141414}
+:root[data-skin=constructivist] .search-box{background:#f7f0e0;border:var(--cx-edge);border-radius:0;color:#141414;box-shadow:none}
+:root[data-skin=constructivist] .search-box:focus-within{background:#fff;box-shadow:var(--cx-hard-ink)}
+:root[data-skin=constructivist] .search-box input{color:#141414;font-weight:600;caret-color:#d7261e}
+:root[data-skin=constructivist] .search-box input::placeholder{color:#8b8378}
+:root[data-skin=constructivist] .search-box kbd{background:#141414;color:#f7f0e0;border:0;border-radius:0;font-weight:800}
+:root[data-skin=constructivist] :is(.topbar-account button,.topbar-navigation>.icon-button){background:#f7f0e0;border:var(--cx-edge);border-radius:0;color:#141414}
+:root[data-skin=constructivist] :is(.topbar-account button,.topbar-navigation>.icon-button):hover{background:#141414;color:#f7f0e0}
+/* 首页：压缩粗体大标题前一个红圆，小节标题是斜切的黑色贴条 */
+:root[data-skin=constructivist] :is(.home-greeting h1,.apple-title h1,.qq-hello h1){color:#141414;font-family:var(--cx-font);font-weight:400;letter-spacing:1px;text-transform:uppercase}
+:root[data-skin=constructivist] .home-modular .home-greeting h1{font-size:44px;line-height:1}
+:root[data-skin=constructivist] .home-greeting h1::before{content:"";display:inline-block;width:.5em;height:.5em;margin-right:.28em;border-radius:50%;background:#d7261e;vertical-align:.08em}
+:root[data-skin=constructivist] :is(.home-greeting p,.apple-title p){color:#5a5247;font-weight:700;letter-spacing:.5px}
+:root[data-skin=constructivist] .apple-title{border-color:#141414}
+:root[data-skin=constructivist] :is(.home-section-head h2,.section-title h2){display:inline-block;color:#f7f0e0;font-family:var(--cx-font);font-weight:400;font-size:17px;letter-spacing:1.5px;text-transform:uppercase;background:#141414;padding:3px 18px 3px 10px;clip-path:var(--cx-cut-sm)}
+:root[data-skin=constructivist] .home-text-button{color:#d7261e;font-weight:800}
+:root[data-skin=constructivist] .home-text-button:hover:not(:disabled){color:#f7f0e0;background:#141414}
+:root[data-skin=constructivist] .home-hero{color:#f7f0e0;background:linear-gradient(108deg,#d7261e 0 66%,#141414 66%);border:3px solid #141414;border-radius:0;box-shadow:var(--cx-hard-ink);clip-path:var(--cx-cut)}
+:root[data-skin=constructivist] :is(.home-hero,.home-banner)::before,:root[data-skin=constructivist] .home-hero::after{display:none}
+:root[data-skin=constructivist] :is(.home-hero h2,.home-hero-main h2){color:#f7f0e0;font-family:var(--cx-font);font-weight:400;letter-spacing:1px}
+:root[data-skin=constructivist] .home-hero :is(p,span,small,.artist-name,.home-hero-state){color:#f7f0e0}
+:root[data-skin=constructivist] .home-hero-state{display:inline-flex;width:fit-content;background:#141414;color:#f7f0e0!important;padding:2px 10px;font-weight:800;letter-spacing:1px}
+:root[data-skin=constructivist] .home-hero-art{border:3px solid #141414;box-shadow:4px 4px 0 #f7f0e0}
+:root[data-skin=constructivist] .home-recent{background:#f7f0e0;border:var(--cx-edge);border-radius:0}
+:root[data-skin=constructivist] .home-recent :is(strong,small,h3,span){color:#141414}
+:root[data-skin=constructivist] .home-recent li:hover{background:#d7261e1a}
+/* 模块化首页（默认）：快捷块红 / 黑 / 纸轮换并斜切，红黑块上文字反白 */
+:root[data-skin=constructivist] .home-modular .home-shortcut{--line:#141414;--cx-fg:#141414;border-width:2px;box-shadow:var(--cx-hard-ink);clip-path:var(--cx-cut);transition:transform .1s,box-shadow .1s}
+:root[data-skin=constructivist] .home-modular .home-shortcut:nth-child(4n+1){--panel:#d7261e;--cx-fg:#f7f0e0}
+:root[data-skin=constructivist] .home-modular .home-shortcut:nth-child(4n+2){--panel:#f7f0e0}
+:root[data-skin=constructivist] .home-modular .home-shortcut:nth-child(4n+3){--panel:#141414;--cx-fg:#f7f0e0;--line:#d7261e}
+:root[data-skin=constructivist] .home-modular .home-shortcut:nth-child(4n+4){--panel:#e6ddc8}
+:root[data-skin=constructivist] .home-modular .home-shortcut:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #d7261e}
+:root[data-skin=constructivist] .home-modular .home-shortcut:active{transform:translate(2px,2px);box-shadow:none}
+:root[data-skin=constructivist] .home-modular .home-shortcut-art{--accent-tint:#f7f0e0;--accent:#141414;border-radius:50%;box-shadow:inset 0 0 0 2px #141414}
+:root[data-skin=constructivist] .home-modular .home-shortcut-text strong{color:var(--cx-fg);font-family:var(--cx-font);font-weight:400;font-size:17px;letter-spacing:1px}
+:root[data-skin=constructivist] .home-modular .home-shortcut-text small{--muted:var(--cx-fg);color:var(--cx-fg);opacity:.75}
+:root[data-skin=constructivist] .home-modular .modular-chart{--line:#141414;--hover:#d7261e1a;border-width:2px;box-shadow:var(--cx-hard-ink)}
+:root[data-skin=constructivist] .home-modular .modular-chart h3{margin:-14px -10px 8px;padding:8px 12px;background:#141414;color:#f7f0e0;font-family:var(--cx-font);font-weight:400;font-size:16px;letter-spacing:1.5px;text-transform:uppercase}
+:root[data-skin=constructivist] .home-modular .modular-chart-grid>.modular-chart:nth-child(3n+2) h3{background:#d7261e}
+:root[data-skin=constructivist] .home-modular .modular-chart li+li{border-top:1px solid var(--cx-thin)}
+:root[data-skin=constructivist] .home-modular .modular-chart li:nth-child(-n+3) b{--accent:#d7261e;color:#d7261e;font-family:var(--cx-font);font-size:1.3em}
+:root[data-skin=constructivist] .home-modular .modular-chart-art{box-shadow:0 0 0 2px #141414}
+
+:root[data-skin=constructivist] .home-card .music-art{transition:transform .1s,box-shadow .1s}
+:root[data-skin=constructivist] .home-card:hover .music-art{transform:translate(-2px,-2px);box-shadow:0 0 0 2px #141414,6px 6px 0 #d7261e}
+:root[data-skin=constructivist] .home-card strong{color:#141414;font-weight:900}
+:root[data-skin=constructivist] .home-card small{color:#5a5247;font-weight:600}
+
+:root[data-skin=constructivist] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected){background:#141414;border-color:#141414;color:#f7f0e0;clip-path:var(--cx-cut-sm)}
+:root[data-skin=constructivist] .home-shortcut{background:#f7f0e0;border:var(--cx-edge);border-radius:0;box-shadow:var(--cx-hard-ink)}
+:root[data-skin=constructivist] .home-shortcut-likes .home-shortcut-art{background:#d7261e;color:#f7f0e0}
+:root[data-skin=constructivist] .home-shortcut-history .home-shortcut-art{background:#141414;color:#f7f0e0}
+:root[data-skin=constructivist] .home-shortcut-ranking .home-shortcut-art{background:#f7f0e0;color:#d7261e}
+:root[data-skin=constructivist] .home-shortcut-library .home-shortcut-art{background:#8b8378;color:#f7f0e0}
+:root[data-skin=constructivist] :is(.home-card-icon,.apple-pick-icon){background:#d7261e;color:#f7f0e0;border-radius:50%;box-shadow:inset 0 0 0 3px #141414}
+
+:root[data-skin=constructivist] .home-rank-row:hover,:root[data-skin=constructivist] .home-track:hover{background:#d7261e1a}
+:root[data-skin=constructivist] :is(.home-now-bars i,.equalizer i){background:#d7261e}
+/* 页头与歌曲列表：页头是红黑对角拼接的海报，列表区只用细线 */
+:root[data-skin=constructivist] .page-heading h1{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:#141414;font-family:var(--cx-font);font-weight:400;letter-spacing:1px;text-transform:uppercase}
+:root[data-skin=constructivist] .page-hero{border:3px solid #141414;border-radius:0;background:linear-gradient(108deg,#141414 0 62%,#d7261e 62%);box-shadow:var(--cx-hard-ink);clip-path:var(--cx-cut)}
+:root[data-skin=constructivist] .page-hero h1{color:#f7f0e0;font-family:var(--cx-font);font-weight:400;letter-spacing:1.5px;text-transform:uppercase}
+:root[data-skin=constructivist] .page-hero :is(p,span,small,dd,dt){color:#f7f0e0}
+:root[data-skin=constructivist] .page-hero-eyebrow{width:fit-content;align-self:flex-start;background:#f7f0e0;color:#141414!important;padding:2px 10px;font-weight:900;letter-spacing:1.5px}
+:root[data-skin=constructivist] .page-hero-art{border:3px solid #141414;border-radius:0;box-shadow:4px 4px 0 #f7f0e0}
+:root[data-skin=constructivist] .track-table{background:#f7f0e0;border:var(--cx-edge)}
+:root[data-skin=constructivist] .table-header{color:#f7f0e0;background:#141414;border-color:#141414;font-weight:900;letter-spacing:1px}
+:root[data-skin=constructivist] .track-row{border-radius:0;box-shadow:inset 0 -1px 0 var(--cx-thin)}
+:root[data-skin=constructivist] .track-row:nth-child(odd){background:none}
+:root[data-skin=constructivist] .track-row:hover{background:#efe6d2}
+:root[data-skin=constructivist] .track-row.current{background:#d7261e1a;box-shadow:inset 6px 0 0 #d7261e,inset 0 -1px 0 var(--cx-thin)}
+:root[data-skin=constructivist] .track-row.current .song-title{color:#d7261e;font-weight:900}
+:root[data-skin=constructivist] .song-title{font-weight:700;color:#141414}
+:root[data-skin=constructivist] .track-name .cover{border-radius:0;box-shadow:0 0 0 1.5px #141414}
+:root[data-skin=constructivist] :is(.track-filter,.select-trigger){background:#f7f0e0;border:var(--cx-edge);border-radius:0;color:#141414}
+
+/* 播放栏：纸底顶部黑线，播放键是黑边红圆，进度条是红线压在黑细线上 */
+:root[data-skin=constructivist] .player{background:#efe6d2;border:0;border-radius:0;box-shadow:inset 0 2px 0 #141414}
+:root[data-skin=constructivist] .now-cover .cover{border-radius:0;box-shadow:0 0 0 2px #141414,4px 4px 0 #d7261e}
+:root[data-skin=constructivist] .now-title button{color:#141414;font-weight:900}
+:root[data-skin=constructivist] .now-title span{color:#5a5247;font-weight:600}
+:root[data-skin=constructivist] .app .play-main{background:#d7261e;color:#f7f0e0;border:2px solid #141414;border-radius:50%;box-shadow:none;transition:background .1s}
+:root[data-skin=constructivist] .app .play-main:hover{background:#141414;transform:none}
+:root[data-skin=constructivist] .player-controls>.icon-button{color:#141414}
+:root[data-skin=constructivist] .player-controls>.icon-button:hover{color:#d7261e;background:transparent}
+:root[data-skin=constructivist] .player-controls>.icon-button.active{color:#f7f0e0;background:#d7261e;border-radius:0}
+:root[data-skin=constructivist] :is(.progress-row input,.progress-row input:hover){border-radius:0;background:linear-gradient(to right,#d7261e var(--range),#14141433 var(--range))}
+:root[data-skin=constructivist] input[type=range]::-webkit-slider-thumb{width:5px;height:16px;border-radius:0;background:#141414;box-shadow:none}
+:root[data-skin=constructivist] .volume-slider{border-radius:0;background:linear-gradient(to right,#d7261e var(--range),#14141433 var(--range))}
+:root[data-skin=constructivist] :is(.progress-row span,.progress-time){color:#141414;font-weight:800;font-variant-numeric:tabular-nums}
+:root[data-skin=constructivist] .chorus-range{border-radius:0;background:#141414}
+:root[data-skin=constructivist] .chorus-dot{background:#d7261e;box-shadow:0 0 0 2px #141414}
+:root[data-skin=constructivist] .lyric-marks i{background:#141414}
+:root[data-skin=constructivist] .lyric-marks i.chorus{background:#d7261e}
+/* 正在播放（poster，默认）：纸底右侧压一道红色斜带，标题用压缩粗体，标签是黑色贴条 */
+:root[data-skin=constructivist] .app[data-np=poster] .detail-view{background:linear-gradient(118deg,#efe6d2 0 calc(100% - 150px),#141414 0 calc(100% - 142px),#d7261e 0),#efe6d2;box-shadow:inset 0 -2px 0 #141414}
+:root[data-skin=constructivist] .app[data-np=poster] .poster-no{width:fit-content;background:#d7261e;color:#f7f0e0;padding:5px 10px;letter-spacing:2px}
+:root[data-skin=constructivist] .app[data-np=poster] .poster-title{font-family:var(--cx-font);font-weight:400;color:#141414;letter-spacing:1px;text-shadow:5px 5px 0 #d7261e40}
+:root[data-skin=constructivist] .app[data-np=poster] .poster-meta{opacity:1;font-weight:800;color:#141414}
+:root[data-skin=constructivist] .app[data-np=poster] .poster-state{width:fit-content;opacity:1;background:#141414;color:#f7f0e0;padding:4px 10px;letter-spacing:1.5px;clip-path:var(--cx-cut-sm)}
+:root[data-skin=constructivist] .app[data-np=poster] .large-cover{outline:3px solid #141414;box-shadow:8px 8px 0 #d7261e}
+:root[data-skin=constructivist] .app[data-np=poster] .detail-view :is(.detail-close,.source-tag){background:#f7f0e0;color:#141414;border:var(--cx-edge);font-weight:800}
+:root[data-skin=constructivist] .app[data-np=poster] .detail-actions .button.primary{border:2px solid #141414;color:#f7f0e0}
+:root[data-skin=constructivist] .app[data-np=poster] .detail-tabs{border-bottom:2px solid #141414}
+:root[data-skin=constructivist] .app[data-np=poster] .detail-tabs button{font-weight:800;letter-spacing:.5px}
+:root[data-skin=constructivist] .detail-tabs button[aria-selected=true]::after{height:4px;border-radius:0;background:#d7261e}
+:root[data-skin=constructivist] .app[data-np=poster] .lyric-lines button.current{color:#d7261e}
+:root[data-skin=constructivist] .large-cover,:root[data-skin=constructivist] .large-cover .cover{border-radius:0}
+/* 弹窗、菜单：纸底黑框，红色硬投影，悬停项反成黑底 */
+:root[data-skin=constructivist] :is(.modal,.queue-panel,.more-menu-popover,.select-options,.theme-popover,.quality-popover,.action-menu,.track-toolbar.selection-bar){background:#f7f0e0;color:#141414;border:var(--cx-edge);border-radius:0;box-shadow:var(--cx-hard)}
+:root[data-skin=constructivist] :is(.more-menu-popover,.select-options,.action-menu,.theme-popover,.quality-popover) button{border-radius:0;font-weight:700}
+:root[data-skin=constructivist] :is(.more-menu-popover,.select-options,.action-menu,.theme-popover,.quality-popover) button:hover{background:#141414;color:#f7f0e0}
+:root[data-skin=constructivist] :is(.theme-popover button[aria-checked=true],.quality-popover>button[aria-checked=true]){background:#d7261e;color:#f7f0e0}
+:root[data-skin=constructivist] .modal-head{border-bottom:2px solid #141414}
+:root[data-skin=constructivist] .modal-head h2{font-family:var(--cx-font);font-weight:400;letter-spacing:1px;color:#141414}
+:root[data-skin=constructivist] .queue-item[aria-current=true]{background:#d7261e1a;box-shadow:inset 5px 0 0 #d7261e}
+:root[data-skin=constructivist] .toast{background:#141414;color:#f7f0e0;border:0;border-radius:0;box-shadow:var(--cx-hard);font-weight:800}
+/* 通用按钮：方角；主按钮红底纸字黑框，次按钮纸底黑框 */
+:root[data-skin=constructivist] .button{border-radius:0;font-weight:800;letter-spacing:.5px;transition:background .1s,color .1s,transform .06s}
+:root[data-skin=constructivist] .button.primary{background:#d7261e;color:#f7f0e0;border:2px solid #141414}
+:root[data-skin=constructivist] .button.primary:hover:not(:disabled){background:#141414;color:#f7f0e0;filter:none;transform:none}
+:root[data-skin=constructivist] :is(.button.quiet,.button.home-ghost){background:#f7f0e0;color:#141414;border:var(--cx-edge)}
+:root[data-skin=constructivist] :is(.button.quiet,.button.home-ghost):hover:not(:disabled){background:#f7f0e0;color:#d7261e;border-color:#d7261e}
+:root[data-skin=constructivist] .button:active:not(:disabled){transform:translate(2px,2px)}
+:root[data-skin=constructivist] .text-button{color:#d7261e;font-weight:800}
+:root[data-skin=constructivist] .empty-icon{background:#d7261e;color:#f7f0e0;border:3px solid #141414;border-radius:50%;box-shadow:none}
+/* 设置页：分区纸卡黑框红投影，左侧导航选中反成黑底 */
+:root[data-skin=constructivist] .section-nav button{border-radius:0;color:#141414;font-weight:700;border:2px solid transparent}
+:root[data-skin=constructivist] .section-nav button:hover{background:#f7f0e0;border-color:#141414}
+:root[data-skin=constructivist] .section-nav button[aria-current]{background:#141414;border-color:#141414;color:#f7f0e0;font-weight:900;clip-path:var(--cx-cut-sm)}
+:root[data-skin=constructivist] :is(.settings-section,.account-card){background:#f7f0e0;border:var(--cx-edge);border-radius:0;box-shadow:var(--cx-hard)}
+:root[data-skin=constructivist] .settings-section h2{font-family:var(--cx-font);font-weight:400;letter-spacing:1px;color:#141414}
+:root[data-skin=constructivist] .setting-row{border-color:var(--cx-thin)}
+:root[data-skin=constructivist] .setting-row strong{color:#141414;font-weight:800}
+:root[data-skin=constructivist] .source-segment button[aria-pressed=true]{background:#d7261e;color:#f7f0e0;font-weight:900}
+:root[data-skin=constructivist] .sleep-options>button[aria-pressed=true]{background:#d7261e;color:#f7f0e0}
+/* 非默认首页（qqmusic / apple / aurora）：色块收成红、黑、纸三色 */
+:root[data-skin=constructivist] .qq-feature-main{border:3px solid #141414;box-shadow:var(--cx-hard-ink);background:linear-gradient(108deg,#d7261e 0 66%,#141414 66%);color:#f7f0e0}
+:root[data-skin=constructivist] .qq-feature-main::before{display:none}
+:root[data-skin=constructivist] :is(.qq-feature-card,.qq-chart){border:var(--cx-edge);box-shadow:var(--cx-hard-ink);color:#141414;background:#f7f0e0}
+:root[data-skin=constructivist] :is(.qq-feature-card.tone-green,.qq-chart.tone-green){background:#141414;color:#f7f0e0}
+:root[data-skin=constructivist] .qq-chart.tone-blue{background:#d7261e;color:#f7f0e0}
+:root[data-skin=constructivist] :is(.qq-chart.tone-amber,.qq-cover-card){background:#e6ddc8}
+:root[data-skin=constructivist] :is(.qq-chart,.qq-feature-card) :is(h2,h3,strong,small,p,span){color:inherit}
+:root[data-skin=constructivist] .qq-feature-main :is(h2,h3,strong,small,p,span,.qq-feature-title,.qq-feature-state,.qq-feature-copy p){color:#f7f0e0}
+:root[data-skin=constructivist] .qq-feature-title{font-family:var(--cx-font);font-weight:400;letter-spacing:1px}
+:root[data-skin=constructivist] .qq-feature-art{border:3px solid #141414;box-shadow:4px 4px 0 #f7f0e0}
+:root[data-skin=constructivist] .qq-cover-card::before,:root[data-skin=constructivist] .qq-cover-card::after{display:none}
+:root[data-skin=constructivist] .qq-collage-card :is(strong,small){position:relative;z-index:1;width:fit-content;background:#141414;color:#f7f0e0;padding:0 6px}
+:root[data-skin=constructivist] .apple-pick{border:var(--cx-edge);box-shadow:var(--cx-hard-ink);background:#f7f0e0}
+:root[data-skin=constructivist] .apple-pick-eyebrow{display:none}
+:root[data-skin=constructivist] .apple-pick .apple-pick-icon{box-shadow:none}
+:root[data-skin=constructivist] .apple-pick-art{border-bottom:2px solid #141414}
+:root[data-skin=constructivist] .apple-pick-caption{background:#f7f0e0;color:#141414}
+:root[data-skin=constructivist] .apple-pick-caption::before{display:none}
+:root[data-skin=constructivist] .apple-pick.icon .apple-pick-caption{background:#d7261e;color:#f7f0e0}
+:root[data-skin=constructivist] .apple-pick-caption strong{font-weight:900}
+:root[data-skin=constructivist] .apple-pick-caption small{color:inherit;opacity:.8}
+:root[data-skin=constructivist] .home-banner{border:3px solid #141414;border-radius:0;background:linear-gradient(108deg,#141414 0 62%,#d7261e 62%);box-shadow:var(--cx-hard-ink);color:#f7f0e0}
+:root[data-skin=constructivist] .home-banner::after{display:none}
+:root[data-skin=constructivist] .home-banner :is(h2,p){color:#f7f0e0}
+:root[data-skin=constructivist] .home-banner-tag{border-radius:0;background:#f7f0e0;color:#141414}
+:root[data-skin=constructivist] .home-arrow{background:#f7f0e0;border:var(--cx-edge);border-radius:0;color:#141414}
+:root[data-skin=constructivist] .home-bento-hero{background:#d7261e;border:3px solid #141414;box-shadow:var(--cx-hard-ink);color:#f7f0e0}
+:root[data-skin=constructivist] .home-bento-hero::before{display:none}
+:root[data-skin=constructivist] .page-hero~.library-summary>button{border:var(--cx-edge);border-radius:0;--tile:#f7f0e0;color:#141414}
+/* 页头配色：各页在红黑之间轮换 */
+:root[data-skin=constructivist] .hero-likes{--band:#d7261e;--hero-tint:linear-gradient(135deg,#d7261e,#141414)}
+:root[data-skin=constructivist] :is(.hero-history,.hero-accounts){--band:#141414;--hero-tint:linear-gradient(135deg,#141414,#d7261e)}
+:root[data-skin=constructivist] :is(.hero-ranking,.hero-settings){--band:#d7261e;--hero-tint:linear-gradient(135deg,#8b8378,#141414)}
+:root[data-skin=constructivist] :is(.hero-library,.hero-playlist,.hero-music){--band:#141414;--hero-tint:linear-gradient(135deg,#d7261e,#8b8378)}
+:root[data-skin=constructivist] .page-hero:is(.hero-history,.hero-accounts,.hero-library,.hero-playlist,.hero-music){background:linear-gradient(108deg,#d7261e 0 62%,#141414 62%)}
+/* 新组件与杂项 */
+:root[data-skin=constructivist] :is(.record-crate,.listening-calendar,.cd-player){border:var(--cx-edge);border-radius:0;box-shadow:var(--cx-hard)}
+:root[data-skin=constructivist] ::-webkit-scrollbar-thumb{border-radius:0;background:#141414;border:3px solid #efe6d2}
+:root[data-skin=constructivist] :focus-visible{outline:2px solid #d7261e;outline-offset:2px}
+
+}

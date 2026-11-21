@@ -196,6 +196,11 @@ export const SKINS = [
     swatch: { bg: '#f2f1ec', side: '#e9e8e2', panel: '#fbfbf8', accent: '#1c1c1c', text: '#111111' },
     labels: { home: '书页', music: '书架', library: '本地', likes: '书签', history: '读过', ranking: '常读', playlists: '目录' },
     defaults: { np: 'karaoke', visualizer: 'off', home: 'modular', radius: 'sharp', font: 'serif', density: 'comfy', progress: 'line' } },
+  { id: 'constructivist', name: '构成变换', group: 'Elixir 原创', base: 'netease', scheme: 'light', chrome: 'solid',
+    hint: '红黑几何 · 斜切色块', note: '米纸底上只用红与黑：斜切色块、圆与楔形、对角线分区和压缩粗体大字，像一张构成主义海报。',
+    swatch: { bg: '#efe6d2', side: '#1b1b1b', panel: '#f7f0e0', accent: '#d7261e', text: '#141414' },
+    labels: { home: '首页', music: '我的音乐', library: '本地', likes: '喜欢', history: '最近', ranking: '排行', playlists: '歌单' },
+    defaults: { np: 'poster', visualizer: 'bars', home: 'modular', radius: 'sharp', font: 'sans', progress: 'thick' } },
 ];
 
 export const SKIN_MAP = Object.fromEntries(SKINS.map(skin => [skin.id, skin]));
