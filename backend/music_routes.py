@@ -9,15 +9,16 @@ from fastapi import HTTPException
 from fastapi.responses import FileResponse
 from . import catalog
 from . import cloud_library
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from .compat import ItemsField
 
 class BatchEntities(BaseModel):
-    ids:list[str]=Field(min_length=1,max_length=1000)
+    ids:list[str]=ItemsField(min_items=1,max_items=1000)
     saved:bool
 
 class SyncCloudLibrary(BaseModel):
     source:str='all'
-    kinds:list[str]=Field(default_factory=lambda:list(cloud_library.KINDS),min_length=1,max_length=4)
+    kinds:list[str]=ItemsField(default_factory=lambda:list(cloud_library.KINDS),min_items=1,max_items=4)
 
 
 def install(app, get_store, get_providers, public_track, track_get, public_tracks, search_platforms):

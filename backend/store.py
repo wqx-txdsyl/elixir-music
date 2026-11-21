@@ -1,4 +1,4 @@
-"""SQLite music library and Windows-encrypted account secrets."""
+"""SQLite music library and encrypted account secrets (Windows DPAPI / Android Keystore)."""
 from __future__ import annotations
 import base64
 import hashlib
@@ -29,9 +29,26 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = Path(os.environ.get('MUSICPLATFORM_DATA', str(ROOT / 'data')))
 DATA.mkdir(parents=True, exist_ok=True)
 
+def _protect_with_key(text: str, decrypt: bool) -> str:
+    """非 Windows（安卓）用 AES-GCM 加密。密钥由安卓壳用 Android Keystore 保管，启动时经环境变量传入。"""
+    key = os.environ.get('MUSICPLATFORM_SECRET_KEY', '')
+    if not key:
+        raise RuntimeError('账号安全存储需要 Windows DPAPI 或安卓 Keystore 密钥')
+    from Crypto.Cipher import AES
+    key = base64.b64decode(key)
+    if decrypt:
+        if not text.startswith('k1:'): raise ValueError('无法识别的账号密文')
+        raw = base64.b64decode(text[3:])
+        cipher = AES.new(key, AES.MODE_GCM, nonce=raw[:12])
+        return cipher.decrypt_and_verify(raw[28:], raw[12:28]).decode('utf-8')
+    nonce = os.urandom(12)
+    cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)
+    body, tag = cipher.encrypt_and_digest(text.encode('utf-8'))
+    return 'k1:' + base64.b64encode(nonce + tag + body).decode('ascii')
+
 def protect(text: str, decrypt=False) -> str:
     if os.name != 'nt':
-        raise RuntimeError('账号安全存储需要 Windows DPAPI')
+        return _protect_with_key(text, decrypt)
     class BLOB(ctypes.Structure):
         _fields_ = [('cbData', ctypes.c_ulong), ('pbData', ctypes.POINTER(ctypes.c_ubyte))]
     raw = base64.b64decode(text) if decrypt else text.encode('utf-8')

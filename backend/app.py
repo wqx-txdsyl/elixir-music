@@ -15,7 +15,8 @@ import httpx
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from .compat import Field, ItemsField
 from .store import Store, DATA
 from .library import read_track, iter_music, local_lyrics, match_score, ART
 from .lyrics_db import lookup as lyrics_lookup
@@ -366,7 +367,7 @@ class ListeningReport(BaseModel):
     listened_ms:int=Field(ge=0,le=86400000)
     finished:bool=False
 class BatchTrackRequest(BaseModel):
-    track_ids:list[str]=Field(min_length=1,max_length=10000)
+    track_ids:list[str]=ItemsField(min_items=1,max_items=10000)
     action:str
     playlist_id:str=''
 class PlaylistRequest(BaseModel): title:str=Field(min_length=1,max_length=100)
@@ -585,12 +586,13 @@ class WebLoginStatus(BaseModel):
 
 
 class CatalogAuthorization(BaseModel):
-    fields:dict[str,str]=Field(min_length=1,max_length=3)
+    fields:dict[str,str]=ItemsField(min_items=1,max_items=3,mapping=True)
 
 
 @app.put('/api/accounts/{source}/catalog-authorization')
 def configure_catalog(source:str,body:CatalogAuthorization):
     if source not in CATALOG_AUTH:raise HTTPException(404)
+    if not 1<=len(body.fields)<=3:raise HTTPException(422,'授权字段数量不正确')
     providers[source].configure_catalog(body.fields)
     return {'catalog_saved':True}
 
@@ -621,7 +623,7 @@ class BrowserTrackRequest(LinkTrackRequest):
 
 
 class BrowserSearchRequest(BaseModel):
-    rows:list[BrowserTrackRequest]=Field(max_length=40)
+    rows:list[BrowserTrackRequest]=ItemsField(max_items=40)
 
 
 @app.post('/api/accounts/{source}/import-track')

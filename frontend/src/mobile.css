@@ -1,0 +1,501 @@
+
+:root[data-platform=android] body { min-width: 0; overscroll-behavior: none; }
+/* 触屏上没有窗口按钮、拖动条和键盘快捷键提示。 */
+:root[data-platform=android] :is(.native-window-controls, .caption-spacer, .drag-strip) { display: none; }
+:root[data-platform=android] .app :is(kbd, .search-box kbd) { display: none; }
+:root[data-platform=android] * { -webkit-app-region: none; }
+/* 触屏上 hover 会“粘住”，交给 :active 做按下反馈。 */
+:root[data-platform=android] :is(button, a, [role=button]) { touch-action: manipulation; }
+
+/* ========================================================================
+   手机：抽屉侧栏 + 顶部搜索栏 + 迷你播放条 + 底部标签栏
+   ======================================================================== */
+:root[data-device=phone] .app {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-areas: "main" "player" "tabs";
+  height: auto;
+  --player-height: var(--m-mini);
+  --side-width: min(84vw, 320px);
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  gap: 0;
+}
+:root[data-device=phone] .app > .workspace {
+  grid-area: main;
+  position: relative;
+  inset: auto;
+  min-width: 0;
+  min-height: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- 顶栏：菜单、后退、搜索 ---------- */
+:root[data-device=phone] .app .topbar {
+  position: relative;
+  inset: auto;
+  width: auto;
+  height: calc(var(--m-topbar) + var(--m-safe-top));
+  min-height: 0;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: var(--m-safe-top) calc(10px + var(--m-safe-right)) 0 calc(6px + var(--m-safe-left));
+  border-radius: 0;
+  transform: none;
+  box-shadow: none;
+  z-index: 30;
+}
+:root[data-device=phone] .app .topbar :is(.top-nav, .topbar-account, .nav-forward) { display: none; }
+:root[data-device=phone] .app .topbar .topbar-navigation { display: flex; gap: 0; margin: 0; flex: none; }
+:root[data-device=phone] .app .topbar .topbar-navigation .nav-back:disabled { display: none; }
+:root[data-device=phone] .app .topbar .topbar-navigation > :not(.nav-back) { display: none; }
+:root[data-device=phone] .app .topbar .mobile-menu { flex: none; width: 44px; height: 44px; }
+:root[data-device=phone] .app .topbar .search-box {
+  position: relative;
+  inset: auto;
+  transform: none;
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  max-width: none;
+  height: 40px;
+  margin: 0;
+}
+:root[data-device=phone] .app .topbar .search-box input { min-width: 0; font-size: 15px; }
+
+/* ---------- 内容区 ---------- */
+:root[data-device=phone] .app .main-scroll {
+  padding: 8px calc(16px + var(--m-safe-right)) 28px calc(16px + var(--m-safe-left));
+  margin: 0;
+  scrollbar-gutter: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+:root[data-device=phone] .app .main-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ---------- 抽屉侧栏 ---------- */
+:root[data-device=phone] .app > .sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  width: min(84vw, 320px);
+  max-width: none;
+  height: auto;
+  margin: 0;
+  padding-top: var(--m-safe-top);
+  padding-bottom: calc(12px + var(--m-safe-bottom));
+  padding-left: calc(13px + var(--m-safe-left));
+  border-radius: 0 18px 18px 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  z-index: 90;
+  transform: translateX(-105%);
+  visibility: hidden;
+  transition: transform .26s cubic-bezier(.2, .8, .2, 1), visibility 0s .26s;
+  box-shadow: 0 0 40px #0006;
+  background-color: var(--sidebar, var(--panel, var(--bg)));
+}
+:root[data-device=phone] .app > .sidebar.nav-open { transform: none; visibility: visible; transition: transform .26s cubic-bezier(.2, .8, .2, 1); }
+:root[data-device=phone] .app > .sidebar .brand { height: 64px; }
+:root[data-device=phone] .app > .sidebar :is(nav button, .playlist-navigation button) { min-height: 44px; }
+:root[data-device=phone] .mobile-scrim { position: fixed; inset: 0; z-index: 89; background: #0008; animation: m-fade .2s ease-out; }
+@keyframes m-fade { from { opacity: 0; } }
+
+/* ---------- 底部标签栏 ---------- */
+:root[data-device=phone] .mobile-tabs {
+  grid-area: tabs;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  height: calc(var(--m-tabs) + var(--m-safe-bottom));
+  padding: 0 var(--m-safe-right) var(--m-safe-bottom) var(--m-safe-left);
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  z-index: 46;
+  user-select: none;
+}
+:root[data-device=phone] .mobile-tabs button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 4px 2px 0;
+  color: var(--muted, var(--text));
+  font-size: 11px;
+  line-height: 1.2;
+  border-radius: 0;
+  background: none;
+}
+:root[data-device=phone] .mobile-tabs button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root[data-device=phone] .mobile-tabs button:is([aria-current=page],[aria-expanded=true]) { color: var(--accent); font-weight: 600; }
+:root[data-device=phone] .mobile-tabs button:active { opacity: .6; }
+
+/* ---------- 迷你播放条 ---------- */
+:root[data-device=phone] .app > .player {
+  grid-area: player;
+  position: relative;
+  inset: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-areas: none;
+  align-items: center;
+  gap: 2px;
+  width: auto;
+  height: var(--m-mini);
+  min-height: 0;
+  margin: 0;
+  padding: 0 calc(6px + var(--m-safe-right)) 0 calc(10px + var(--m-safe-left));
+  border-radius: 0;
+  transform: none;
+  box-shadow: none;
+  z-index: 45;
+}
+:root[data-device=phone] .app > .player > :not(.now-playing, .player-center, .player-right) { display: none; }
+:root[data-device=phone] .app > .player .now-playing { min-width: 0; width: auto; gap: 10px; margin: 0; padding: 0; }
+:root[data-device=phone] .app > .player .now-cover { width: 46px; height: 46px; flex: none; }
+:root[data-device=phone] .app > .player .now-cover svg { display: none; }
+:root[data-device=phone] .app > .player .now-title { min-width: 0; }
+:root[data-device=phone] .app > .player .now-title > :is(button, span) { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+:root[data-device=phone] .app > .player .now-title .player-lyric { display: none; }
+:root[data-device=phone] .app > .player .now-playing > .icon-button { display: none; }
+:root[data-device=phone] .app > .player .player-center { display: contents; }
+:root[data-device=phone] .app > .player .player-controls { display: flex; align-items: center; gap: 0; margin: 0; padding: 0; width: auto; }
+:root[data-device=phone] .app > .player .player-controls > :not(:nth-child(3), :nth-child(4)) { display: none; }
+:root[data-device=phone] .app > .player .player-controls > * { width: 44px; height: 44px; margin: 0; }
+/* 迷你条顶边一条细进度线。 */
+:root[data-device=phone] .app > .player .progress-row { position: absolute; left: 0; right: 0; top: -1px; height: 3px; margin: 0; padding: 0; gap: 0; display: block; pointer-events: none; width: auto; }
+:root[data-device=phone] .app > .player .progress-row > span,
+:root[data-device=phone] .app > .player .progress-track > :not(input) { display: none; }
+:root[data-device=phone] .app > .player .progress-track { position: absolute; inset: 0; height: 3px; margin: 0; padding: 0; }
+:root[data-device=phone] .app > .player .progress-track input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  position: absolute; inset: 0; width: 100%; height: 3px; margin: 0; padding: 0; border: 0; border-radius: 0; opacity: 1;
+  background: linear-gradient(90deg, var(--accent) var(--range, 0%), transparent 0);
+}
+:root[data-device=phone] .app > .player .progress-track input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 0; height: 0; border: 0; box-shadow: none; }
+:root[data-device=phone] .app > .player .player-right { display: flex; align-items: center; gap: 0; margin: 0; padding: 0; width: auto; min-width: 0; justify-content: flex-end; }
+:root[data-device=phone] .app > .player .player-right > :not([title^="播放队列"]) { display: none; }
+:root[data-device=phone] .app > .player .player-right > [title^="播放队列"] { width: 44px; height: 44px; }
+
+/* ---------- 浮层：队列、弹窗、提示 ---------- */
+:root[data-device=phone] .app .queue-panel {
+  position: fixed;
+  inset: auto 0 0 0;
+  top: auto;
+  width: auto;
+  height: min(78vh, 640px);
+  max-height: calc(100% - var(--m-safe-top) - 24px);
+  margin: 0;
+  padding-bottom: var(--m-safe-bottom);
+  border-radius: 18px 18px 0 0;
+  z-index: 85;
+  animation: m-sheet .24s cubic-bezier(.2, .8, .2, 1);
+}
+@keyframes m-sheet { from { transform: translateY(40%); opacity: 0; } }
+:root[data-device=phone] .app .queue-panel .queue-item { min-height: 56px; }
+:root[data-device=phone] .app .queue-panel .queue-move { display: none; }
+:root[data-device=phone] .modal-backdrop { align-items: flex-end; padding: 0; z-index: 95; }
+:root[data-device=phone] .modal {
+  width: 100%;
+  max-width: none;
+  max-height: calc(100% - var(--m-safe-top) - 24px);
+  border-radius: 18px 18px 0 0;
+  padding: 20px calc(18px + var(--m-safe-right)) calc(20px + var(--m-safe-bottom)) calc(18px + var(--m-safe-left));
+  animation: m-sheet .24s cubic-bezier(.2, .8, .2, 1);
+}
+:root[data-device=phone] .modal.modal-wide { width: 100%; }
+:root[data-device=phone] .modal .action-menu button { min-height: 48px; }
+:root[data-device=phone] .app .toast { left: 12px; right: 12px; bottom: calc(var(--m-mini) + var(--m-tabs) + var(--m-safe-bottom) + 12px); transform: none; max-width: none; z-index: 120; }
+
+/* ---------- 播放页：全屏，底部是完整的播放控制 ---------- */
+:root[data-device=phone] .app.detail-open > .mobile-tabs { display: none; }
+:root[data-device=phone] .app .detail-view {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  border-radius: 0;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: auto;
+}
+:root[data-device=phone] .app { --m-np-controls: 150px; }
+:root[data-device=phone] .app .detail-view .detail-toolbar {
+  height: calc(52px + var(--m-safe-top));
+  padding: var(--m-safe-top) calc(12px + var(--m-safe-right)) 0 calc(8px + var(--m-safe-left));
+  flex: none;
+}
+:root[data-device=phone] .app .detail-view .detail-layout {
+  margin-bottom: calc(var(--m-np-controls) + var(--m-safe-bottom)) !important;
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  grid-template-columns: none;
+  grid-template-areas: none;
+}
+:root[data-device=phone] .app .detail-view .detail-layout::-webkit-scrollbar { display: none; }
+:root[data-device=phone] .app .detail-view .detail-layout > :is(.detail-art, .detail-content) {
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+:root[data-device=phone] .app .detail-view .detail-art { overflow-y: auto; justify-content: flex-start; padding: 8px calc(24px + var(--m-safe-right)) 16px calc(24px + var(--m-safe-left)); }
+:root[data-device=phone] .app .detail-view .detail-content { padding: 0 calc(16px + var(--m-safe-right)) 0 calc(16px + var(--m-safe-left)); }
+:root[data-device=phone] .app .detail-view .detail-cover-stage { width: min(78vw, 46vh); max-width: 100%; margin: 4px auto 0; }
+:root[data-device=phone] .app .detail-view .large-cover { width: 100%; height: auto; aspect-ratio: 1; }
+:root[data-device=phone] .app .detail-view .detail-tabs { flex: none; }
+:root[data-device=phone] .app .detail-view .lyric-offset { flex-wrap: wrap; }
+
+:root[data-device=phone] .app.detail-open > .player {
+  position: fixed;
+  inset: auto 0 0 0;
+  height: calc(var(--m-np-controls) + var(--m-safe-bottom));
+  padding: 6px calc(20px + var(--m-safe-right)) var(--m-safe-bottom) calc(20px + var(--m-safe-left));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 34px 76px 36px;
+  grid-template-areas: "progress" "controls" "extras";
+  gap: 0;
+  z-index: 61;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+:root[data-device=phone] .app.detail-open > .player .now-playing { display: none; }
+:root[data-device=phone] .app.detail-open > .player .progress-row {
+  grid-area: progress;
+  position: relative;
+  inset: auto;
+  top: auto;
+  height: auto;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+  font-size: 11px;
+}
+:root[data-device=phone] .app.detail-open > .player .progress-row > span { display: block; min-width: 34px; text-align: center; }
+:root[data-device=phone] .app.detail-open > .player .progress-track { position: relative; inset: auto; height: 24px; display: flex; align-items: center; }
+:root[data-device=phone] .app.detail-open > .player .progress-track > .waveform { display: none; }
+:root[data-device=phone] .app.detail-open > .player .progress-track > :is(.chorus-marks, .lyric-marks) { display: block; }
+:root[data-device=phone] .app.detail-open > .player .progress-track input[type=range] {
+  position: absolute; inset: 0; top: 50%; height: 4px; margin-top: -2px; border-radius: 4px;
+  background: linear-gradient(90deg, var(--accent) var(--range, 0%), color-mix(in srgb, var(--text) 18%, transparent) 0);
+}
+:root[data-device=phone] .app.detail-open > .player .progress-track input[type=range]::-webkit-slider-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--accent); }
+:root[data-device=phone] .app.detail-open > .player .player-controls { grid-area: controls; justify-content: space-between; width: 100%; }
+:root[data-device=phone] .app.detail-open > .player .player-controls > * { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; }
+:root[data-device=phone] .app.detail-open > .player .player-controls > .play-main { width: 66px; height: 66px; }
+:root[data-device=phone] .app.detail-open > .player .player-controls svg { width: 26px; height: 26px; }
+:root[data-device=phone] .app.detail-open > .player .player-controls > .play-main svg { width: 30px; height: 30px; }
+:root[data-device=phone] .app.detail-open > .player .player-right { grid-area: extras; justify-content: space-between; align-items: center; }
+:root[data-device=phone] .app.detail-open > .player .player-right > :is(.quality-menu, [title^="播放队列"]) { display: flex; }
+:root[data-device=phone] .app.detail-open > .player .quality-popover { bottom: calc(100% + 6px); top: auto; left: 0; right: auto; }
+
+/* 卡拉 OK 大字：没有封面，标题一行在上、歌词占满，不分页。 */
+:root[data-device=phone] .app .detail-view.np-karaoke .detail-layout { flex-direction: column; overflow: hidden; scroll-snap-type: none; }
+:root[data-device=phone] .app .detail-view.np-karaoke .detail-layout > .detail-art { flex: none; height: auto; overflow: visible; padding-top: 0; padding-bottom: 4px; }
+:root[data-device=phone] .app .detail-view.np-karaoke .detail-layout > .detail-content { flex: 1; min-height: 0; height: auto; }
+
+/* 迷你条三列固定：歌曲 | 播放、下一首 | 队列；不管皮肤原来把这些放在哪。 */
+:root[data-device=phone] .app:not(.detail-open) > .player .now-playing { grid-column: 1; grid-row: 1; display: flex; align-items: center; order: 0; position: static; }
+:root[data-device=phone] .app:not(.detail-open) > .player .player-controls { grid-column: 2; grid-row: 1; order: 0; position: static; }
+:root[data-device=phone] .app:not(.detail-open) > .player .player-right { grid-column: 3; grid-row: 1; order: 0; position: static; }
+:root[data-device=phone] .app:not(.detail-open) > .player .now-title { flex: 1; order: 0; position: static; margin: 0; }
+:root[data-device=phone] .app:not(.detail-open) > .player .now-cover { order: -1; position: static; margin: 0; }
+
+/* ---------- 曲目表：只留序号、歌名/歌手、喜欢、更多 ---------- */
+:root[data-device=phone] .app .track-table .table-header { display: none; }
+:root[data-device=phone] .app .track-row {
+  grid-template-columns: 30px minmax(0, 1fr) auto auto;
+  grid-template-areas: none;
+  gap: 6px;
+  height: 62px;
+  padding: 0 2px 0 4px;
+}
+:root[data-device=phone] .app .track-row > :is(.album-cell, .statistics-cell, .duration-cell, .source-tag),
+:root[data-device=phone] .app .track-row > span:has(> .source-tag) { display: none; }
+:root[data-device=phone] .app .track-row > * { grid-column: auto; grid-row: auto; min-width: 0; }
+:root[data-device=phone] .app .track-row .row-actions { display: flex; opacity: 1; visibility: visible; width: auto; }
+:root[data-device=phone] .app .track-row .row-actions .icon-button { width: 40px; height: 40px; }
+:root[data-device=phone] .app .track-row .track-name { gap: 10px; }
+:root[data-device=phone] .app .track-row .track-name > div { min-width: 0; overflow: hidden; }
+:root[data-device=phone] .app .track-row :is(.song-title, .artist-name) { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+:root[data-device=phone] .app .track-toolbar { flex-wrap: wrap; gap: 8px; }
+:root[data-device=phone] .app .track-toolbar > * { min-width: 0; }
+
+/* 展开的播放控制统一用正文色、时间常显：有的皮肤（如 Apple）把它们做成悬停才出现的淡色。 */
+:root[data-device=phone] .app.detail-open > .player .progress-row { padding: 0; height: auto; align-items: center; align-self: stretch; }
+:root[data-device=phone] .app.detail-open > .player .progress-row > span { position: static; opacity: 1; inset: auto; }
+:root[data-device=phone] .app.detail-open > .player .progress-track input[type=range]::-webkit-slider-thumb { opacity: 1; }
+:root[data-device=phone] .app.detail-open > .player .player-controls { align-self: center; height: auto; gap: 0; }
+:root[data-device=phone] .app.detail-open > .player .player-controls .icon-button:not(.active, :disabled) { color: var(--text); }
+:root[data-device=phone] .app.detail-open > .player .player-right .icon-button { color: var(--text); }
+
+/* ---------- 页面头部：大标题按手机宽度缩放 ---------- */
+:root[data-device=phone] .app .main-scroll :is(h1) { font-size: clamp(22px, 7.4vw, 32px); line-height: 1.2; overflow-wrap: anywhere; white-space: normal; }
+:root[data-device=phone] .app :is(.home-hero-actions, .page-hero-actions) { flex-wrap: wrap; gap: 8px; }
+:root[data-device=phone] .app :is(.home-hero-actions, .page-hero-actions) > * { min-width: 0; max-width: 100%; }
+
+/* ---------- 首页各版式 ---------- */
+/* 便当格（极光、雾等）：两列太挤，手机上一格一行。 */
+:root[data-device=phone] .app .home-bento { grid-template-columns: minmax(0, 1fr); grid-template-areas: "hero" "stats" "quick" "recent" "lists" "artists"; }
+/* 唱片箱：唱片缩小、舞台下移，前排唱片立起来时不压住页面标题。 */
+:root[data-device=phone] .app .crate-stage { height: 340px; margin-top: 20px; }
+:root[data-device=phone] .app .crate-record { width: min(210px, 60%); }
+
+/* ---------- 页头：封面缩到 112px，文字在右，按钮换到下一行 ---------- */
+:root[data-device=phone] .app .page-hero { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 16px; padding: 14px; margin: 4px 0 16px; min-height: 0; height: auto; }
+:root[data-device=phone] .app .page-hero-art { width: 112px; height: 112px; flex: none; }
+:root[data-device=phone] .app .page-hero-art svg { width: 48px; height: 48px; }
+:root[data-device=phone] .app .page-hero-copy { flex: 1 1 0; min-width: 0; }
+:root[data-device=phone] .app .page-hero-actions { flex: 1 0 100%; margin: 0; }
+:root[data-device=phone] .app .page-hero h1 { font-size: clamp(20px, 6.4vw, 28px); }
+/* 紧凑密度的经典皮肤（iTunes、千千静听…）行高只有 24–28px，手指点不准，放到 50px。 */
+:root[data-device=phone] .app .track-row { max-height: none; min-height: 50px; }
+:root[data-device=phone] .app[data-density=compact] .track-row { height: 50px; }
+:root[data-device=phone] .app .track-row :is(.icon-button, .row-number, .row-actions, .song-title, .artist-name) { max-height: none; }
+
+/* 播放页“封面页”一律竖排：有的皮肤（QQ 音乐原样）把封面绝对定位到左半屏、标题按网格区域摆，手机上收回到一列。 */
+:root[data-device=phone] .app .detail-view:not(.np-karaoke) .detail-layout > :is(.detail-art, .detail-content) { display: flex; flex-direction: column; position: relative; inset: auto; }
+:root[data-device=phone] .app .detail-view:not(.np-karaoke) .detail-art { align-items: center; text-align: center; }
+:root[data-device=phone] .app .detail-view:not(.np-karaoke) .detail-art > * { grid-area: auto; justify-self: auto; align-self: center; max-width: 100%; }
+:root[data-device=phone] .app .detail-view:not(.np-karaoke) .detail-art > .detail-cover-stage { position: relative; inset: auto; top: auto; left: auto; bottom: auto; transform: none; flex: none; display: flex; align-items: center; justify-content: center; }
+:root[data-device=phone] .app .detail-view:not(.np-karaoke) .detail-cover-stage > .large-cover { width: 100%; height: auto; max-width: 100%; }
+:root[data-device=phone] .app .detail-view:not(.np-karaoke) .detail-art > .visualizer-strip { position: relative; left: auto; bottom: auto; transform: none; width: min(78vw, 46vh); }
+:root[data-device=phone] .app .detail-view:not(.np-karaoke) .detail-art > h1 { margin: 16px 0 6px; font-size: clamp(20px, 6vw, 26px); text-align: center; }
+:root[data-device=phone] .app .detail-view:not(.np-karaoke) .detail-actions { justify-content: center; margin: 12px 0 0; }
+:root[data-device=phone] .app .detail-view:not(.np-karaoke) .detail-content > * { grid-area: auto; }
+
+/* 沉浸式播放页是深色底，播放控制跟着用浅色字（浅色皮肤的播放栏原本是深色字）。 */
+:root[data-device=phone] .app.detail-open:has(> .detail-view.np-immersive) > .player { --text: #fff; --muted: #ffffff8c; --subtle: #ffffffa6; --line: #ffffff26; color: #fff; }
+/* 网易系横幅：左右内边距收窄、封面缩小，给标题和按钮留出位置。 */
+:root[data-device=phone] .app .home-banner-slide { padding: 0 18px 18px; gap: 16px; }
+:root[data-device=phone] .app .home-banner-art { width: min(34vw, 128px); }
+:root[data-device=phone] .app .home-banner .home-hero-actions { margin-top: 12px; }
+:root[data-device=phone] .app .detail-view .detail-art > .detail-cover-stage { height: auto; min-height: 0; max-height: none; }
+:root[data-device=phone] .app .detail-view .detail-cover-stage > .large-cover { max-height: none; }
+
+/* 播放页顶部的“歌曲 / 歌词”分页切换，和左右滑动同步。 */
+:root[data-device=phone] .app .detail-toolbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+:root[data-device=phone] .app .detail-toolbar > :last-child { justify-self: end; display: flex; align-items: center; gap: 6px; min-width: 0; }
+:root[data-device=phone] .app .detail-toolbar > :last-child .text-button { font-size: 0; gap: 0; padding: 6px; }
+:root[data-device=phone] .app .detail-toolbar > :last-child .text-button svg { width: 18px; height: 18px; }
+:root[data-device=phone] .app .detail-toolbar .detail-close { justify-self: start; }
+:root[data-device=phone] .np-pager { display: flex; gap: 18px; }
+:root[data-device=phone] .np-pager button { position: relative; padding: 6px 2px; font-size: 15px; color: var(--muted, currentColor); opacity: .7; background: none; border: 0; }
+:root[data-device=phone] .np-pager button[aria-selected=true] { color: inherit; opacity: 1; font-weight: 650; }
+:root[data-device=phone] .np-pager button[aria-selected=true]::after { content: ""; position: absolute; left: 50%; bottom: 0; width: 16px; height: 2px; margin-left: -8px; border-radius: 2px; background: var(--accent); }
+
+/* ---------- 搜索：类型和平台各占一行，横向滑动 ---------- */
+:root[data-device=phone] .app .search-filters { display: flex; flex-direction: column; align-items: stretch; gap: 10px; flex-wrap: nowrap; }
+:root[data-device=phone] .app :is(.music-type-tabs, .source-segment) { display: flex; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; max-width: 100%; min-width: 0; flex: none; }
+:root[data-device=phone] .app :is(.music-type-tabs, .source-segment)::-webkit-scrollbar { display: none; }
+:root[data-device=phone] .app :is(.music-type-tabs, .source-segment) > button { flex: none; white-space: nowrap; writing-mode: horizontal-tb; min-height: 36px; }
+
+/* ---------- 分区页（设置等）：分区导航变成顶部横向标签 ---------- */
+:root[data-device=phone] .app .section-page { display: flex; flex-direction: column; gap: 12px; }
+:root[data-device=phone] .app .section-nav { position: sticky; top: -8px; z-index: 5; flex-direction: row; overflow-x: auto; scrollbar-width: none; gap: 4px; padding: 6px 0; margin: 0; width: auto; background: var(--bg); }
+:root[data-device=phone] .app .section-nav::-webkit-scrollbar { display: none; }
+:root[data-device=phone] .app .section-nav > * { flex: none; white-space: nowrap; writing-mode: horizontal-tb; width: auto; }
+:root[data-device=phone] .app .section-body { min-width: 0; }
+:root[data-device=phone] .app .settings-look { display: flex; flex-direction: column; align-items: stretch; gap: 14px; }
+:root[data-device=phone] .app .settings-look-actions { flex-wrap: wrap; }
+:root[data-device=phone] .app .setting-row { gap: 14px; flex-wrap: wrap; }
+:root[data-device=phone] .app .setting-row > div:first-child { flex: 1 1 160px; min-width: 0; }
+:root[data-device=phone] .app .shortcut-list { display: none; }
+:root[data-device=phone] .app .queue-panel { z-index: 92; }
+:root[data-device=phone] .app.detail-open .queue-scrim { z-index: 89; }
+/* 有的皮肤把侧栏品牌标志绝对定位到窗口角上，抽屉里放回顶部。 */
+:root[data-device=phone] .app > .sidebar .brand { position: relative; inset: auto; top: auto; left: auto; flex: none; margin: 0; transform: none; }
+
+/* ========================================================================
+   手机横屏：标签栏移到左侧竖排；播放页左封面右歌词，不再分页
+   ======================================================================== */
+:root[data-device=phone][data-orientation=landscape] .app {
+  grid-template-columns: calc(68px + var(--m-safe-left)) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas: "tabs main" "tabs player";
+  --m-np-controls: 100px;
+  --m-topbar: 50px;
+}
+:root[data-device=phone][data-orientation=landscape] .mobile-tabs {
+  grid-auto-flow: row;
+  grid-auto-rows: minmax(0, 1fr);
+  grid-auto-columns: auto;
+  height: auto;
+  padding: var(--m-safe-top) 0 var(--m-safe-bottom) var(--m-safe-left);
+  border-top: 0;
+  border-right: 1px solid var(--line);
+}
+:root[data-device=phone][data-orientation=landscape] .mobile-tabs button { font-size: 10px; padding: 0 2px; }
+:root[data-device=phone][data-orientation=landscape] .app .topbar { padding-left: 6px; }
+:root[data-device=phone][data-orientation=landscape] .app .main-scroll { padding-left: 16px; }
+:root[data-device=phone][data-orientation=landscape] .app > .player { padding-left: 10px; }
+:root[data-device=phone][data-orientation=landscape] .app .toast { bottom: calc(var(--m-mini) + 12px); left: calc(80px + var(--m-safe-left)); }
+:root[data-device=phone][data-orientation=landscape] .app .queue-panel { left: auto; right: 0; top: 0; bottom: 0; width: min(380px, 60vw); height: auto; max-height: none; border-radius: 18px 0 0 18px; padding-top: var(--m-safe-top); padding-right: var(--m-safe-right); }
+:root[data-device=phone][data-orientation=landscape] .modal { width: min(560px, 100%); margin: 0 auto; }
+
+:root[data-device=phone][data-orientation=landscape] .np-pager { display: none; }
+:root[data-device=phone][data-orientation=landscape] .app .detail-view .detail-toolbar { height: calc(46px + var(--m-safe-top)); padding-left: calc(10px + var(--m-safe-left)); }
+:root[data-device=phone][data-orientation=landscape] .app .detail-view .detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 40%) minmax(0, 1fr);
+  overflow: hidden;
+  scroll-snap-type: none;
+  padding: 0 calc(16px + var(--m-safe-right)) 0 calc(8px + var(--m-safe-left));
+  gap: 16px;
+}
+:root[data-device=phone][data-orientation=landscape] .app .detail-view .detail-layout > :is(.detail-art, .detail-content) { width: auto; height: auto; min-height: 0; }
+:root[data-device=phone][data-orientation=landscape] .app .detail-view .detail-art { padding: 4px 8px 12px; }
+:root[data-device=phone][data-orientation=landscape] .app .detail-view .detail-cover-stage { width: min(26vw, 34vh); }
+:root[data-device=phone][data-orientation=landscape] .app .detail-view.np-karaoke .detail-layout { display: flex; }
+:root[data-device=phone][data-orientation=landscape] .app.detail-open > .player {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: 34px 60px;
+  grid-template-areas: "progress progress" "controls extras";
+  padding-left: calc(24px + var(--m-safe-left));
+  column-gap: 24px;
+}
+:root[data-device=phone][data-orientation=landscape] .app.detail-open > .player .player-controls { justify-content: center; gap: 22px; }
+:root[data-device=phone][data-orientation=landscape] .app.detail-open > .player .player-controls > .play-main { width: 54px; height: 54px; }
+:root[data-device=phone][data-orientation=landscape] .app.detail-open > .player .player-right { gap: 8px; }
+
+:root[data-platform=android] .app .progress-row input::-webkit-slider-thumb { opacity: 1; }
+/* 平板：播放栏和导航的热区不小于 40px。 */
+:root[data-device=tablet] .app > .player .icon-button { min-width: 40px; min-height: 40px; }
+:root[data-device=tablet] .app > .sidebar :is(nav button, .playlist-navigation button) { min-height: 40px; }
+:root[data-device=tablet] .app .track-row { min-height: 52px; max-height: none; }
+:root[data-device=tablet] .app .main-scroll::-webkit-scrollbar { width: 0; height: 0; }
