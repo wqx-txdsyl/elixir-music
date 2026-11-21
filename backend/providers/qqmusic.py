@@ -12,6 +12,7 @@ import json
 import random
 import re
 import threading
+import time
 from datetime import datetime, timezone
 from http.cookies import SimpleCookie
 from pathlib import Path
@@ -22,6 +23,14 @@ from ..text import normalized
 from . import qrc
 
 GATEWAY = "https://u.y.qq.com/cgi-bin/musicu.fcg"
+# Gateway codes that mean the music key itself is no longer accepted.
+EXPIRED_CODES = (1000, 104400, 104401)
+# A key from the official web login only lasts days; renew it well before that, like the web player does.
+REFRESH_AFTER = 8 * 3600
+# Never hammer the login server: one renewal attempt per window, however many requests fail meanwhile.
+REFRESH_RETRY_AFTER = 10 * 60
+# Bookkeeping stored with the cookie but never sent to QQ.
+INTERNAL_PREFIX = "elixir_"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/132.0.0.0 Safari/537.36", "Referer": "https://y.qq.com/", "Origin": "https://y.qq.com"}
 
 
@@ -55,6 +64,10 @@ class QQMusicProvider:
         self._cache = {}
         self.playlist_status = {"state": "not_requested"}
         self._lock = threading.RLock()
+        self._refresh_lock = threading.Lock()
+        self._refresh_attempted = 0.0
+        # Called with the serialised cookie whenever a renewal changes it, so the caller can persist it.
+        self.on_cookie_change = None
         self.guid = str(random.SystemRandom().randint(10**9, 10**10 - 1))
         self.set_cookie(cookie)
         path = Path(__file__).with_name("qqmusic_catalog.json")
@@ -62,15 +75,24 @@ class QQMusicProvider:
 
     def set_cookie(self, cookie):
         if isinstance(cookie, dict):
-            self._cookies = {str(k): str(v) for k, v in cookie.items()}
-            return
-        parsed = SimpleCookie()
-        try:
-            parsed.load(cookie or "")
-            values = {k: v.value for k, v in parsed.items()}
-        except Exception as exc:
-            raise QQMusicError("QQ 音乐登录信息格式无效") from exc
+            values = {str(k): str(v) for k, v in cookie.items()}
+        else:
+            parsed = SimpleCookie()
+            try:
+                parsed.load(cookie or "")
+                values = {k: v.value for k, v in parsed.items()}
+            except Exception as exc:
+                raise QQMusicError("QQ 音乐登录信息格式无效") from exc
+        # A cookie straight from the login window counts as freshly renewed.
+        if values.get("qm_keyst") and not values.get(INTERNAL_PREFIX + "refreshed_at"):
+            values[INTERNAL_PREFIX + "refreshed_at"] = str(int(time.time()))
         self._cookies = values
+
+    def cookie_header(self):
+        return "; ".join(f"{k}={v}" for k, v in self._cookies.items())
+
+    def _outgoing(self):
+        return {k: v for k, v in self._cookies.items() if not k.startswith(INTERNAL_PREFIX)}
 
     def _session(self):
         if not hasattr(self._local, "session"):
@@ -82,7 +104,7 @@ class QQMusicProvider:
         try:
             session = self._session()
             session.cookies.clear()
-            response = session.request(method, url, cookies=dict(self._cookies), timeout=(5, 14), **kwargs)
+            response = session.request(method, url, cookies=self._outgoing(), timeout=(5, 14), **kwargs)
             response.raise_for_status()
             return response.json()
         except requests.RequestException as exc:
@@ -105,7 +127,9 @@ class QQMusicProvider:
     def _music_key(self):
         return next((self._cookies[k] for k in ("qm_keyst", "qqmusic_key", "musickey", "p_skey", "skey") if self._cookies.get(k)), "")
 
-    def _call(self, module, method, param=None, allow_codes=()):
+    def _call(self, module, method, param=None, allow_codes=(), comm_extra=None, renew=True):
+        if renew:
+            self.renew_if_stale()
         cookies = dict(self._cookies)
         key = self._music_key()
         token = 5381
@@ -114,19 +138,94 @@ class QQMusicProvider:
         comm = {"ct": 19, "cv": 1873, "format": "json", "uin": self._uin(), "authst": key, "g_tk": token & 0x7fffffff}
         if cookies.get("login_type"):
             comm["loginType"] = int(cookies["login_type"]) if cookies["login_type"].isdigit() else 1
+        if comm_extra:
+            comm.update(comm_extra)
         data = self._request("POST", GATEWAY, json={"comm": comm, "req": {"module": module, "method": method, "param": param or {}}})
+        code = data.get("code", 0)
+        response = data.get("req")
+        if code == 0 and isinstance(response, dict):
+            code = response.get("code", 0)
+        # An expired key is renewed once and the call repeated, so a login made days ago keeps working.
+        if code in EXPIRED_CODES and renew and module != "music.login.LoginServer" and self._renew():
+            return self._call(module, method, param, allow_codes, comm_extra, renew=False)
         if data.get("code", 0) != 0:
             raise QQMusicError(f"QQ 音乐网关请求失败（{data.get('code')}）", data.get("code"))
-        response = data.get("req")
         if not isinstance(response, dict):
             raise QQMusicError("QQ 音乐未返回所请求的数据")
-        code = response.get("code", 0)
         if code != 0 and code not in allow_codes:
             raise QQMusicError(f"QQ 音乐接口暂不可用（{code}），可能需要重新登录", code)
         body = response.get("data") or {}
         if code:
             body = dict(body, _response_code=code)
         return body
+
+    def _wechat(self):
+        # The web player marks WeChat sessions with login_type=2 and keys starting with W_X.
+        return self._music_key().startswith("W_X") or self._cookies.get("login_type") == "2"
+
+    def _renew(self):
+        """Try one renewal, at most once per window. Returns True when the key changed."""
+        with self._refresh_lock:
+            now = time.time()
+            if now - self._refresh_attempted < REFRESH_RETRY_AFTER:
+                return False
+            self._refresh_attempted = now
+            try:
+                self.refresh_session()
+                return True
+            except QQMusicError:
+                return False
+
+    def renew_if_stale(self):
+        """Renew a key that has been in use for a while, before QQ stops accepting it."""
+        stamp = self._cookies.get(INTERNAL_PREFIX + "refreshed_at") or "0"
+        if self._music_key() and self._uin() != "0" and time.time() - (int(stamp) if stamp.isdecimal() else 0) >= REFRESH_AFTER:
+            self._renew()
+
+    def refresh_session(self):
+        """Renew the music key with the refresh token from the official login, as the web player does.
+
+        Returns the updated cookie dict; raises QQMusicError when QQ refuses, leaving the old cookie in place.
+        """
+        key, uin, cookies = self._music_key(), self._uin(), dict(self._cookies)
+        if not key or uin == "0":
+            raise QQMusicError("QQ 音乐尚未登录，无法续期")
+        wechat = self._wechat()
+        if wechat:
+            param = {"openid": cookies.get("wxopenid", ""), "refresh_token": cookies.get("wxrefresh_token", ""), "str_musicid": uin, "musickey": key,
+                     "unionid": cookies.get("wxunionid", ""), "refresh_key": cookies.get("refresh_key", ""), "loginMode": 2}
+        else:
+            expires = cookies.get("psrf_access_token_expiresAt", "")
+            param = {"openid": cookies.get("psrf_qqopenid", ""), "access_token": cookies.get("psrf_qqaccess_token", ""), "refresh_token": cookies.get("psrf_qqrefresh_token", ""),
+                     "expired_in": int(expires) if expires.isdecimal() else 0, "musicid": int(uin), "musickey": key, "refresh_key": cookies.get("refresh_key", ""), "loginMode": 2}
+        data = self._call("music.login.LoginServer", "Login", param, comm_extra={"tmeLoginType": 1 if wechat else 2}, renew=False)
+        new_key = str(data.get("musickey") or "")
+        if not new_key:
+            raise QQMusicError("QQ 音乐没有返回新的登录密钥")
+        cookies.update({"qm_keyst": new_key, "qqmusic_key": new_key, INTERNAL_PREFIX + "refreshed_at": str(int(time.time()))})
+        musicid = str(data.get("str_musicid") or data.get("musicid") or "")
+        if musicid.isdecimal() and int(musicid):
+            cookies["wxuin" if wechat else "uin"] = musicid
+        if data.get("encryptUin"):
+            cookies["euin"] = str(data["encryptUin"])
+        if data.get("refresh_key"):
+            cookies["refresh_key"] = str(data["refresh_key"])
+        if data.get("refresh_token"):
+            cookies["wxrefresh_token" if wechat else "psrf_qqrefresh_token"] = str(data["refresh_token"])
+        if data.get("openid"):
+            cookies["wxopenid" if wechat else "psrf_qqopenid"] = str(data["openid"])
+        if not wechat and data.get("access_token"):
+            cookies["psrf_qqaccess_token"] = str(data["access_token"])
+        if data.get("keyExpiresIn"):
+            cookies[INTERNAL_PREFIX + "key_expires_in"] = str(data["keyExpiresIn"])
+        with self._lock:
+            self._cookies = cookies
+        if self.on_cookie_change:
+            try:
+                self.on_cookie_change(self.cookie_header())
+            except Exception:
+                pass
+        return cookies
 
     def normalize(self, song):
         album = song.get("album") or {}
@@ -310,7 +409,7 @@ class QQMusicProvider:
         try:
             account = self._call("music.UserInfo.userInfoServer", "GetLoginUserInfo")
         except QQMusicError as exc:
-            if exc.code in (1000, 104400, 104401):
+            if exc.code in EXPIRED_CODES:
                 return {"logged_in": False, "nickname": "", "avatar": "", "membership": "登录已失效", "user_id": "", "reason": "请在 QQ 音乐官方登录窗口重新登录"}
             raise
         if not account:

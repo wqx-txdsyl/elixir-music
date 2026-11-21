@@ -6,15 +6,36 @@ const COUNT={bars:48,wave:48,ring:64,mirror:40,dots:32};
 // Must match the negative inset of .visualizer-ring in visualizer.css.
 const RING_MARGIN=44;
 
+// Point and outward normal at fraction t of a rounded square's perimeter (half size `half`, corner radius `r`), clockwise from the top centre.
+function roundedSquare(half,r){
+  r=Math.max(.01,Math.min(r,half));
+  const straight=half-r,arc=Math.PI*r/2,corner=(cx,cy,a)=>[cx+Math.cos(a)*r,cy+Math.sin(a)*r,Math.cos(a),Math.sin(a)];
+  const segments=[
+    [straight,d=>[d,-half,0,-1]],
+    [arc,d=>corner(straight,-straight,-Math.PI/2+d/r)],
+    [2*straight,d=>[half,-straight+d,1,0]],
+    [arc,d=>corner(straight,straight,d/r)],
+    [2*straight,d=>[straight-d,half,0,1]],
+    [arc,d=>corner(-straight,straight,Math.PI/2+d/r)],
+    [2*straight,d=>[-half,straight-d,-1,0]],
+    [arc,d=>corner(-straight,-straight,Math.PI+d/r)],
+    [straight,d=>[-straight+d,-half,0,-1]],
+  ];
+  const perimeter=8*straight+4*arc;
+  return {perimeter,at(t){let s=t*perimeter;for(const [len,point] of segments){if(s<=len)return point(s);s-=len;}return [0,-half,0,-1];}};
+}
+
 // Draws straight to a canvas from requestAnimationFrame; React only mounts it.
-export default function Visualizer({mode,getAnalyser,simulated,playing,className=''}){
+// `shape` only matters for the ring: 'circle' hugs a round cover, 'rounded' follows a square cover's corners,
+// 'auto' measures the cover's real border radius so a skin that rounds it fully still gets a circle.
+export default function Visualizer({mode,getAnalyser,simulated,playing,className='',shape='auto'}){
   const canvas=useRef(null),live=useRef(null),control=useRef(null);
   live.current={playing,simulated,getAnalyser};
   useEffect(()=>{
     const el=canvas.current;if(!el)return;
     const ctx=el.getContext('2d'),count=COUNT[mode]||48,levels=new Float32Array(count),target=new Float32Array(count);
     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    let bands=null,data=null,raf=0,last=0,color='#888',width=0,height=0,dpr=1;
+    let bands=null,data=null,raf=0,last=0,color='#888',width=0,height=0,dpr=1,radius=12,round=shape==='circle';
     function read(now){
       const {playing,simulated,getAnalyser}=live.current;
       if(!playing){target.fill(0);return;}
@@ -29,10 +50,15 @@ export default function Visualizer({mode,getAnalyser,simulated,playing,className
       ctx.fillStyle=ctx.strokeStyle=color;
       if(mode==='ring'){
         const cx=width/2,cy=height/2,inner=Math.min(cx,cy)-RING_MARGIN+4,length=RING_MARGIN-10,spokes=count*2;
-        ctx.lineCap='round';ctx.lineWidth=Math.max(2,Math.PI*2*inner/spokes*.42);
+        // Square covers get a ring that follows their rounded corners; round covers keep the circle.
+        const square=round?null:roundedSquare(inner,radius+4),perimeter=square?square.perimeter:Math.PI*2*inner;
+        ctx.lineCap='round';ctx.lineWidth=Math.max(2,perimeter/spokes*.42);
         for(let i=0;i<spokes;i++){
-          const value=levels[i<count?i:spokes-1-i],angle=-Math.PI/2+i/spokes*Math.PI*2,outer=inner+3+value*length;
-          ctx.globalAlpha=.3+.7*value;ctx.beginPath();ctx.moveTo(cx+Math.cos(angle)*inner,cy+Math.sin(angle)*inner);ctx.lineTo(cx+Math.cos(angle)*outer,cy+Math.sin(angle)*outer);ctx.stroke();
+          const value=levels[i<count?i:spokes-1-i],t=i/spokes,reach=3+value*length;
+          let x,y,nx,ny;
+          if(square)[x,y,nx,ny]=square.at(t);
+          else{const angle=-Math.PI/2+t*Math.PI*2;nx=Math.cos(angle);ny=Math.sin(angle);x=nx*inner;y=ny*inner;}
+          ctx.globalAlpha=.3+.7*value;ctx.beginPath();ctx.moveTo(cx+x,cy+y);ctx.lineTo(cx+x+nx*reach,cy+y+ny*reach);ctx.stroke();
         }
       }else if(mode==='wave'){
         const mid=height/2,points=Array.from(levels,(value,i)=>[i/(count-1)*width,Math.max(1,value*mid*.92)]);
@@ -64,12 +90,18 @@ export default function Visualizer({mode,getAnalyser,simulated,playing,className
     function resize(){
       dpr=window.devicePixelRatio||1;const rect=el.getBoundingClientRect();width=rect.width;height=rect.height;
       el.width=Math.max(1,Math.round(width*dpr));el.height=Math.max(1,Math.round(height*dpr));
-      color=getComputedStyle(el).getPropertyValue('--accent').trim()||color;draw();start();
+      color=getComputedStyle(el).getPropertyValue('--accent').trim()||color;
+      if(shape!=='circle'){
+        const cover=el.parentElement?.querySelector('.large-cover'),size=cover?cover.getBoundingClientRect().width:0,raw=cover?getComputedStyle(cover).borderRadius.split(' ')[0]:'';
+        radius=parseFloat(raw)||0;if(raw.endsWith('%'))radius=radius/100*size;
+        round=shape==='auto'&&size>0&&radius>=size/2-1;if(!cover)radius=12;
+      }
+      draw();start();
     }
     const observer=new ResizeObserver(resize);observer.observe(el);
     document.addEventListener('visibilitychange',start);control.current={start};
     return()=>{observer.disconnect();document.removeEventListener('visibilitychange',start);cancelAnimationFrame(raf);control.current=null;};
-  },[mode]);
+  },[mode,shape]);
   useEffect(()=>{control.current?.start();},[playing,simulated]);
   return <canvas ref={canvas} className={'visualizer '+className} aria-hidden="true"/>;
 }

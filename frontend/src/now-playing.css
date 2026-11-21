@@ -52,8 +52,8 @@
 .theme-apple .detail-content { padding-top: 6px; }
 .theme-apple .detail-tabs { justify-content: flex-start; gap: 6px; height: auto; border: 0; padding-bottom: 6px; }
 .theme-apple .detail-tabs button { padding: 6px 14px; border-radius: 16px; font-size: 13px; color: #ffffffa6; background: none; }
-.theme-apple .detail-tabs button.active { background: #ffffff26; color: #fff; }
-.theme-apple .detail-tabs button.active::after { display: none; }
+.theme-apple .detail-tabs button[aria-selected=true] { background: #ffffff26; color: #fff; }
+.theme-apple .detail-tabs button[aria-selected=true]::after { display: none; }
 .theme-apple .lyrics-scroll { --accent: #fff; --subtle: #ffffff59; mask-image: linear-gradient(transparent, #000 12%, #000 80%, transparent); }
 .theme-apple .lyric-offset { opacity: 0; transition: opacity .2s; }
 .theme-apple .lyrics-scroll:hover .lyric-offset, .theme-apple .lyric-offset:focus-within { opacity: 1; }
@@ -64,7 +64,7 @@
 }
 .theme-apple .lyric-lines button:hover { color: #ffffffb3; filter: none; }
 .theme-apple .lyric-lines button.current { font-size: clamp(24px, 2.3vw, 36px); color: #fff; filter: none; }
-.theme-apple .lyric-lines button.current.has-words { color: #ffffff59; }
+.theme-apple .lyric-lines button.current.has-words { color: #ffffff59; --lyric-unsung: #ffffff59; --lyric-sung: #fff; }
 .theme-apple .lyric-translation { font-size: .6em; font-weight: 600; color: inherit; opacity: .8; }
 .theme-apple .lyric-attribution { color: #ffffff80; border-color: #ffffff40; }
 .theme-apple .plain-lyrics { font-size: 26px; font-weight: 700; line-height: 1.7; color: #ffffffcc; }
@@ -95,13 +95,14 @@
 .theme-qqmusic .detail-art > .artist-name::before { content: "歌手："; color: #ffffff80; }
 .theme-qqmusic .detail-art > .text-button { grid-area: album; justify-self: start; padding: 4px 0 0; font-size: 14px; color: #ffffffb3; }
 .theme-qqmusic .detail-art > .text-button::before { content: "专辑："; color: #ffffff80; }
+.theme-qqmusic .detail-art > :is(.artist-name, .text-button):empty { display: none; }
 .theme-qqmusic .detail-art .listening-badge { grid-area: album; justify-self: end; align-self: end; font-size: 11px; color: #ffffff80; }
 .theme-qqmusic .detail-actions { grid-area: actions; justify-content: flex-start; margin: 16px 0 6px; gap: 12px; }
 .theme-qqmusic .detail-actions .button.primary { height: 32px; min-height: 32px; padding: 0 16px; }
 .theme-qqmusic .detail-tabs { grid-area: tabs; margin-top: 14px; height: 40px; gap: 26px; border-color: #ffffff17; }
 .theme-qqmusic .detail-tabs button { font-size: 14px; padding-bottom: 12px; color: #ffffff99; }
-.theme-qqmusic .detail-tabs button.active { color: #fff; }
-.theme-qqmusic .detail-tabs button.active::after { background: var(--accent); }
+.theme-qqmusic .detail-tabs button[aria-selected=true] { color: #fff; }
+.theme-qqmusic .detail-tabs button[aria-selected=true]::after { background: var(--accent); }
 .theme-qqmusic .detail-content > :not(.detail-tabs) { grid-area: lyrics; min-height: 0; overflow: auto; }
 .theme-qqmusic .lyrics-scroll { --subtle: #ffffffb3; mask-image: linear-gradient(transparent, #000 10%, #000 85%, transparent); }
 .theme-qqmusic .lyric-offset { opacity: 0; transition: opacity .2s; }
@@ -110,7 +111,7 @@
 .theme-qqmusic .lyric-lines button { font-size: 17px; font-weight: 500; line-height: 1.6; color: #ffffff8c; }
 .theme-qqmusic .lyric-lines button:hover { color: #ffffffd9; }
 .theme-qqmusic .lyric-lines button.current { font-size: 24px; font-weight: 650; color: var(--accent); }
-.theme-qqmusic .lyric-lines button.current.has-words { color: #ffffffb3; }
+.theme-qqmusic .lyric-lines button.current.has-words { color: #ffffffb3; --lyric-unsung: #ffffffb3; }
 .theme-qqmusic .lyric-translation { font-size: .72em; color: inherit; opacity: .8; }
 .theme-qqmusic .plain-lyrics { font-size: 17px; line-height: 2.2; color: #ffffffbf; }
 .theme-qqmusic .comments-scroll, .theme-qqmusic .track-information { padding-top: 10px; }

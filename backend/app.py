@@ -35,6 +35,8 @@ def saved_cookie(source):
     except Exception: return ''
 
 providers={'netease':NeteaseProvider(saved_cookie('netease')),'qqmusic':QQMusicProvider(saved_cookie('qqmusic')),'spotify':SpotifyProvider(store)}
+# A renewed QQ Music key replaces the stored cookie, so the login survives restarts without another scan.
+providers['qqmusic'].on_cookie_change=lambda header:store.set_secret('qqmusic',header)
 providers.update({name:PublicMusicProvider(name,store) for name in KINDS})
 providers.update({name:LinkedMusicProvider(name,store) for name in LINKED_SOURCES})
 jobs={}
@@ -675,7 +677,7 @@ async def set_cookie(source:str,body:CookieRequest):
     if not profile.get('logged_in'):
         providers[source].set_cookie(saved_cookie(source))
         raise HTTPException(400,profile.get('reason') or '登录尚未完成，请在官方窗口登录后重试')
-    store.set_secret(source,body.cookie)
+    store.set_secret(source,providers[source].cookie_header() if source=='qqmusic' else body.cookie)
     return profile
 
 @app.delete('/api/accounts/{source}')

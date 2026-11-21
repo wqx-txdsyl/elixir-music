@@ -29,5 +29,5 @@ export default function LyricLines({lines,active,playing,onSeek,children}){
     if(getComputedStyle(root.current).writingMode.startsWith('vertical'))pane.scrollTo({left:pane.scrollLeft+rect.left-box.left-(box.width-rect.width)/2,behavior});
     else pane.scrollTo({top:pane.scrollTop+rect.top-box.top-(box.height-rect.height)/2,behavior});
   },[index]);
-  return <div className="lyric-lines" ref={root}>{children}{lines.map((line,i)=><button key={i} className={i===index?(line.words?'current has-words':'current'):''} ref={i===index?currentLine:undefined} onClick={()=>onSeek(line)} title="点击跳转到该歌词">{i===index&&line.words?<WordLine words={line.words} position={position} playing={playing}/>:line.text}{line.translation&&<small className="lyric-translation">{line.translation}</small>}</button>)}</div>;
+  return <div className="lyric-lines" ref={root}>{children}{lines.map((line,i)=><button key={i} className={i===index?(line.words?'current has-words':'current'):''} aria-current={i===index?'true':undefined} ref={i===index?currentLine:undefined} onClick={()=>onSeek(line)} title="点击跳转到该歌词">{i===index&&line.words?<WordLine words={line.words} position={position} playing={playing}/>:line.text}{line.translation&&<small className="lyric-translation">{line.translation}</small>}</button>)}</div>;
 }
