@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld('desktop', {
   window: action => ipcRenderer.invoke('window', action),
   openExternal: url => ipcRenderer.invoke('open-external', url),
   getVersion: () => ipcRenderer.invoke('version')
+  ,setBootColors: colors => ipcRenderer.invoke('boot-colors-set', colors)
   ,getWindowState: () => ipcRenderer.invoke('window-state')
   ,onWindowState: callback => { const handler=(_event,state)=>callback(state);ipcRenderer.on('window-state-changed',handler);return ()=>ipcRenderer.removeListener('window-state-changed',handler); }
   ,openLyrics: () => ipcRenderer.invoke('lyrics-open')
@@ -41,5 +42,7 @@ contextBridge.exposeInMainWorld('desktop', {
   ,setLyricsMousePassThrough: passThrough => ipcRenderer.invoke('lyrics-mouse',passThrough)
   ,moveLyrics: bounds => ipcRenderer.invoke('lyrics-move',bounds)
   ,onLyricsClosed: callback => { const handler=()=>callback();ipcRenderer.on('lyrics-closed',handler);return ()=>ipcRenderer.removeListener('lyrics-closed',handler); }
+  ,getGlobalShortcuts: () => ipcRenderer.invoke('shortcuts-global-get')
+  ,setGlobalShortcuts: data => ipcRenderer.invoke('shortcuts-global-set', data)
   ,onPlayerAction: callback => { const handler=(_event,action)=>callback(action);ipcRenderer.on('player-action',handler);return ()=>ipcRenderer.removeListener('player-action',handler); }
 });

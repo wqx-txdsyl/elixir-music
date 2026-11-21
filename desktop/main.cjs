@@ -176,6 +176,26 @@ function updateLyricsPreferences(patch){
   }
   return lyricsPreferences;
 }
+// 全局快捷键：渲染端在设置里改，主进程落盘并重新注册；启动时先按上次的配置注册。
+const shortcutsFile=path.join(dataRoot,'desktop-shortcuts.json'),GLOBAL_ACTIONS=['toggle','previous','next','volumeUp','volumeDown','like','window','lyrics'],ACCEL_RE=/^(?:(?:CommandOrControl|Alt|Shift|Super)\+){0,4}[A-Za-z0-9,.\/;'\[\]\\\-=`]{1,20}$/;
+const GLOBAL_DEFAULTS={toggle:'CommandOrControl+Shift+Space',previous:'CommandOrControl+Shift+Left',next:'CommandOrControl+Shift+Right',volumeUp:'CommandOrControl+Shift+Up',volumeDown:'CommandOrControl+Shift+Down'};
+function sanitizeShortcuts(data){const out={enabled:true,keys:{}};if(!data||typeof data!=='object')return out;if(data.enabled===false)out.enabled=false;for(const id of GLOBAL_ACTIONS){const v=data.keys?.[id];if(typeof v==='string'&&ACCEL_RE.test(v))out.keys[id]=v;}return out;}
+let globalShortcuts={enabled:true,keys:{...GLOBAL_DEFAULTS}};try{globalShortcuts=sanitizeShortcuts(JSON.parse(fs.readFileSync(shortcutsFile,'utf8')));}catch{}
+let globalShortcutFailures=[];
+const sendPlayerAction=action=>mainWindow?.webContents.send('player-action',action);
+function toggleMainWindow(){if(!mainWindow||mainWindow.isDestroyed())return;if(mainWindow.isVisible()&&mainWindow.isFocused()&&!mainWindow.isMinimized())mainWindow.hide();else showWindow(mainWindow);}
+function runGlobalShortcut(action){if(action==='window')toggleMainWindow();else sendPlayerAction(action);}
+function applyGlobalShortcuts(){
+  globalShortcut.unregisterAll();globalShortcutFailures=[];
+  if(!globalShortcuts.enabled)return globalShortcutFailures;
+  for(const [action,accelerator] of Object.entries(globalShortcuts.keys)){
+    if(!accelerator)continue;
+    try{if(!globalShortcut.register(accelerator,()=>runGlobalShortcut(action)))globalShortcutFailures.push(action);}catch{globalShortcutFailures.push(action);}
+  }
+  return globalShortcutFailures;
+}
+ipcMain.handle('shortcuts-global-get',event=>{trusted(event);return {...globalShortcuts,failed:globalShortcutFailures};});
+ipcMain.handle('shortcuts-global-set',(event,data)=>{trusted(event);const next=sanitizeShortcuts(data);if(JSON.stringify(next)!==JSON.stringify(globalShortcuts)){globalShortcuts=next;try{fs.writeFileSync(shortcutsFile,JSON.stringify(next));}catch{}}return applyGlobalShortcuts();});
 function trayAndKeys(){
   tray=new Tray(brandAsset('ico'));tray.setToolTip('Elixir · 纯净听歌');
   const send=action=>mainWindow?.webContents.send('player-action',action);
@@ -183,9 +203,7 @@ function trayAndKeys(){
   tray.setContextMenu(Menu.buildFromTemplate([{label:'打开音乐',click:show},{label:'播放 / 暂停',click:()=>send('toggle')},{label:'上一首',click:()=>send('previous')},{label:'下一首',click:()=>send('next')},{label:'桌面歌词',click:lyricsWindow},{label:'解锁桌面歌词',click:()=>{lyricsWindow();updateLyricsPreferences({locked:false});}},{type:'separator'},{label:'退出',click:()=>app.quit()}]));
   tray.on('double-click',show);
   tray.on('click',show);
-  globalShortcut.register('CommandOrControl+Shift+Space',()=>send('toggle'));
-  globalShortcut.register('CommandOrControl+Shift+Right',()=>send('next'));
-  globalShortcut.register('CommandOrControl+Shift+Left',()=>send('previous'));
+  applyGlobalShortcuts();
 }
 function trustedLyric(event){if(!lyricWindow||event.sender!==lyricWindow.webContents||event.senderFrame!==lyricWindow.webContents.mainFrame||!event.senderFrame.url.startsWith(ORIGIN+'/'))throw Error('不允许的歌词窗口调用');}
 ipcMain.handle('lyrics-open',event=>{trusted(event);lyricsWindow();return true;});
