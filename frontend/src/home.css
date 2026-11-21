@@ -56,7 +56,7 @@
   z-index: -1;
   background: linear-gradient(100deg, rgb(0 0 0 / .52), rgb(0 0 0 / .22) 62%, rgb(0 0 0 / .38));
 }
-.home-hero-loading { min-height: 220px; border-radius: 14px; background: var(--hover); animation: workspace-pulse 1.2s ease-in-out infinite alternate; }
+.home-hero-loading { min-height: 220px; border-radius: 14px; background: var(--hover); animation: skeleton-pulse 1.2s ease-in-out infinite alternate; }
 .home-hero-loading::before,
 .home-hero-loading::after { display: none; }
 
@@ -310,7 +310,7 @@
 }
 .home-card-art { position: relative; display: block; }
 .home-card .music-art { border-radius: 8px; }
-.home-card-icon { color: #fff; background: linear-gradient(140deg, color-mix(in srgb, var(--accent) 88%, #fff), color-mix(in srgb, var(--accent) 70%, #000)); }
+.home-card-icon { color: var(--accent-text); background: linear-gradient(140deg, color-mix(in srgb, var(--accent) 88%, #fff), color-mix(in srgb, var(--accent) 70%, #000)); }
 .home-card strong,
 .home-card small {
   overflow: hidden;
@@ -450,7 +450,7 @@
   color: var(--subtle);
 }
 .home-pick-chip:hover { color: var(--text); background: var(--hover); }
-.home-pick-chip.chosen { color: var(--accent-text); background: var(--accent); border-color: transparent; }
+.home-pick-chip[aria-pressed=true] { color: var(--accent-text); background: var(--accent); border-color: transparent; }
 .home-pick-note {
   display: flex;
   flex-wrap: wrap;
@@ -479,7 +479,7 @@
   height: 52px;
   border-radius: 8px;
   background: var(--hover);
-  animation: workspace-pulse 1.2s ease-in-out infinite alternate;
+  animation: skeleton-pulse 1.2s ease-in-out infinite alternate;
 }
 .home-more { margin-top: 10px; }
 

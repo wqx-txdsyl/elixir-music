@@ -103,7 +103,7 @@
 .accounts-page .account-method-state{flex:none;font-size:11px;padding:2px 8px;border-radius:99px;color:var(--subtle);background:color-mix(in srgb,var(--text) 7%,transparent)}
 .accounts-page .account-method.active .account-method-state{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent)}
 .accounts-page .account-method small{margin:0;font-size:12px;line-height:1.6;color:var(--muted);max-width:none}
-.accounts-page .account-method .account-method-error{color:#d64545}
+.accounts-page .account-method 
 .accounts-page .account-method-actions,.accounts-page .account-method-form{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:2px}
 .accounts-page .account-method-form input{flex:1 1 180px;min-width:0;height:34px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:13px}
 .accounts-page .account-method-form .field-help{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:0;font-size:11px;color:var(--muted)}
@@ -155,7 +155,6 @@
   .section-page{grid-template-columns:minmax(0,1fr);gap:12px}
   .section-nav{position:static;flex-direction:row;overflow-x:auto}
   .section-body .theme-options{grid-template-columns:repeat(2,minmax(0,1fr))}
-
 
   .artist-ranking-row.ranked{grid-template-columns:28px 40px minmax(110px,1fr) 70px 70px 100px;gap:10px}
 }

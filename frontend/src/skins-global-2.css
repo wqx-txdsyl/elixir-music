@@ -76,16 +76,11 @@
 :root[data-skin=kkbox] :is(.home-tabs button, .home-filters button, .home-pick-chip, .source-tabs button),
 :root[data-skin=audiomack] :is(.home-tabs button, .home-filters button, .home-pick-chip, .source-tabs button),
 :root[data-skin=anghami] :is(.home-tabs button, .home-filters button, .home-pick-chip, .source-tabs button) { background: var(--g2-chip); color: var(--text); }
-:root[data-skin=qobuz] :is(.home-tabs button.active, .home-filters button.chosen, .home-pick-chip.chosen, .source-tabs button.active),
-:root[data-skin=kkbox] :is(.home-tabs button.active, .home-filters button.chosen, .home-pick-chip.chosen, .source-tabs button.active),
-:root[data-skin=audiomack] :is(.home-tabs button.active, .home-filters button.chosen, .home-pick-chip.chosen, .source-tabs button.active),
-:root[data-skin=anghami] :is(.home-tabs button.active, .home-filters button.chosen, .home-pick-chip.chosen, .source-tabs button.active) { background: var(--accent); color: var(--accent-text); }
-:root[data-skin=qobuz] .theme-spotify .feature-banner, :root[data-skin=kkbox] .theme-spotify .feature-banner,
-:root[data-skin=audiomack] .theme-spotify .feature-banner, :root[data-skin=anghami] .theme-spotify .feature-banner { background: color-mix(in srgb, var(--accent) 22%, var(--panel)); }
-:root[data-skin=qobuz] .theme-spotify :is(.feature-copy .eyebrow, .feature-copy p), :root[data-skin=kkbox] .theme-spotify :is(.feature-copy .eyebrow, .feature-copy p),
-:root[data-skin=audiomack] .theme-spotify :is(.feature-copy .eyebrow, .feature-copy p), :root[data-skin=anghami] .theme-spotify :is(.feature-copy .eyebrow, .feature-copy p) { color: var(--subtle); }
-:root[data-skin=qobuz] .theme-spotify :is(.feature-button, .floating-play), :root[data-skin=kkbox] .theme-spotify :is(.feature-button, .floating-play),
-:root[data-skin=audiomack] .theme-spotify :is(.feature-button, .floating-play), :root[data-skin=anghami] .theme-spotify :is(.feature-button, .floating-play) { background: var(--accent); color: var(--accent-text); }
+:root[data-skin=qobuz] :is(.home-filters button[aria-pressed=true], .home-pick-chip[aria-pressed=true], .source-tabs button[aria-selected=true]),
+:root[data-skin=kkbox] :is(.home-filters button[aria-pressed=true], .home-pick-chip[aria-pressed=true], .source-tabs button[aria-selected=true]),
+:root[data-skin=audiomack] :is(.home-filters button[aria-pressed=true], .home-pick-chip[aria-pressed=true], .source-tabs button[aria-selected=true]),
+:root[data-skin=anghami] :is(.home-filters button[aria-pressed=true], .home-pick-chip[aria-pressed=true], .source-tabs button[aria-selected=true]) { background: var(--accent); color: var(--accent-text); }
+
 :root[data-skin=qobuz] .home-spotify :is(.home-shortcut-likes, .home-shortcut-ranking) .home-shortcut-art, :root[data-skin=kkbox] .home-spotify :is(.home-shortcut-likes, .home-shortcut-ranking) .home-shortcut-art,
 :root[data-skin=audiomack] .home-spotify :is(.home-shortcut-likes, .home-shortcut-ranking) .home-shortcut-art, :root[data-skin=anghami] .home-spotify :is(.home-shortcut-likes, .home-shortcut-ranking) .home-shortcut-art { background: var(--g2-grad); }
 :root[data-skin=qobuz] .home-spotify :is(.home-shortcut-history, .home-shortcut-library) .home-shortcut-art, :root[data-skin=kkbox] .home-spotify :is(.home-shortcut-history, .home-shortcut-library) .home-shortcut-art,
@@ -104,8 +99,8 @@
 :root[data-skin=audiomack] .theme-spotify .detail-view, :root[data-skin=anghami] .theme-spotify .detail-view { background: linear-gradient(var(--g2-glow), var(--bg) 65%); }
 :root[data-skin=qobuz] .theme-spotify :is(.detail-tabs, .table-header), :root[data-skin=kkbox] .theme-spotify :is(.detail-tabs, .table-header),
 :root[data-skin=audiomack] .theme-spotify :is(.detail-tabs, .table-header), :root[data-skin=anghami] .theme-spotify :is(.detail-tabs, .table-header) { border-color: var(--g2-edge); }
-:root[data-skin=qobuz] .theme-spotify .detail-tabs button.active:after, :root[data-skin=kkbox] .theme-spotify .detail-tabs button.active:after,
-:root[data-skin=audiomack] .theme-spotify .detail-tabs button.active:after, :root[data-skin=anghami] .theme-spotify .detail-tabs button.active:after { background: var(--accent); }
+:root[data-skin=qobuz] .theme-spotify .detail-tabs button[aria-selected=true]:after, :root[data-skin=kkbox] .theme-spotify .detail-tabs button[aria-selected=true]:after,
+:root[data-skin=audiomack] .theme-spotify .detail-tabs button[aria-selected=true]:after, :root[data-skin=anghami] .theme-spotify .detail-tabs button[aria-selected=true]:after { background: var(--accent); }
 :root[data-skin=qobuz] .theme-spotify .lyric-lines button, :root[data-skin=kkbox] .theme-spotify .lyric-lines button,
 :root[data-skin=audiomack] .theme-spotify .lyric-lines button, :root[data-skin=anghami] .theme-spotify .lyric-lines button { color: var(--g2-lyric); }
 :root[data-skin=qobuz] .theme-spotify .modal, :root[data-skin=kkbox] .theme-spotify .modal,
@@ -126,7 +121,7 @@
 /* ================= Bandcamp ================= */
 /* 独立唱片店：纸白底、衬线标题、直角封面和细线分隔，青蓝只用在链接与选中处 */
 :root[data-skin=bandcamp] {
-  --bg: #ffffff; --sidebar: #fafafa; --panel: #ffffff; --text: #333333; --muted: #8a8a8a; --subtle: #5c5c5c;
+  --bg: #ffffff; --sidebar: #fafafa; --panel: #ffffff; --text: #333333; --muted: #7e7e7e; --subtle: #5c5c5c;
   --line: #e4e4e4; --hover: #f2f2f2; --accent: #1da0c3; --accent-tint: #1da0c314; --accent-text: #ffffff;
   --radius: 2px; --shadow: 0 10px 34px #0000001f; --chip: #f2f2f2;
   --g2-grad: linear-gradient(140deg, #3fb8d6, #13799a); --g2-grad2: linear-gradient(140deg, #8c8c8c, #4a4a4a);
@@ -177,7 +172,7 @@
 :root[data-skin=bandcamp] .progress-row input::-webkit-slider-thumb { width: 8px; height: 14px; border-radius: 1px; background: #fff; border: 1px solid #888; opacity: 1; }
 :root[data-skin=bandcamp] .detail-view { background: #fff; }
 :root[data-skin=bandcamp] .large-cover { box-shadow: 0 0 0 1px #00000014, 0 14px 30px #00000024; }
-:root[data-skin=bandcamp] .detail-tabs button.active:after { border-radius: 0; height: 2px; background: #333; }
+:root[data-skin=bandcamp] .detail-tabs button[aria-selected=true]:after { border-radius: 0; height: 2px; background: #333; }
 :root[data-skin=bandcamp] .lyric-lines button { font-family: var(--g2-serif); color: #a3a3a3; font-weight: 400; }
 :root[data-skin=bandcamp] .lyric-lines button.current { color: #1a1a1a; font-weight: 400; font-style: italic; }
 :root[data-skin=bandcamp] .lyric-offset button { color: var(--g2-link); }
@@ -206,12 +201,12 @@
 :root[data-skin=qobuz] :is(.home-tabs button, .home-filters button, .home-pick-chip, .source-tabs button) { border-radius: 3px; text-transform: uppercase; letter-spacing: .8px; font-size: 11px; }
 :root[data-skin=qobuz] :is(.app .page-hero h1, .apple-title h1, .home-greeting h1, .page-heading h1) { font-weight: 300; letter-spacing: -.5px; }
 :root[data-skin=qobuz] .home-section-head h2 { font-weight: 400; letter-spacing: .2px; }
-:root[data-skin=qobuz] :is(.page-hero-eyebrow, .feature-copy .eyebrow, .home-section-head small, .apple-pick-eyebrow) { text-transform: uppercase; letter-spacing: 1.6px; font-size: 11px; font-weight: 600; color: var(--accent); }
+
 :root[data-skin=qobuz] :is(.home-card .music-art, .page-hero-art, .large-cover, .large-cover > .cover, .home-shortcut, .home-shortcut-art) { border-radius: 3px; }
 :root[data-skin=qobuz] .home-card .music-art { box-shadow: 0 10px 26px #000a, 0 0 0 1px #ffffff0d; }
 :root[data-skin=qobuz] .home-card strong { font-weight: 500; }
 :root[data-skin=qobuz] .home-card-badge { border-radius: 2px; background: #000000b3; color: var(--g2-gold); letter-spacing: .5px; }
-:root[data-skin=qobuz] .home-card-play, :root[data-skin=qobuz] .floating-play { background: var(--accent); color: var(--accent-text); }
+:root[data-skin=qobuz] .home-card-play { background: var(--accent); color: var(--accent-text); }
 :root[data-skin=qobuz] .button { border-radius: 3px; }
 :root[data-skin=qobuz] .button.primary { text-transform: uppercase; letter-spacing: .8px; font-size: 11px; }
 :root[data-skin=qobuz] .table-header { text-transform: uppercase; letter-spacing: 1.2px; font-size: 10px; }
@@ -259,7 +254,7 @@
 :root[data-skin=kkbox] :is(.home-card .music-art, .page-hero-art, .large-cover, .home-shortcut, .home-shortcut-art, .qq-chart, .qq-feature-card) { border-radius: 12px; }
 :root[data-skin=kkbox] .home-card:hover { background: #ffffff0a; }
 :root[data-skin=kkbox] .home-card-badge { border-radius: 10px; background: #09cef6e0; color: #03171d; font-weight: 700; }
-:root[data-skin=kkbox] .home-card-play, :root[data-skin=kkbox] .floating-play { background: var(--accent); color: var(--accent-text); box-shadow: 0 6px 18px #09cef64d; }
+:root[data-skin=kkbox] .home-card-play { background: var(--accent); color: var(--accent-text); box-shadow: 0 6px 18px #09cef64d; }
 :root[data-skin=kkbox] .button { border-radius: 20px; }
 :root[data-skin=kkbox] .button.primary { font-weight: 700; box-shadow: 0 6px 16px #09cef633; }
 :root[data-skin=kkbox] .track-filter { border-radius: 18px; }
@@ -271,7 +266,7 @@
 :root[data-skin=kkbox] .play-main, :root[data-skin=kkbox] .theme-spotify .play-main { background: var(--accent); color: var(--accent-text); width: 38px; height: 38px; box-shadow: 0 0 0 5px #09cef61f, 0 6px 16px #09cef640; }
 :root[data-skin=kkbox] .progress-row input { height: 4px; border-radius: 4px; }
 :root[data-skin=kkbox] .progress-row input::-webkit-slider-thumb { opacity: 1; width: 11px; height: 11px; background: #fff; box-shadow: 0 0 0 3px #09cef666; }
-:root[data-skin=kkbox] .detail-tabs button.active { color: var(--accent); }
+:root[data-skin=kkbox] .detail-tabs button[aria-selected=true] { color: var(--accent); }
 :root[data-skin=kkbox] .lyric-lines button { font-weight: 700; }
 :root[data-skin=kkbox] .lyric-lines button.current, :root[data-skin=kkbox] .theme-spotify .lyric-lines button.current { color: var(--accent); text-shadow: 0 0 22px #09cef666; }
 :root[data-skin=kkbox] .modal { border-radius: 18px; }
@@ -279,7 +274,7 @@
 /* ================= Melon ================= */
 /* 韩国榜单文化：纯白页面、荧光绿边框搜索框、粗体大号名次数字和直角卡片 */
 :root[data-skin=melon] {
-  --bg: #ffffff; --sidebar: #fafafa; --panel: #ffffff; --text: #1a1a1a; --muted: #8c8c8c; --subtle: #555555;
+  --bg: #ffffff; --sidebar: #fafafa; --panel: #ffffff; --text: #1a1a1a; --muted: #7e7e7e; --subtle: #555555;
   --line: #ebebeb; --hover: #f4f4f4; --accent: #00cd3c; --accent-tint: #00cd3c17; --accent-text: #ffffff;
   --radius: 3px; --shadow: 0 12px 40px #0000001c; --chip: #f2f2f2;
   --g2-grad: linear-gradient(140deg, #34e06a, #00a432); --g2-grad2: linear-gradient(140deg, #2b2b2b, #555555);
@@ -327,8 +322,8 @@
 :root[data-skin=melon] .progress-row input { height: 3px; border-radius: 0; }
 :root[data-skin=melon] .progress-row input::-webkit-slider-thumb { opacity: 1; width: 10px; height: 10px; background: #fff; border: 2px solid var(--accent); }
 :root[data-skin=melon] .detail-view { background: #fff; }
-:root[data-skin=melon] .detail-tabs button.active { color: #1a1a1a; font-weight: 800; }
-:root[data-skin=melon] .detail-tabs button.active:after { border-radius: 0; background: var(--accent); }
+:root[data-skin=melon] .detail-tabs button[aria-selected=true] { color: #1a1a1a; font-weight: 800; }
+:root[data-skin=melon] .detail-tabs button[aria-selected=true]:after { border-radius: 0; background: var(--accent); }
 :root[data-skin=melon] .lyric-lines button { color: #a6a6a6; }
 :root[data-skin=melon] .lyric-lines button.current { color: var(--g2-green); font-weight: 800; }
 :root[data-skin=melon] .lyric-offset button { color: var(--g2-green); }
@@ -360,7 +355,7 @@
 :root[data-skin=audiomack] :is(.home-card .music-art, .page-hero-art, .large-cover, .large-cover > .cover, .home-shortcut, .home-shortcut-art) { border-radius: 3px; }
 :root[data-skin=audiomack] .home-card:hover { background: #ffa2000d; }
 :root[data-skin=audiomack] .home-card-badge { border-radius: 2px; background: var(--accent); color: #170e00; font-weight: 800; }
-:root[data-skin=audiomack] .home-card-play, :root[data-skin=audiomack] .floating-play { background: var(--accent); color: var(--accent-text); }
+:root[data-skin=audiomack] .home-card-play { background: var(--accent); color: var(--accent-text); }
 :root[data-skin=audiomack] .button { border-radius: 3px; }
 :root[data-skin=audiomack] .button.primary { font-family: var(--g2-cond); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
 :root[data-skin=audiomack] .page-hero-eyebrow { font-family: var(--g2-cond); text-transform: uppercase; letter-spacing: 2px; color: var(--accent); font-weight: 700; }
@@ -400,7 +395,7 @@
 :root[data-skin=anghami] .appearance-button { border-radius: 22px; }
 :root[data-skin=anghami] .search-box, :root[data-skin=anghami] .theme-spotify .search-box { border-radius: 24px; background: #1d1529; }
 
-:root[data-skin=anghami] :is(.home-tabs button.active, .home-filters button.chosen, .home-pick-chip.chosen, .source-tabs button.active) { background: var(--g2-grad); color: #fff; }
+:root[data-skin=anghami] :is(.home-filters button[aria-pressed=true], .home-pick-chip[aria-pressed=true], .source-tabs button[aria-selected=true]) { background: var(--g2-grad); color: #fff; }
 :root[data-skin=anghami] :is(.app .page-hero h1, .apple-title h1, .home-greeting h1, .page-heading h1) { font-weight: 800; }
 :root[data-skin=anghami] .home-text-button { color: #ff7ab8; }
 :root[data-skin=anghami] :is(.home-card .music-art, .page-hero-art, .large-cover, .home-shortcut, .home-shortcut-art, .apple-pick-art, .qq-chart, .qq-feature-card) { border-radius: 16px; }
@@ -409,9 +404,9 @@
 :root[data-skin=anghami] .home-card .music-art { box-shadow: 0 12px 28px #05010d99; }
 :root[data-skin=anghami] .home-card:hover { background: #ffffff0a; }
 :root[data-skin=anghami] .home-card-badge { border-radius: 10px; background: #100b1ab3; color: #fff; }
-:root[data-skin=anghami] .home-card-play, :root[data-skin=anghami] .floating-play, :root[data-skin=anghami] .qq-play-round { background: var(--g2-grad); color: #fff; box-shadow: 0 8px 20px #c13bd855; }
+:root[data-skin=anghami] .home-card-play, :root[data-skin=anghami] .qq-play-round { background: var(--g2-grad); color: #fff; box-shadow: 0 8px 20px #c13bd855; }
 :root[data-skin=anghami] .button { border-radius: 22px; }
-:root[data-skin=anghami] .button.primary, :root[data-skin=anghami] .theme-spotify .feature-button { background: var(--g2-grad); color: #fff; font-weight: 700; box-shadow: 0 6px 18px #b04bff40; }
+:root[data-skin=anghami] .button.primary { background: var(--g2-grad); color: #fff; font-weight: 700; box-shadow: 0 6px 18px #b04bff40; }
 :root[data-skin=anghami] .page-hero-eyebrow { color: #ff9ccb; font-weight: 600; }
 :root[data-skin=anghami] .theme-spotify .page-hero { background: linear-gradient(180deg, #5a1f7a 0, #3a1450 45%, color-mix(in srgb, #5a1f7a 22%, var(--bg)) 100%); }
 :root[data-skin=anghami] .track-filter { border-radius: 18px; }
@@ -425,7 +420,7 @@
 :root[data-skin=anghami] .theme-spotify .progress-row input:hover { height: 4px; border-radius: 4px; background: linear-gradient(to right, #8a3dff, #ff3d8b var(--range), #ffffff21 var(--range)); }
 :root[data-skin=anghami] .progress-row input::-webkit-slider-thumb { opacity: 1; width: 12px; height: 12px; background: #fff; box-shadow: 0 0 0 3px #ff3d8b55; }
 :root[data-skin=anghami] .waveform i.played { background: linear-gradient(#ff3d8b, #8a3dff); }
-:root[data-skin=anghami] .detail-tabs button.active:after { background: var(--g2-grad); }
+:root[data-skin=anghami] .detail-tabs button[aria-selected=true]:after { background: var(--g2-grad); }
 :root[data-skin=anghami] .lyric-lines button { font-weight: 700; }
 :root[data-skin=anghami] .lyric-lines button.current, :root[data-skin=anghami] .theme-spotify .lyric-lines button.current {
   background: linear-gradient(90deg, #c08bff, #ff6fae); -webkit-background-clip: text; background-clip: text; color: transparent;

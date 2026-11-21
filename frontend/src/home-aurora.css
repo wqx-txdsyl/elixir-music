@@ -164,7 +164,7 @@
 .home-aurora .home-card-play { background: var(--aurora-gradient); color: #121028; }
 .home-aurora .home-card-badge { background: rgb(11 13 24 / .55); backdrop-filter: blur(8px); }
 .home-aurora .home-pick-chip { background: #ffffff08; border-color: #ffffff18; }
-.home-aurora .home-pick-chip.chosen { background: var(--aurora-gradient); color: #121028; }
+.home-aurora .home-pick-chip[aria-pressed=true] { background: var(--aurora-gradient); color: #121028; }
 .home-aurora .home-track:hover,
 .home-aurora .home-recent > button:hover,
 .home-aurora .home-bento-rows > button:hover { background: #ffffff0f; }

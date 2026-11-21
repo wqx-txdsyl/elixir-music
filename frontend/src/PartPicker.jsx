@@ -28,7 +28,7 @@ export function VariantGrid({ slot, look, resolved, onChange, hideImage = true, 
     {variants.map(([id, name, from]) => {
       const chosen = value === id;
       const removed = def.removable === id;
-      return <button type="button" key={id} role="radio" aria-checked={chosen} className={'variant-card' + (chosen ? ' chosen' : '') + (removed ? ' removed' : '')} onClick={() => onChange(slot, id)} title={from || ''}>
+      return <button type="button" key={id} role="radio" aria-checked={chosen} className={'variant-card' + (removed ? ' removed' : '')} onClick={() => onChange(slot, id)} title={from || ''}>
         <span className="variant-art"><PartArt slot={slot} value={id} resolved={resolved} />{chosen && <Check className="variant-check" size={14} weight="bold" />}</span>
         <strong>{name}</strong>
         <small>{id === 'native' ? '现在是' + nativeName(resolved, slot) : from || (removed ? '整个去掉' : ' ')}</small>

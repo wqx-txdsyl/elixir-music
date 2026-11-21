@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { CaretLeft, CaretRight, MicrophoneStage, Pause, Play, Shuffle } from '@phosphor-icons/react';
 import { api, formatDuration, SOURCE_NAMES } from './api';
 import { MusicArt } from './MusicWorkspace';
+import { Note } from './ui';
 import './crate.css';
 
 const SHOWN_BEHIND = 7;
@@ -96,7 +97,7 @@ export function ListeningCalendar({ days: span = 182 }) {
   }, [data]);
   return <section className="home-section listening-calendar">
     <div className="home-section-head"><h2>听歌日历</h2>{view && <span className="calendar-legend" aria-hidden="true">少<i data-level="0" /><i data-level="1" /><i data-level="2" /><i data-level="3" /><i data-level="4" />多</span>}</div>
-    {data === null ? <div className="calendar-loading" aria-label="正在统计" /> : !view ? <p className="calendar-empty">暂时读不到听歌记录。</p> : <div className="calendar-body">
+    {data === null ? <div className="calendar-loading" aria-label="正在统计" /> : !view ? <Note className="tight">暂时读不到听歌记录。</Note> : <div className="calendar-body">
       <div className="calendar-grid-wrap" style={{ '--weeks': view.weeks.length }}>
         <div className="calendar-months">{view.months.map((m, i) => <span key={i}>{m}</span>)}</div>
         <div className="calendar-grid">

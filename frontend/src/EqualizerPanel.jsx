@@ -1,5 +1,6 @@
 import React,{useId,useRef,useState} from 'react';
 import SelectMenu from './SelectMenu';
+import {ErrorNote,Note} from './ui';
 import {frequencies,presets} from './equalizer.mjs';
 import './equalizer.css';
 
@@ -12,7 +13,7 @@ export default function EqualizerPanel({effects,remote}){
  function move(e){if(drag.current===null)return;const rect=e.currentTarget.getBoundingClientRect();change(drag.current,(150-(e.clientY-rect.top)*340/rect.height)/10);}
  function choose(e){const gains=all[e.target.value];if(gains)setConfig(c=>({...c,gains:[...gains],preamp:Math.min(0,-Math.max(...gains))}));}
  return <section className="settings-section eq-section eq-curve-section"><div className="eq-heading"><h2>均衡器</h2><button role="switch" aria-label="启用均衡器" aria-checked={config.enabled} className={'eq-switch '+(config.enabled?'on':'')} onClick={()=>setConfig(c=>({...c,enabled:!c.enabled}))}><span/></button></div>
- {remote&&<p className="workspace-note">Spotify 音频暂不支持均衡器</p>}{error&&<p role="alert" className="workspace-note">{error}</p>}
+ {remote&&<Note>Spotify 音频暂不支持均衡器</Note>}{error&&<ErrorNote>{error}</ErrorNote>}
  <div className={'eq-curve-panel '+(!config.enabled?'eq-off':'')}><div className="eq-preset-picker"><label htmlFor={id}>预设</label><SelectMenu id={id} aria-label="均衡器预设" value={selected} onChange={choose}>{!all[selected]&&<option value="自定义">自定义</option>}{Object.keys(all).map(name=><option key={name} value={name}>{name}</option>)}</SelectMenu></div>
  <svg viewBox="0 0 900 340" className="eq-curve" onPointerMove={move} onPointerUp={e=>{drag.current=null;if(e.currentTarget.hasPointerCapture(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);}} onPointerCancel={()=>{drag.current=null;}} aria-label="六段均衡器">
  <defs><linearGradient id={'eq-fill-'+id} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="var(--accent)" stopOpacity=".5"/><stop offset="1" stopColor="var(--accent)" stopOpacity="0"/></linearGradient></defs>

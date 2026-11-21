@@ -78,5 +78,4 @@
 .calendar-stats dd { margin: 3px 0 0; font-size: 22px; font-weight: 800; color: var(--text); display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap; }
 .calendar-stats dd small { font-size: 12px; font-weight: 600; color: var(--subtle); }
 .calendar-loading { height: 132px; border-radius: var(--radius); background: var(--hover); }
-.calendar-empty { color: var(--muted); }
 }

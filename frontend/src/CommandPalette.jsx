@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { MagnifyingGlass, ArrowElbowDownLeft } from '@phosphor-icons/react';
+import { Note } from './ui';
 
 // Ctrl K: one box for searching music, jumping to pages, switching skins and swapping parts.
 // `commands` is a flat list of { id, group, title, hint, keywords, run }.
@@ -34,10 +35,10 @@ export default function CommandPalette({ commands, onSearch, onClose }) {
         {items.length ? items.map((item, i) => {
           const head = item.group !== lastGroup ? (lastGroup = item.group) : null;
           return <React.Fragment key={item.id}>{head && <div className="palette-group">{head}</div>}
-            <button id={'palette-' + i} role="option" aria-selected={i === active} className={i === active ? 'active' : ''} onMouseMove={() => setActive(i)} onClick={() => run(item)}>
+            <button id={'palette-' + i} role="option" aria-selected={i === active} onMouseMove={() => setActive(i)} onClick={() => run(item)}>
               {item.icon && <item.icon size={18} />}<span>{item.title}{item.hint && <small>{item.hint}</small>}</span>{item.current && <em>当前</em>}{i === active && <ArrowElbowDownLeft size={15} />}
             </button></React.Fragment>;
-        }) : <p className="palette-empty">没有匹配的命令</p>}
+        }) : <Note className="centered">没有匹配的命令</Note>}
       </div>
       <footer className="palette-foot"><span><kbd>↑</kbd><kbd>↓</kbd> 选择</span><span><kbd>Enter</kbd> 执行</span><span><kbd>Ctrl</kbd><kbd>K</kbd> 随时打开</span></footer>
     </div>

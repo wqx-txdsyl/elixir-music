@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from './api';
+import { ErrorNote } from './ui';
 import { ArrowSquareOut } from '@phosphor-icons/react';
 
 const MEMBERSHIP_TEXT = {
@@ -41,7 +42,7 @@ export function SpotifyPremiumBody({ premium }) {
   const pairing = status?.pairing;
   const open = url => { if (window.desktop?.openExternal) window.desktop.openExternal(url); else window.open(url, '_blank'); };
   return <>
-    {error && <small className="account-method-error">{error}</small>}
+    {error && <ErrorNote>{error}</ErrorNote>}
     {status?.username && paired && <small>{status.username} · {MEMBERSHIP_TEXT[status.membership || ''] || status.membership}</small>}
     {pairing && <ol className="bridge-pairing">
       <li>打开 <button className="text-button" onClick={() => open(pairing.url)}>spotify.com/pair<ArrowSquareOut size={14} /></button></li>

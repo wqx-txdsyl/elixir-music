@@ -3,7 +3,7 @@
 
 /* ================= 晨雾 ================= */
 /* 浅色流光背景上的磨砂白卡片：所有面板半透明悬浮、细白描边加柔和紫灰投影，紫蓝强调色只用在选中和播放。 */
-:root[data-skin=mist]{--bg:#eef1f8;--sidebar:#ffffffb3;--panel:#ffffffcc;--panel-solid:#f9faff;--text:#232838;--muted:#8a90a6;--subtle:#545b73;--line:#2328381a;--hover:#6a6cf612;--accent:#6a6cf6;--accent-2:#4fc3e8;--accent-tint:#6a6cf61f;--accent-text:#fff;--radius:16px;--chip:#ffffffb3;--shadow:0 24px 60px #4a52a02e;--glass:blur(22px) saturate(1.5);--aurora-gradient:linear-gradient(120deg,#6a6cf6,#4fc3e8 55%,#e58fd8);--mist-glass:#ffffffb8;--mist-edge:#ffffffe6;--mist-lift:0 12px 34px #4a52a01f,inset 0 1px 0 #fff;color-scheme:light}
+:root[data-skin=mist]{--bg:#eef1f8;--sidebar:#ffffffb3;--panel:#ffffffcc;--panel-solid:#f9faff;--text:#232838;--muted:#6f7589;--subtle:#545b73;--line:#2328381a;--hover:#6a6cf612;--accent:#6a6cf6;--accent-2:#4fc3e8;--accent-tint:#6a6cf61f;--accent-text:#fff;--radius:16px;--chip:#ffffffb3;--shadow:0 24px 60px #4a52a02e;--glass:blur(22px) saturate(1.5);--aurora-gradient:linear-gradient(120deg,#6a6cf6,#4fc3e8 55%,#e58fd8);--mist-glass:#ffffffb8;--mist-edge:#ffffffe6;--mist-lift:0 12px 34px #4a52a01f,inset 0 1px 0 #fff;color-scheme:light}
 :root[data-skin=mist] .app{font-family:"HarmonyOS Sans SC","PingFang SC","Segoe UI","Microsoft YaHei UI","Microsoft YaHei",sans-serif;background:radial-gradient(60% 50% at 15% 10%,#dcdcff 0,transparent 70%),radial-gradient(50% 45% at 90% 0,#d6f2fb 0,transparent 70%),radial-gradient(60% 50% at 70% 100%,#fbe1f2 0,transparent 70%),#eef1f8}
 :root[data-skin=mist] .sidebar{background:#ffffffa6;backdrop-filter:blur(24px) saturate(1.5);box-shadow:inset -1px 0 0 #ffffffcc}
 :root[data-skin=mist] .app[data-sidebar=float]>.sidebar{border-color:#ffffffe6;box-shadow:0 18px 44px #4a52a024,inset 0 1px 0 #fff}
@@ -23,8 +23,8 @@
 :root[data-skin=mist] .appearance-button{background:#ffffff99;border:1px solid #ffffffe6;border-radius:12px;color:#545b73}
 :root[data-skin=mist] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item){background:#ffffffa6;border:1px solid #ffffffe6;border-radius:18px;color:#545b73;font-size:13px;box-shadow:0 3px 10px #4a52a00f}
 :root[data-skin=mist] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip):hover{background:#fff;color:#232838}
-:root[data-skin=mist] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected){background:#6a6cf6;border-color:#6a6cf6;color:#fff;box-shadow:0 6px 16px #6a6cf640}
-:root[data-skin=mist] .search-chips>button{background:#ffffffb3;border-radius:16px}
+:root[data-skin=mist] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected){background:#6a6cf6;border-color:#6a6cf6;color:#fff;box-shadow:0 6px 16px #6a6cf640}
+
 :root[data-skin=mist] :is(.home-greeting h1,.section-title h2,.home-section-head h2,.apple-title h1,.qq-hello h1){font-weight:700;letter-spacing:-.4px;color:#232838}
 :root[data-skin=mist] .home-aurora .home-greeting h1{background:var(--aurora-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
 :root[data-skin=mist] :is(.home-bento-cell,.home-aurora .home-section){background:linear-gradient(160deg,#ffffffd9,#ffffff99) padding-box,linear-gradient(140deg,#fff,#ffffff80 45%,#c9cbff99) border-box;box-shadow:0 16px 40px #4a52a01f}
@@ -37,12 +37,12 @@
 :root[data-skin=mist] .home-bento-link:nth-child(even) svg{background:#4fc3e81f;color:#2a9cc4}
 :root[data-skin=mist] :is(.home-bento-stats:hover,.home-bento-link:hover,.home-bento-faces button:hover){background:#ffffffcc}
 :root[data-skin=mist] :is(.home-track:hover,.home-recent>button:hover,.home-bento-rows>button:hover){background:#6a6cf60f}
-:root[data-skin=mist] :is(.home-card .music-art,.album-art .cover,.home-rank-art .music-art,.home-recent-art .music-art,.apple-pick-art){border-radius:14px}
+
 :root[data-skin=mist] .home-card .music-art{box-shadow:0 10px 24px #4a52a024}
 :root[data-skin=mist] .home-card.round .music-art{border-radius:50%}
 :root[data-skin=mist] .home-card strong{font-weight:600}
 :root[data-skin=mist] :is(.home-card:hover strong,.home-card.now strong){color:#6a6cf6}
-:root[data-skin=mist] :is(.home-card-play,.floating-play,.home-shortcut-play){background:#ffffffe6;color:#6a6cf6;box-shadow:0 8px 20px #4a52a033;backdrop-filter:blur(8px)}
+
 :root[data-skin=mist] .home-card-badge{background:#ffffffd9;color:#6a6cf6;border-radius:10px}
 :root[data-skin=mist] .home-shortcut{background:var(--mist-glass);border:1px solid var(--mist-edge);border-radius:18px;box-shadow:var(--mist-lift);backdrop-filter:blur(18px)}
 :root[data-skin=mist] .home-shortcut:hover{background:#fff}
@@ -56,7 +56,8 @@
 :root[data-skin=mist] :is(.qq-chart.tone-blue,.qq-cover-card){background:linear-gradient(140deg,#8fd3f4,#4f8fe8)}
 :root[data-skin=mist] .qq-chart.tone-amber{background:linear-gradient(140deg,#ffb8d0,#c98af0)}
 :root[data-skin=mist] :is(.qq-feature-main,.qq-feature-card,.qq-cover-card,.qq-chart,.home-banner,.home-banner-art,.home-banner-art .music-art){border-radius:18px}
-:root[data-skin=mist] :is(.home-hero-empty,.feature-banner){background:linear-gradient(135deg,#a7a8ff,#6a6cf6 50%,#4fc3e8);border-radius:20px}
+
+:root[data-skin=mist] .home-bento-hero .home-hero-empty{background:none;border-radius:0}
 :root[data-skin=mist] .home-banner{background:#ffffff99}
 :root[data-skin=mist] :is(.home-now-bars i,.equalizer i){background:#6a6cf6}
 :root[data-skin=mist] .home-arrow{background:#ffffffcc;border:1px solid #ffffffe6;color:#545b73;box-shadow:0 4px 12px #4a52a01a}
@@ -99,7 +100,7 @@
 :root[data-skin=mist] .section-nav button[aria-current]{background:#6a6cf61a;color:#6a6cf6}
 :root[data-skin=mist] .detail-view{background:radial-gradient(60% 60% at 20% 20%,#dcdcff,transparent 70%),radial-gradient(60% 60% at 90% 90%,#fbe1f2,transparent 70%),#eef1f8}
 :root[data-skin=mist] .large-cover,:root[data-skin=mist] .large-cover .cover{border-radius:20px}
-:root[data-skin=mist] .detail-tabs button.active:after{background:linear-gradient(90deg,#6a6cf6,#4fc3e8);border-radius:2px}
+:root[data-skin=mist] .detail-tabs button[aria-selected=true]:after{background:linear-gradient(90deg,#6a6cf6,#4fc3e8);border-radius:2px}
 :root[data-skin=mist] .lyric-lines button.current{color:#6a6cf6}
 :root[data-skin=mist] .app[data-np=immersive] .detail-art>h1{letter-spacing:-.3px}
 :root[data-skin=mist] .app[data-np=immersive] .large-cover{box-shadow:0 30px 70px #1a1c4a66,0 0 0 1px #ffffff33}

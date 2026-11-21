@@ -145,7 +145,9 @@ export const exportFile = (look, name = '我的方案') => JSON.stringify({ form
 export function hexToRgb(hex) { const n = parseInt(hex.slice(1, 7), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
 export const rgbToHex = (r, g, b) => '#' + [r, g, b].map(v => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, '0')).join('');
 function luminance([r, g, b]) { const c = [r, g, b].map(v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }); return .2126 * c[0] + .7152 * c[1] + .0722 * c[2]; }
-export const contrastText = hex => luminance(hexToRgb(hex)) > .45 ? '#141414' : '#ffffff';
+const contrastRatio = (a, b) => { const [hi, lo] = [luminance(a), luminance(b)].sort((m, n) => n - m); return (hi + .05) / (lo + .05); };
+// 白字对比度够 3:1（控件文字的下限）才用白字，否则用深色字；亮度阈值会把中等亮度的绿、蓝、紫都配成白字。
+export const contrastText = hex => contrastRatio(hexToRgb(hex), [255, 255, 255]) >= 3 ? '#ffffff' : '#141414';
 export function mix(hex, other, amount) { const a = hexToRgb(hex), b = hexToRgb(other); return rgbToHex(...a.map((v, i) => v + (b[i] - v) * amount)); }
 export function rgbToHsl(r, g, b) {
   r /= 255; g /= 255; b /= 255; const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2;
@@ -180,7 +182,7 @@ export function swatchVars(skin) {
   const { bg, side, panel, accent, text } = skin.swatch, solid = c => c.slice(0, 7), dark = skin.scheme === 'dark';
   return {
     '--bg': bg, '--sidebar': side, '--panel': panel, '--text': text,
-    '--muted': mix(solid(text), solid(bg), .48), '--subtle': mix(solid(text), solid(bg), .26),
+    '--muted': mix(solid(text), solid(bg), dark ? .48 : .38), '--subtle': mix(solid(text), solid(bg), .26),
     '--line': solid(text) + (dark ? '1a' : '14'), '--hover': solid(text) + (dark ? '12' : '0b'), '--chip': solid(text) + (dark ? '14' : '0d'),
     '--accent': accent, '--accent-tint': solid(accent) + (dark ? '2e' : '1c'), '--accent-hover': mix(solid(accent), dark ? '#ffffff' : '#000000', .12),
     '--accent-text': contrastText(solid(accent)), 'color-scheme': dark ? 'dark' : 'light',

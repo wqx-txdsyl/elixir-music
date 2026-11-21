@@ -1,6 +1,8 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { ArrowCounterClockwise, ArrowDown, ArrowUp, CheckCircle, Copy, DownloadSimple, Eye, EyeSlash, FloppyDisk, ImageSquare, MagicWand, PaintBrush, PencilSimple, PuzzlePiece, Shuffle, SquaresFour, Trash, UploadSimple, X } from '@phosphor-icons/react';
 import PageHero from './PageHero';
+import ConfirmDialog from './ConfirmDialog';
+import { Note, Tabs } from './ui';
 import { SKINS, SKIN_GROUPS } from './skins.mjs';
 import { SLOTS, SLOT_MAP, SLOT_GROUPS, TUNING, ACCENT_PRESETS, LAYOUT_PRESETS, NAV_ITEMS, HOME_MODULES, COMPONENT_DEFAULTS, randomParts } from './components.mjs';
 import { shareCode, parseShared, exportFile } from './appearance.mjs';
@@ -17,7 +19,7 @@ const DIAGRAM_SLOT = { home: 'home', sidebar: 'sidebar', topbar: 'topbar', panel
 
 function Chips({ value, variants, onChange, label }) {
   return <div className="studio-chips" role="radiogroup" aria-label={label}>
-    {variants.map(([id, name, from]) => <button type="button" key={id} role="radio" aria-checked={value === id} className={value === id ? 'chosen' : ''} onClick={() => onChange(id)} title={from || ''}>
+    {variants.map(([id, name, from]) => <button type="button" key={id} role="radio" aria-checked={value === id} onClick={() => onChange(id)} title={from || ''}>
       <strong>{name}</strong>{from && <small>{from}</small>}
     </button>)}
   </div>;
@@ -42,6 +44,7 @@ export default function Studio({ appearance, notify, onEdit }) {
   const [slot, setSlot] = useState('sidebar');
   const [styleName, setStyleName] = useState('');
   const [renaming, setRenaming] = useState(null);
+  const [deleting, setDeleting] = useState(null);
   const [importText, setImportText] = useState('');
   const [css, setCss] = useState(look.customCss);
   const fileRef = useRef(null), imageRef = useRef(null);
@@ -71,14 +74,12 @@ export default function Studio({ appearance, notify, onEdit }) {
         <button className="button primary" onClick={onEdit}><PuzzlePiece size={17} />在界面上拆装</button>
       </>} />
 
-    <div className="studio-tabs" role="tablist" aria-label="工坊分类">
-      {TABS.map(([id, label]) => <button type="button" key={id} role="tab" aria-selected={tab === id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}>{label}{id === 'parts' && changedSlots.length > 0 && <em>{changedSlots.length}</em>}{id === 'saved' && profile.saved.length > 0 && <em>{profile.saved.length}</em>}</button>)}
-    </div>
+    <Tabs className="studio-tabs" label="工坊分类" value={tab} onChange={setTab} items={TABS.map(([id, label]) => [id, label, id === 'parts' && changedSlots.length > 0 ? <em>{changedSlots.length}</em> : id === 'saved' && profile.saved.length > 0 ? <em>{profile.saved.length}</em> : null])} />
 
     {tab === 'skins' && <div className="studio-pane" role="tabpanel">
       <p className="studio-lead">皮肤决定配色、质感和默认组件。换皮肤时，你单独替换过的组件会保留。</p>
       {SKIN_GROUPS.map(group => <Block key={group} title={group} className="studio-skin-group">
-        <div className="studio-skins">{SKINS.filter(s => s.group === group).map(s => <button type="button" key={s.id} className={'studio-skin' + (s.id === skin.id ? ' chosen' : '')} aria-pressed={s.id === skin.id} title={s.note} onClick={() => appearance.setSkin(s.id)}>
+        <div className="studio-skins">{SKINS.filter(s => s.group === group).map(s => <button type="button" key={s.id} className="studio-skin" aria-pressed={s.id === skin.id} title={s.note} onClick={() => appearance.setSkin(s.id)}>
           <SkinPreview skin={s} />
           <span className="studio-skin-name"><strong>{s.name}</strong>{s.id === skin.id && <CheckCircle size={17} weight="fill" />}</span>
           <small>{s.hint}</small>
@@ -98,7 +99,7 @@ export default function Studio({ appearance, notify, onEdit }) {
             {SLOTS.filter(s => s.group === group.key).map(s => {
               const value = look.components[s.key];
               const removed = s.removable && resolved.parts[s.key] === s.removable;
-              return <button type="button" key={s.key} className={'studio-slot' + (slot === s.key ? ' active' : '') + (removed ? ' removed' : '')} aria-pressed={slot === s.key} onClick={() => setSlot(s.key)}>
+              return <button type="button" key={s.key} className={'studio-slot' + (removed ? ' removed' : '')} aria-pressed={slot === s.key} onClick={() => setSlot(s.key)}>
                 <PartArt slot={s.key} value={value} resolved={resolved} />
                 <span><strong>{s.title}</strong><small>{removed ? '已拆下' : currentName(look, resolved, s.key)}</small></span>
                 {value !== COMPONENT_DEFAULTS[s.key] && <i className="studio-slot-dot" title="已改动" />}
@@ -114,7 +115,7 @@ export default function Studio({ appearance, notify, onEdit }) {
         </div>
       </div>
       <Block title="一键布局" text="一次换掉几个部件，得到一种完整的窗口分区；只改动示意图里的框架部件。">
-        <div className="studio-presets">{LAYOUT_PRESETS.map(preset => <button type="button" key={preset.id} className={'studio-preset' + (presetActive(preset) ? ' chosen' : '')} onClick={() => applyPreset(preset)} title={preset.text}>
+        <div className="studio-presets">{LAYOUT_PRESETS.map(preset => <button type="button" key={preset.id} className="studio-preset" aria-pressed={presetActive(preset)} onClick={() => applyPreset(preset)} title={preset.text}>
           <WindowDiagram resolved={resolved} override={preset.parts} />
           <strong>{preset.name}</strong><small>{preset.text}</small>
         </button>)}</div>
@@ -126,9 +127,9 @@ export default function Studio({ appearance, notify, onEdit }) {
       <Block title="色彩与字体" text="这些调整叠加在任何皮肤上。">
         <Row title="强调色" note="按钮、进度条和选中项的颜色">
           <div className="studio-accents">
-            <button type="button" className={'accent-option text' + (look.tuning.accent === 'skin' ? ' chosen' : '')} onClick={() => appearance.setTuning('accent', 'skin')}>跟随皮肤</button>
-            <button type="button" className={'accent-option text' + (look.tuning.accent === 'cover' ? ' chosen' : '')} onClick={() => appearance.setTuning('accent', 'cover')} title="从正在播放的封面里取色，每首歌都不一样"><MagicWand size={15} />跟随封面</button>
-            {ACCENT_PRESETS.map(color => <button type="button" key={color} className={'accent-option' + (look.tuning.accent === color ? ' chosen' : '')} style={{ '--swatch': color }} aria-label={'强调色 ' + color} onClick={() => appearance.setTuning('accent', color)} />)}
+            <button type="button" className="accent-option text" aria-pressed={look.tuning.accent === 'skin'} onClick={() => appearance.setTuning('accent', 'skin')}>跟随皮肤</button>
+            <button type="button" className="accent-option text" aria-pressed={look.tuning.accent === 'cover'} onClick={() => appearance.setTuning('accent', 'cover')} title="从正在播放的封面里取色，每首歌都不一样"><MagicWand size={15} />跟随封面</button>
+            {ACCENT_PRESETS.map(color => <button type="button" key={color} className="accent-option" aria-pressed={look.tuning.accent === color} style={{ '--swatch': color }} aria-label={'强调色 ' + color} onClick={() => appearance.setTuning('accent', color)} />)}
             <label className="accent-custom" title="自选颜色"><input type="color" value={/^#/.test(look.tuning.accent) ? look.tuning.accent : skin.swatch.accent} onChange={e => appearance.setTuning('accent', e.target.value)} /><span>自选</span></label>
           </div>
         </Row>
@@ -171,18 +172,19 @@ export default function Studio({ appearance, notify, onEdit }) {
           <input value={styleName} maxLength={40} onChange={e => setStyleName(e.target.value)} placeholder={'方案名称，例如「深夜写代码」'} aria-label="方案名称" />
           <button className="button primary"><FloppyDisk size={16} />保存当前外观</button>
         </form>
+        {deleting && <ConfirmDialog title={'删除方案「' + deleting.name + '」'} confirmText="删除" onCancel={() => setDeleting(null)} onConfirm={() => { appearance.deleteStyle(deleting.id); setDeleting(null); notify('已删除「' + deleting.name + '」'); }}>删除后不能恢复；当前外观不会改变。</ConfirmDialog>}
         {profile.saved.length ? <div className="studio-saved">{profile.saved.map(s => <div className="studio-saved-card" key={s.id}>
           <SkinPreview skin={SKINS.find(x => x.id === s.look.skin) || skin} />
           {renaming === s.id ? <form onSubmit={e => { e.preventDefault(); appearance.renameStyle(s.id, e.currentTarget.elements.name.value.trim() || s.name); setRenaming(null); }}><input name="name" autoFocus defaultValue={s.name} maxLength={40} aria-label="新名称" onBlur={e => { appearance.renameStyle(s.id, e.target.value.trim() || s.name); setRenaming(null); }} /></form>
             : <strong>{s.name}</strong>}
           <small>{(SKINS.find(x => x.id === s.look.skin)?.name || '') + ' · ' + new Date(s.created).toLocaleDateString('zh-CN')}</small>
           <div className="studio-saved-actions">
-            <button className="button primary" onClick={() => { appearance.applyStyle(s.id); notify('已切换到「' + s.name + '」'); }}>使用</button>
+            <button className="button quiet" onClick={() => { appearance.applyStyle(s.id); notify('已切换到「' + s.name + '」'); }}>使用</button>
             <button className="icon-button" title="用当前外观覆盖" aria-label={'用当前外观覆盖 ' + s.name} onClick={() => { appearance.overwriteStyle(s.id); notify('已更新「' + s.name + '」'); }}><FloppyDisk size={16} /></button>
             <button className="icon-button" title="重命名" aria-label={'重命名 ' + s.name} onClick={() => setRenaming(s.id)}><PencilSimple size={16} /></button>
-            <button className="icon-button" title="删除" aria-label={'删除 ' + s.name} onClick={() => { if (confirm('删除方案「' + s.name + '」？')) appearance.deleteStyle(s.id); }}><Trash size={16} /></button>
+            <button className="icon-button" title="删除" aria-label={'删除 ' + s.name} onClick={() => setDeleting(s)}><Trash size={16} /></button>
           </div>
-        </div>)}</div> : <p className="studio-empty">还没有保存的方案。在上面起个名字保存，或者在界面拆装时点「存为方案」。</p>}
+        </div>)}</div> : <Note className="tight">还没有保存的方案。在上面起个名字保存，或者在界面拆装时点「存为方案」。</Note>}
       </Block>
       <Block title="白天 / 夜间自动切换" text="到点自动换成指定的皮肤或方案。">
         <label className="studio-switch"><input type="checkbox" checked={profile.schedule.enabled} onChange={e => appearance.setSchedule({ enabled: e.target.checked })} /><span>开启自动切换</span></label>

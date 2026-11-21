@@ -5,7 +5,7 @@
 
 :root[data-theme=qqmusic] {
   --bg: #ffffff; --sidebar: #f5f6f8; --panel: #ffffff; --panel-solid: #ffffff;
-  --text: #1f2329; --muted: #8f959e; --subtle: #5c626b; --line: #0000000f; --hover: #0000000a;
+  --text: #1f2329; --muted: #797e87; --subtle: #5c626b; --line: #0000000f; --hover: #0000000a;
   --accent: #31c27c; --accent-hover: #2bb371; --accent-tint: #31c27c1a; --accent-text: #fff;
   --side-width: 232px; --player-height: 80px;
   --shadow: 0 16px 48px #1f23291f; color-scheme: light;
@@ -99,11 +99,4 @@
 .app.theme-qqmusic .page-hero h1 { font-size: 30px; font-weight: 650; }
 .theme-qqmusic .page-hero-eyebrow { color: var(--accent); }
 
-.preview-qqmusic { background: #fff; }
-.preview-qqmusic .preview-sidebar { background: #f2f3f5; }
-.preview-qqmusic .preview-sidebar b:not(:first-child) { background: #d5d8dd; }
-.preview-qqmusic .preview-main { background: #fff; }
-.preview-qqmusic .preview-main > b { background: #c9ccd1; }
-.preview-qqmusic .preview-main > span i { background: #eceef1; }
-.preview-qqmusic .preview-player { left: 27%; background: #fff; border-color: #e6e8eb; }
 }

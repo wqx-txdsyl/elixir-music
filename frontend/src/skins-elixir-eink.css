@@ -33,21 +33,18 @@
 :root[data-skin=eink] .search-box input::placeholder{color:#8a8a84}
 :root[data-skin=eink] :is(.topbar-account button,.topbar-navigation>.icon-button){background:transparent;border:1px solid #11111140;border-radius:0;color:#111;box-shadow:none}
 :root[data-skin=eink] :is(.topbar-account button,.topbar-navigation>.icon-button):hover{background:#1c1c1c;border-color:#1c1c1c;color:#fbfbf8}
-/* 标签与筛选：细框小字，选中反白 */
-:root[data-skin=eink] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item,.search-chips>button){background:transparent;border:1px solid #11111140;border-radius:0;color:#2e2e2b;font-family:var(--ek-serif);box-shadow:none}
-:root[data-skin=eink] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button):hover{background:#1111110d;color:#111}
-:root[data-skin=eink] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected){background:#1c1c1c;border-color:#1c1c1c;color:#fbfbf8}
+
+:root[data-skin=eink] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected){background:#1c1c1c;border-color:#1c1c1c;color:#fbfbf8}
 /* 标题：衬线书名 */
 :root[data-skin=eink] :is(h1,h2,h3,.home-greeting h1,.apple-title h1,.qq-hello h1,.page-hero h1,.section-title h2,.home-section-head h2){font-family:var(--ek-serif);color:#111;letter-spacing:0}
 :root[data-skin=eink] .home-section-head{border-bottom:1px solid #1111112e;padding-bottom:6px}
 :root[data-skin=eink] .home-text-button,:root[data-skin=eink] .text-button{color:#111;font-family:var(--ek-serif);text-decoration:underline 1px #11111166;text-underline-offset:3px}
 :root[data-skin=eink] .home-arrow{background:transparent;border:1px solid #11111140;border-radius:0;color:#111;box-shadow:none}
-/* 卡片与封面 */
-:root[data-skin=eink] :is(.home-card .music-art,.album-art .cover,.home-rank-art .music-art,.home-recent-art .music-art,.apple-pick-art,.track-name .cover,.now-cover .cover,.home-track-art){border-radius:0;box-shadow:none;outline:1px solid #11111126}
+
 :root[data-skin=eink] .home-card.round .music-art{border-radius:50%}
 :root[data-skin=eink] .home-card strong{font-family:var(--ek-serif);font-weight:700;color:#111}
 :root[data-skin=eink] :is(.home-card:hover strong,.home-card.now strong){text-decoration:underline 1px #111;text-underline-offset:3px}
-:root[data-skin=eink] :is(.home-card-play,.floating-play,.home-shortcut-play,.home-apple .home-card-play){background:#1c1c1c;color:#fbfbf8;border-radius:0;box-shadow:none}
+
 :root[data-skin=eink] .home-card-badge{background:#1c1c1c;color:#fbfbf8;border-radius:0;font-family:var(--ek-serif)}
 :root[data-skin=eink] :is(.home-card-icon,.apple-pick-icon){background:#1c1c1c;color:#fbfbf8;border-radius:0}
 /* 首页 modular：快捷入口 + 榜单块，全部细线框 */
@@ -63,7 +60,7 @@
 :root[data-skin=eink] .modular-chart-art{border-radius:0}
 :root[data-skin=eink] :is(.home-track:hover,.home-recent>button:hover,.home-bento-rows>button:hover,.home-rank-row:hover){background:#1111110d}
 :root[data-skin=eink] :is(.home-now-bars i,.equalizer i){background:#1c1c1c}
-:root[data-skin=eink] .feature-banner{background:#1c1c1c;color:#fbfbf8;border-radius:0}
+
 /* 列表：表格细线 */
 :root[data-skin=eink] .table-header{color:#5f5f5a;border-bottom:1px solid #111;font-family:var(--ek-serif);letter-spacing:1px}
 :root[data-skin=eink] .track-row{border-radius:0;border-bottom:1px solid #1111111f}
@@ -71,7 +68,7 @@
 :root[data-skin=eink] .track-row:hover{background:#1111110a}
 :root[data-skin=eink] .track-row.current{background:#1c1c1c;box-shadow:none}
 :root[data-skin=eink] .track-row.current :is(.song-title,.row-number,.track-name,.track-name small,span,small,button,svg){color:#fbfbf8}
-:root[data-skin=eink] .track-row.selected{background:#11111117}
+:root[data-skin=eink] .track-row.row-selected{background:#11111117}
 :root[data-skin=eink] .song-title{font-family:var(--ek-serif);font-weight:600;color:#111}
 :root[data-skin=eink] .row-number{color:#5f5f5a;font-family:var(--ek-serif)}
 :root[data-skin=eink] .source-tag{border-radius:0;border-color:#11111166;color:#2e2e2b;background:transparent}
@@ -124,16 +121,16 @@
 :root[data-skin=eink] .app[data-np=karaoke] .detail-art>:is(.artist-name,.text-button){color:#5f5f5a!important;font-family:var(--ek-serif)}
 :root[data-skin=eink] .app[data-np=karaoke] .detail-tabs{border-color:#1111112e!important}
 :root[data-skin=eink] .detail-tabs button{color:#5f5f5a;font-family:var(--ek-serif)}
-:root[data-skin=eink] .detail-tabs button.active{color:#111}
-:root[data-skin=eink] .detail-tabs button.active::after{background:#111;border-radius:0;height:2px;box-shadow:none}
+:root[data-skin=eink] .detail-tabs button[aria-selected=true]{color:#111}
+:root[data-skin=eink] .detail-tabs button[aria-selected=true]::after{background:#111;border-radius:0;height:2px;box-shadow:none}
 :root[data-skin=eink] .app[data-np=karaoke] .lyrics-scroll{--accent:#111!important}
 :root[data-skin=eink] .lyric-lines button{font-family:var(--ek-serif)}
 :root[data-skin=eink] .app[data-np=karaoke] .lyric-lines button{color:#11111152!important;font-weight:400!important}
 :root[data-skin=eink] .app[data-np=karaoke] .lyric-lines button.current{color:#111!important;font-weight:700!important;text-shadow:none!important}
 :root[data-skin=eink] .app[data-np=karaoke] .lyric-lines button.current.has-words{color:#11111166!important}
 :root[data-skin=eink] .lyric-lines button.current{color:#111}
-:root[data-skin=eink] .lyric-word.sung{color:#111}
-:root[data-skin=eink] .lyric-word.singing{background:none;color:#111;-webkit-text-fill-color:currentColor}
+:root[data-skin=eink] .lyric-lines button.current.has-words{--lyric-sung:#111;--lyric-unsung:#11111152}
+:root[data-skin=eink] .lyric-lines .lyric-word.singing{animation:none;background:none;color:#111;-webkit-text-fill-color:currentColor}
 :root[data-skin=eink] .app[data-np=karaoke].detail-open .player{background:#e9e8e2!important;border-color:#1111112e!important;color:#111!important;--text:#111!important;--muted:#5f5f5a!important;--subtle:#2e2e2b!important;--line:#1111112e!important;--hover:#1111110d!important}
 /* 其他播放页样式：纸面底，不用彩色模糊封面 */
 :root[data-skin=eink] .app:not([data-np=karaoke],[data-np=immersive]) .detail-view{background:#f2f1ec}

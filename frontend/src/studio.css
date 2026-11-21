@@ -45,7 +45,6 @@
 .settings-look-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .settings-look-actions kbd, .palette kbd { font: 10px/1 Consolas, monospace; padding: 3px 5px; border-radius: 4px; border: 1px solid var(--line); background: var(--hover); color: var(--subtle); }
 
-
 /* ---------- 命令面板 ---------- */
 .palette-backdrop { position: fixed; inset: 0; z-index: 120; display: flex; justify-content: center; align-items: flex-start; padding-top: 12vh; background: #0b0f1a47; backdrop-filter: blur(4px); animation: palette-fade .14s ease-out; }
 .palette { width: min(640px, 92vw); max-height: 70vh; display: flex; flex-direction: column; overflow: hidden; border-radius: 16px; background: var(--panel); color: var(--text); border: 1px solid var(--line); box-shadow: 0 30px 90px #0000004d, 0 2px 10px #0000001a; animation: palette-in .16s ease-out; }
@@ -58,9 +57,8 @@
 .palette-list > button > span { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 10px; }
 .palette-list > button small { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .palette-list > button em { font-style: normal; font-size: 10px; padding: 1px 6px; border-radius: 4px; color: var(--accent); background: var(--accent-tint); }
-.palette-list > button.active { background: var(--accent-tint); }
-.palette-list > button.active > svg { color: var(--accent); }
-.palette-empty { padding: 30px; text-align: center; color: var(--muted); font-size: 13px; }
+.palette-list > button[aria-selected=true] { background: var(--accent-tint); }
+.palette-list > button[aria-selected=true] > svg { color: var(--accent); }
 .palette-foot { display: flex; gap: 18px; padding: 9px 16px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); }
 .palette-foot span { display: flex; align-items: center; gap: 4px; }
 @keyframes palette-fade { from { opacity: 0; } }
@@ -131,7 +129,7 @@
 .app[data-np=poster] .detail-art { position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; overflow: hidden; padding: 0 0 10px; }
 .app[data-np=poster] .poster-mark { display: flex; flex-direction: column; position: absolute; inset: 0 0 auto 0; gap: 8px; pointer-events: none; }
 .app[data-np=poster] .poster-no { font: 800 13px/1 "Bahnschrift", "DIN Alternate", sans-serif; letter-spacing: 3px; }
-.app[data-np=poster] .poster-title { font-size: clamp(54px, 8.6vw, 150px); line-height: .92; font-weight: 900; letter-spacing: -.04em; word-break: break-all; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.app[data-np=poster] .poster-title { font-size: clamp(54px, 8.6vw, 150px); line-height: .92; font-weight: 900; letter-spacing: -.04em; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .app[data-np=poster] .poster-meta { font-size: 15px; font-weight: 600; opacity: .85; }
 .app[data-np=poster] .poster-state { margin-top: 6px; font: 700 11px/1 "Bahnschrift", sans-serif; letter-spacing: 4px; opacity: .7; }
 .app[data-np=poster] .detail-cover-stage { position: relative; align-self: flex-end; margin-top: auto; }
@@ -143,8 +141,8 @@
 .app[data-np=poster] .detail-actions .button.primary { background: var(--accent-text); color: var(--accent); border-radius: 0; }
 .app[data-np=poster] .detail-tabs { border-color: var(--line); }
 .app[data-np=poster] .detail-tabs button { color: var(--muted); }
-.app[data-np=poster] .detail-tabs button.active { color: var(--text); }
-.app[data-np=poster] .detail-tabs button.active::after { background: var(--accent-text); }
+.app[data-np=poster] .detail-tabs button[aria-selected=true] { color: var(--text); }
+.app[data-np=poster] .detail-tabs button[aria-selected=true]::after { background: var(--accent-text); }
 .app[data-np=poster] .lyrics-scroll { --accent: var(--accent-text); --subtle: var(--muted); }
 .app[data-np=poster] .lyric-lines button { color: var(--muted); font-size: 20px; font-weight: 700; filter: none; }
 .app[data-np=poster] .lyric-lines button.current { color: var(--accent-text); font-size: 30px; font-weight: 900; }
@@ -164,7 +162,7 @@
 .app[data-np=ipod] .detail-view :is(.detail-close, .text-button, .icon-button, .source-tag) { color: var(--subtle); border-color: var(--line); background: none; }
 .app[data-np=ipod] .detail-tabs { border-color: var(--line); }
 .app[data-np=ipod] .detail-tabs button { color: var(--muted); }
-.app[data-np=ipod] .detail-tabs button.active { color: var(--text); }
+.app[data-np=ipod] .detail-tabs button[aria-selected=true] { color: var(--text); }
 .app[data-np=ipod] .lyrics-scroll { --accent: inherit; --subtle: inherit; }
 .app[data-np=ipod] .lyric-lines button { color: var(--muted); font-size: 17px; font-weight: 500; }
 .app[data-np=ipod] .lyric-lines button.current { color: var(--accent); font-size: 22px; font-weight: 700; }

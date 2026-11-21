@@ -80,7 +80,7 @@
 .home-ink .home-rank-no { color: var(--accent); font-variant-numeric: tabular-nums; }
 .home-ink .home-rank-row:hover { background: var(--hover); }
 .home-ink .home-pick-chip { border-radius: 4px; }
-.home-ink .home-pick-chip.chosen { background: #252824; border-color: #252824; color: #fff; }
+.home-ink .home-pick-chip[aria-pressed=true] { background: #252824; border-color: #252824; color: #fff; }
 .home-ink .home-hero-empty { background: #e8ebdf; color: var(--text); border-radius: 5px; }
 .home-ink .home-hero-empty::before,.home-ink .home-hero-empty::after { display: none; }
 .home-ink .home-hero-empty .home-hero-copy>p { color: var(--subtle); }

@@ -4,6 +4,8 @@ import {api,SOURCE_NAMES} from './api';
 import {PlaybackTrackTable} from './TrackTable';
 import SelectMenu from './SelectMenu';
 import PageHero from './PageHero';
+import {Empty,Loading,ErrorNote} from './ui';
+import ConfirmDialog from './ConfirmDialog';
 import './listening-history.css';
 
 export const ListeningHistory=memo(function ListeningHistory({currentId,playing,liked,actions,privateSession,onPrivacy,notify}){
@@ -29,11 +31,11 @@ export const ListeningHistory=memo(function ListeningHistory({currentId,playing,
   return <section className="listening-history"><PageHero kind="history" icon={ClockCounterClockwise} eyebrow="听歌记录" title="最近播放" meta={privateSession?'私密收听已开启，不记录播放和搜索历史。':'只统计在 Elixir 中的播放'} stats={data?[['次播放',data.stats.plays],['首歌曲',data.stats.distinct_tracks],['已记录时长',listeningTime]]:null} actions={<label className="private-listening"><input type="checkbox" checked={privacyPending??!!privateSession} disabled={privacyPending!==null} onChange={async e=>{const value=e.target.checked;setPrivacyPending(value);try{await onPrivacy(value);}finally{setPrivacyPending(null);}}}/>私密收听</label>}/>
     <div className="history-filters"><SelectMenu aria-label="播放历史来源" value={source} onChange={e=>setSource(e.target.value)}>{['all','local','netease','qqmusic','spotify'].map(s=><option key={s} value={s}>{SOURCE_NAMES[s]}</option>)}</SelectMenu><SelectMenu aria-label="播放历史时间范围" value={days} onChange={e=>setDays(e.target.value)}>{[['0','全部时间'],['7','最近7天'],['30','最近30天'],['365','最近一年']].map(([id,label])=><option key={id} value={id}>{label}</option>)}</SelectMenu><input aria-label="筛选播放历史" placeholder="搜索播放历史" value={query} onChange={e=>setQuery(e.target.value)}/><button className="icon-button" aria-label="刷新播放历史" disabled={busy} onClick={load}><ArrowsClockwise size={19}/></button><button className="button quiet" onClick={exportHistory}><DownloadSimple size={17}/>导出</button><button className="icon-button" aria-label="清除播放历史" onClick={()=>setConfirmClear(true)}><Trash size={19}/></button></div>
     {privateSession&&<div className="history-notice" role="status">私密收听已开启，不记录播放和搜索历史。</div>}
-    {error&&<div className="error-note" role="alert">{error}</div>}
+    {error&&<ErrorNote>{error}</ErrorNote>}
     {data&&<><details className="history-scope"><summary><Info size={15}/>记录范围<CaretDown size={14}/></summary><p>仅统计在 Elixir 中的播放，旧记录不计时长。{Number(days)?'时长按收听开始时间筛选。':''}</p></details>
     
-    <PlaybackTrackTable viewKey="history" items={tracks} currentId={currentId} playing={playing} liked={liked} actions={actions}/>{!tracks.length&&!busy&&<div className="history-empty">没有播放记录</div>}</>}
-    {!data&&busy&&<div role="status">正在读取…</div>}
-    {confirmClear&&<div className="history-clear" role="alertdialog" aria-label="清除本应用播放历史"><p>清除全部播放历史和听歌时长？</p><button className="button quiet" onClick={()=>setConfirmClear(false)}>取消</button><button className="button primary" onClick={async()=>{try{await api('/api/history',{method:'DELETE'});setConfirmClear(false);await load();}catch(e){notify(e.message);}}}>清除记录</button></div>}
+    <PlaybackTrackTable viewKey="history" items={tracks} currentId={currentId} playing={playing} liked={liked} actions={actions}/>{!tracks.length&&!busy&&<Empty compact title="没有播放记录" />}</>}
+    {!data&&busy&&<Loading compact text="正在读取…" />}
+    {confirmClear&&<ConfirmDialog title="清除播放历史" confirmText="清除记录" onCancel={()=>setConfirmClear(false)} onConfirm={async()=>{try{await api('/api/history',{method:'DELETE'});setConfirmClear(false);await load();}catch(e){notify(e.message);}}}>清除本应用记录的全部播放历史和听歌时长，不能撤销。</ConfirmDialog>}
   </section>;
 });

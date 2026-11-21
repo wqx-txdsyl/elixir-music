@@ -22,15 +22,14 @@
 :root[data-skin=ytmusic] .appearance-button{background:#ffffff0f;border:0;border-radius:8px;color:#cfcfcf}
 :root[data-skin=ytmusic] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item){background:#ffffff1a;border:1px solid transparent;border-radius:8px;color:#fff;font-size:13px;font-weight:500}
 :root[data-skin=ytmusic] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip):hover{background:#ffffff33}
-:root[data-skin=ytmusic] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected){background:#fff;color:#030303}
-:root[data-skin=ytmusic] .search-chips>button{background:#ffffff1a;border-radius:8px}
+:root[data-skin=ytmusic] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected){background:#fff;color:#030303}
+
 :root[data-skin=ytmusic] :is(.home-greeting h1,.section-title h2,.home-section-head h2,.apple-title h1,.qq-hello h1){font-weight:700;letter-spacing:-.3px}
 :root[data-skin=ytmusic] .home-section-head h2{font-size:24px}
-:root[data-skin=ytmusic] :is(.home-card .music-art,.album-art .cover,.home-rank-art .music-art,.home-recent-art .music-art){border-radius:4px}
+
 :root[data-skin=ytmusic] .home-card strong{font-size:14px;font-weight:500}
 :root[data-skin=ytmusic] .home-card small{color:#a0a0a0}
-:root[data-skin=ytmusic] :is(.home-card:hover,.album-card:hover){background:none}
-:root[data-skin=ytmusic] :is(.home-card-play,.floating-play,.home-shortcut-play){background:#000000b3;color:#fff;box-shadow:none;backdrop-filter:blur(4px)}
+
 :root[data-skin=ytmusic] .home-shortcut{background:#ffffff0f;border-radius:8px}
 :root[data-skin=ytmusic] .home-shortcut:hover{background:#ffffff1f}
 :root[data-skin=ytmusic] .home-shortcut-likes .home-shortcut-art{background:linear-gradient(135deg,#ff0033,#6b0016)}
@@ -41,7 +40,7 @@
 :root[data-skin=ytmusic] .apple-pick.icon .apple-pick-caption,:root[data-skin=ytmusic] .apple-pick.icon .apple-pick-caption::before{background:#8c001c}
 :root[data-skin=ytmusic] :is(.qq-feature-card.tone-green,.qq-chart.tone-green){background:linear-gradient(140deg,#ff3355,#6b0016)}
 :root[data-skin=ytmusic] :is(.qq-chart.tone-blue,.qq-chart.tone-amber,.qq-cover-card){background:linear-gradient(140deg,#3a3a3a,#141414)}
-:root[data-skin=ytmusic] :is(.home-hero-empty,.feature-banner){background:linear-gradient(135deg,#3a0a14,#0f0f0f 80%)}
+
 :root[data-skin=ytmusic] :is(.home-now-bars i,.equalizer i){background:#ff0033}
 :root[data-skin=ytmusic] .home-arrow{background:#ffffff1a;color:#fff}
 :root[data-skin=ytmusic] .home-banner{background:#1a1a1a}
@@ -73,7 +72,7 @@
 :root[data-skin=ytmusic] .detail-view{background:radial-gradient(80% 70% at 22% 30%,#3a0812 0,#0a0a0a 62%,#030303 100%);border-radius:0}
 :root[data-skin=ytmusic] .large-cover,:root[data-skin=ytmusic] .large-cover .cover{border-radius:6px}
 :root[data-skin=ytmusic] .detail-tabs button{font-size:13px;font-weight:600;letter-spacing:.6px}
-:root[data-skin=ytmusic] .detail-tabs button.active:after{background:#fff;height:2px;border-radius:0}
+:root[data-skin=ytmusic] .detail-tabs button[aria-selected=true]:after{background:#fff;height:2px;border-radius:0}
 :root[data-skin=ytmusic] .lyric-lines button{color:#ffffff73;font-weight:700}
 :root[data-skin=ytmusic] .lyric-lines button.current{color:#fff}
 :root[data-skin=ytmusic] .detail-content{--accent:#fff}
@@ -107,17 +106,17 @@
 :root[data-skin=tidal] .appearance-button{background:none;border:1px solid #ffffff1f;border-radius:0;color:#c2c2c2}
 :root[data-skin=tidal] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item){background:transparent;border:1px solid #ffffff2b;border-radius:2px;color:#c2c2c2;font-size:12px;font-weight:600}
 :root[data-skin=tidal] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip):hover{border-color:#fff;color:#fff;background:transparent}
-:root[data-skin=tidal] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected){background:#fff;border-color:#fff;color:#000}
-:root[data-skin=tidal] .search-chips>button{border-radius:0;background:#141414}
+:root[data-skin=tidal] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected){background:#fff;border-color:#fff;color:#000}
+
 :root[data-skin=tidal] :is(.home-greeting h1,.apple-title h1,.qq-hello h1){font-size:40px;font-weight:800;letter-spacing:-1.2px}
 :root[data-skin=tidal] :is(.section-title h2,.home-section-head h2){font-weight:800;letter-spacing:-.6px}
 :root[data-skin=tidal] .apple-title{border-color:#ffffff17}
-:root[data-skin=tidal] :is(.home-card .music-art,.album-art .cover,.apple-pick-art,.apple-pick-caption,.home-rank-art .music-art,.home-recent-art .music-art,.home-shortcut,.home-shortcut-art){border-radius:0}
+
 :root[data-skin=tidal] .home-card strong{font-weight:700;font-size:13px}
-:root[data-skin=tidal] :is(.home-card:hover,.album-card:hover){background:none}
+
 :root[data-skin=tidal] .home-card:hover .music-art{filter:brightness(.8)}
 :root[data-skin=tidal] .home-card.now strong{color:#33ffee}
-:root[data-skin=tidal] :is(.home-card-play,.floating-play,.home-shortcut-play){background:#fff;color:#000;box-shadow:0 6px 20px #0008}
+
 :root[data-skin=tidal] .home-shortcut{background:#141414}
 :root[data-skin=tidal] .home-shortcut:hover{background:#1f1f1f}
 :root[data-skin=tidal] :is(.home-shortcut-likes,.home-shortcut-history,.home-shortcut-ranking,.home-shortcut-library) .home-shortcut-art{background:linear-gradient(135deg,#3a3a3a,#0a0a0a)}
@@ -127,7 +126,7 @@
 :root[data-skin=tidal] :is(.qq-feature-main,.qq-feature-card,.qq-cover-card,.qq-chart,.home-banner,.home-banner-art,.home-banner-art .music-art){border-radius:0}
 :root[data-skin=tidal] :is(.qq-feature-card.tone-green,.qq-chart.tone-green,.qq-chart.tone-blue,.qq-chart.tone-amber,.qq-cover-card){background:linear-gradient(140deg,#262626,#050505)}
 :root[data-skin=tidal] .home-banner{background:#000}
-:root[data-skin=tidal] :is(.home-hero-empty,.feature-banner){background:linear-gradient(135deg,#1f1f1f,#000 80%);border-radius:0}
+
 :root[data-skin=tidal] :is(.home-now-bars i,.equalizer i){background:#33ffee}
 :root[data-skin=tidal] .home-arrow{background:none;border:1px solid #ffffff2b;border-radius:0;color:#fff}
 :root[data-skin=tidal] .home-text-button{color:#c2c2c2;text-transform:uppercase;letter-spacing:1px;font-size:11px;font-weight:700}
@@ -166,7 +165,7 @@
 :root[data-skin=tidal] .large-cover,:root[data-skin=tidal] .large-cover .cover{border-radius:0}
 :root[data-skin=tidal] .detail-art>h1{font-weight:800;letter-spacing:-.8px}
 :root[data-skin=tidal] .detail-tabs button{text-transform:uppercase;letter-spacing:1.4px;font-size:12px;font-weight:700}
-:root[data-skin=tidal] .detail-tabs button.active:after{background:#fff;height:2px;border-radius:0}
+:root[data-skin=tidal] .detail-tabs button[aria-selected=true]:after{background:#fff;height:2px;border-radius:0}
 :root[data-skin=tidal] .lyric-lines button{color:#ffffff47;font-weight:800;letter-spacing:-.3px}
 :root[data-skin=tidal] .lyric-lines button.current{color:#fff}
 :root[data-skin=tidal] .detail-content{--accent:#fff}
@@ -179,7 +178,7 @@
 
 /* ================= SoundCloud ================= */
 /* 浅灰底白卡片、直角细边框，橙色播放键和已播时间，页头用黑底白字的标签条。 */
-:root[data-skin=soundcloud]{--bg:#f2f2f2;--sidebar:#fff;--panel:#fff;--text:#121212;--muted:#999;--subtle:#555;--line:#e5e5e5;--hover:#f2f2f2;--accent:#ff5500;--accent-tint:#ff550014;--accent-text:#fff;--radius:3px;--chip:#f2f2f2;--shadow:0 8px 30px #0000002b;color-scheme:light}
+:root[data-skin=soundcloud]{--bg:#f2f2f2;--sidebar:#fff;--panel:#fff;--text:#121212;--muted:#767676;--subtle:#555;--line:#e5e5e5;--hover:#f2f2f2;--accent:#ff5500;--accent-tint:#ff550014;--accent-text:#fff;--radius:3px;--chip:#f2f2f2;--shadow:0 8px 30px #0000002b;color-scheme:light}
 :root[data-skin=soundcloud] .app{font-family:Interstate,"Segoe UI","Helvetica Neue",Arial,"Microsoft YaHei UI","Microsoft YaHei",sans-serif}
 :root[data-skin=soundcloud] .sidebar{background:#fff;box-shadow:inset -1px 0 0 #e5e5e5}
 :root[data-skin=soundcloud] .topbar{background:#fff;box-shadow:inset 0 -1px 0 #e5e5e5}
@@ -195,14 +194,14 @@
 :root[data-skin=soundcloud] .appearance-button{border-radius:3px;border-color:#e5e5e5;color:#555}
 :root[data-skin=soundcloud] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item){background:#fff;border:1px solid #e5e5e5;border-radius:3px;color:#333;font-size:13px}
 :root[data-skin=soundcloud] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip):hover{border-color:#ccc;background:#fff}
-:root[data-skin=soundcloud] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected){background:#121212;border-color:#121212;color:#fff}
+:root[data-skin=soundcloud] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected){background:#121212;border-color:#121212;color:#fff}
 :root[data-skin=soundcloud] :is(.home-greeting h1,.home-section-head h2,.apple-title h1,.qq-hello h1){font-weight:700;letter-spacing:-.2px}
 :root[data-skin=soundcloud] .home-section-head{border-bottom:1px solid #e5e5e5;padding-bottom:8px}
 :root[data-skin=soundcloud] :is(.home-card .music-art,.home-rank-art .music-art,.home-recent-art .music-art,.apple-pick-art,.apple-pick-caption,.home-card-badge){border-radius:0}
 :root[data-skin=soundcloud] .home-card strong{font-weight:600;color:#121212}
 :root[data-skin=soundcloud] .home-card small{color:#999}
 :root[data-skin=soundcloud] .home-card.now strong{color:#ff5500}
-:root[data-skin=soundcloud] :is(.home-card-play,.floating-play,.home-shortcut-play){background:#ff5500;color:#fff;box-shadow:0 3px 10px #0004}
+
 :root[data-skin=soundcloud] .home-banner{border-radius:0;background:#ff5500}
 :root[data-skin=soundcloud] .home-banner::after{background:linear-gradient(105deg,#ff7a00 0,#ff5500 45%,#e8431c 100%);opacity:.92}
 :root[data-skin=soundcloud] .home-banner-tag{border-radius:0;background:#121212}
@@ -269,7 +268,7 @@
 :root[data-skin=soundcloud] .section-nav button{border-radius:0}
 :root[data-skin=soundcloud] .section-nav button[aria-current]{background:#fff;color:#ff5500;box-shadow:inset 3px 0 0 #ff5500}
 :root[data-skin=soundcloud] .large-cover,:root[data-skin=soundcloud] .large-cover .cover{border-radius:0}
-:root[data-skin=soundcloud] .detail-tabs button.active:after{border-radius:0;height:2px}
+:root[data-skin=soundcloud] .detail-tabs button[aria-selected=true]:after{border-radius:0;height:2px}
 :root[data-skin=soundcloud] .lyric-lines button.current{color:#ff5500}
 :root[data-skin=soundcloud] .modal{border-radius:4px;border-color:#e5e5e5}
 :root[data-skin=soundcloud] .button{border-radius:3px}
@@ -299,14 +298,13 @@
 :root[data-skin=deezer] .appearance-button{background:#ffffff0a;border:0;border-radius:999px;color:#c9c2d8}
 :root[data-skin=deezer] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item){background:#ffffff12;border:1px solid transparent;border-radius:999px;color:#f5f2ff;font-weight:500}
 :root[data-skin=deezer] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip):hover{background:#ffffff21}
-:root[data-skin=deezer] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected){background:#a238ff;color:#fff}
-:root[data-skin=deezer] .search-chips>button{background:#ffffff0d;border-radius:10px}
+:root[data-skin=deezer] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected){background:#a238ff;color:#fff}
+
 :root[data-skin=deezer] :is(.home-greeting h1,.section-title h2,.home-section-head h2,.apple-title h1,.qq-hello h1){font-weight:800;letter-spacing:-.4px}
-:root[data-skin=deezer] :is(.home-card .music-art,.album-art .cover,.qq-chart-cover .music-art,.home-track-art .music-art,.home-rank-art .music-art){border-radius:10px}
+
 :root[data-skin=deezer] .home-card strong{font-weight:600}
 :root[data-skin=deezer] .home-card.now strong{color:#c98cff}
-:root[data-skin=deezer] :is(.home-card:hover,.album-card:hover){background:#ffffff0a}
-:root[data-skin=deezer] :is(.home-card-play,.floating-play,.home-shortcut-play,.qq-play-round){background:#a238ff;color:#fff;box-shadow:0 6px 20px #a238ff66}
+
 :root[data-skin=deezer] .home-shortcut{background:#ffffff0d;border-radius:10px}
 :root[data-skin=deezer] .home-shortcut:hover{background:#ffffff1a}
 :root[data-skin=deezer] .home-shortcut-likes .home-shortcut-art{background:linear-gradient(135deg,#ff5c8a,#a238ff)}
@@ -314,7 +312,7 @@
 :root[data-skin=deezer] .home-shortcut-ranking .home-shortcut-art{background:linear-gradient(135deg,#ff9a3d,#d93b8f)}
 :root[data-skin=deezer] .home-shortcut-library .home-shortcut-art{background:linear-gradient(135deg,#3dc7ff,#5b2dd6)}
 :root[data-skin=deezer] :is(.home-card-icon,.apple-pick-icon){background:linear-gradient(140deg,#ff5c8a,#a238ff 60%,#5b16c9)}
-:root[data-skin=deezer] :is(.home-hero-empty,.feature-banner,.qq-feature-main.home-hero-empty){background:linear-gradient(120deg,#ff7a45 0,#d93b8f 40%,#a238ff 75%,#5b16c9 100%)}
+
 :root[data-skin=deezer] :is(.home-now-bars i,.equalizer i){background:#c98cff}
 :root[data-skin=deezer] .home-arrow{background:#ffffff12;color:#f5f2ff}
 :root[data-skin=deezer] .home-banner{background:#2b1a4a}
@@ -357,7 +355,7 @@
 :root[data-skin=deezer] .accounts-page{--panel-solid:#1f1b27}
 :root[data-skin=deezer] .detail-view{background:radial-gradient(70% 70% at 22% 26%,#4a1a80 0,#1a1226 55%,#0f0d13 100%);border-radius:12px}
 :root[data-skin=deezer] .large-cover,:root[data-skin=deezer] .large-cover .cover{border-radius:16px}
-:root[data-skin=deezer] .detail-tabs button.active:after{background:#a238ff}
+:root[data-skin=deezer] .detail-tabs button[aria-selected=true]:after{background:#a238ff}
 :root[data-skin=deezer] .lyric-lines button{color:#ffffff5c;font-weight:800}
 :root[data-skin=deezer] .lyric-lines button.current{color:#fff}
 :root[data-skin=deezer] .detail-content{--accent:#d6a8ff}
@@ -390,16 +388,15 @@
 :root[data-skin=amazon] .appearance-button{background:#ffffff0a;border:0;border-radius:999px;color:#bac5d6}
 :root[data-skin=amazon] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item){background:transparent;border:1px solid #ffffff38;border-radius:999px;color:#f2f6fb;font-weight:600}
 :root[data-skin=amazon] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip):hover{background:#ffffff14}
-:root[data-skin=amazon] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected){background:#f2f6fb;border-color:#f2f6fb;color:#060b14}
-:root[data-skin=amazon] .search-chips>button{background:#ffffff0f;border-radius:8px}
+:root[data-skin=amazon] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected){background:#f2f6fb;border-color:#f2f6fb;color:#060b14}
+
 :root[data-skin=amazon] :is(.home-greeting h1,.section-title h2,.home-section-head h2,.apple-title h1,.qq-hello h1){font-weight:800;letter-spacing:-.3px}
 :root[data-skin=amazon] .apple-title{border-color:#ffffff1a}
 :root[data-skin=amazon] .home-text-button{color:#25d1da;text-transform:uppercase;letter-spacing:1px;font-size:11px;font-weight:700}
-:root[data-skin=amazon] :is(.home-card .music-art,.album-art .cover,.home-rank-art .music-art,.home-recent-art .music-art){border-radius:8px}
+
 :root[data-skin=amazon] .home-card strong{font-weight:600}
 :root[data-skin=amazon] .home-card.now strong{color:#25d1da}
-:root[data-skin=amazon] :is(.home-card:hover,.album-card:hover){background:#ffffff0a}
-:root[data-skin=amazon] :is(.home-card-play,.floating-play,.home-shortcut-play){background:#25d1da;color:#04121a;box-shadow:0 6px 18px #0008}
+
 :root[data-skin=amazon] .home-shortcut{background:#ffffff0d;border-radius:8px}
 :root[data-skin=amazon] .home-shortcut:hover{background:#ffffff1a}
 :root[data-skin=amazon] .home-shortcut-likes .home-shortcut-art{background:linear-gradient(135deg,#25d1da,#1a4f9c)}
@@ -409,7 +406,7 @@
 :root[data-skin=amazon] :is(.home-card-icon,.apple-pick-icon){background:linear-gradient(140deg,#2ee6ef,#1a8fb8 55%,#123a6b)}
 :root[data-skin=amazon] .apple-pick.icon .apple-pick-caption,:root[data-skin=amazon] .apple-pick.icon .apple-pick-caption::before{background:#123a6b}
 :root[data-skin=amazon] .apple-pick.now .apple-pick-eyebrow{color:#25d1da}
-:root[data-skin=amazon] :is(.home-hero-empty,.feature-banner){background:linear-gradient(135deg,#1a8fb8,#0b1220 85%)}
+
 :root[data-skin=amazon] :is(.home-now-bars i,.equalizer i){background:#25d1da}
 :root[data-skin=amazon] .home-arrow{background:#ffffff14;color:#f2f6fb}
 :root[data-skin=amazon] .home-banner{background:#123a6b}
@@ -448,7 +445,7 @@
 :root[data-skin=amazon] .accounts-page{--panel-solid:#141d2e}
 :root[data-skin=amazon] .detail-view{background:linear-gradient(170deg,#14385a 0,#0b1a30 45%,#060b14 100%);border-radius:8px}
 :root[data-skin=amazon] .large-cover,:root[data-skin=amazon] .large-cover .cover{border-radius:8px}
-:root[data-skin=amazon] .detail-tabs button.active:after{background:#25d1da}
+:root[data-skin=amazon] .detail-tabs button[aria-selected=true]:after{background:#25d1da}
 :root[data-skin=amazon] .lyric-lines button{color:#ffffff5c;font-weight:800}
 :root[data-skin=amazon] .lyric-lines button.current{color:#fff}
 :root[data-skin=amazon] .detail-content{--accent:#25d1da}
@@ -462,7 +459,7 @@
 
 /* ================= Pandora ================= */
 /* 柔和的浅色底、大圆角悬浮卡片和靛蓝渐变，页头像一张电台海报。 */
-:root[data-skin=pandora]{--bg:#f5f6fb;--sidebar:#fff;--panel:#fff;--text:#1b1f3b;--muted:#868ba8;--subtle:#4b5075;--line:#e3e6f2;--hover:#eef1fb;--accent:#3668ff;--accent-tint:#3668ff17;--accent-text:#fff;--radius:16px;--chip:#eef1fb;--shadow:0 22px 56px #1b1f3b2e;color-scheme:light}
+:root[data-skin=pandora]{--bg:#f5f6fb;--sidebar:#fff;--panel:#fff;--text:#1b1f3b;--muted:#737894;--subtle:#4b5075;--line:#e3e6f2;--hover:#eef1fb;--accent:#3668ff;--accent-tint:#3668ff17;--accent-text:#fff;--radius:16px;--chip:#eef1fb;--shadow:0 22px 56px #1b1f3b2e;color-scheme:light}
 :root[data-skin=pandora] .app{font-family:"Segoe UI Variable Display","Segoe UI","Helvetica Neue","Microsoft YaHei UI","Microsoft YaHei",sans-serif}
 :root[data-skin=pandora] .sidebar{background:#fff;box-shadow:1px 0 0 #e3e6f2,6px 0 24px #1b1f3b08}
 :root[data-skin=pandora] .search-box{background:#fff;border:1px solid #e3e6f2;border-radius:999px;color:#868ba8;box-shadow:0 2px 10px #1b1f3b0d}
@@ -476,7 +473,7 @@
 :root[data-skin=pandora] .appearance-button{border-radius:14px;border-color:#e3e6f2}
 :root[data-skin=pandora] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item){background:#eef1fb;border:1px solid transparent;border-radius:999px;color:#4b5075;font-weight:500}
 :root[data-skin=pandora] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip):hover{background:#e3e8fa}
-:root[data-skin=pandora] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected){background:linear-gradient(120deg,#3668ff,#2440c2);color:#fff}
+:root[data-skin=pandora] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected){background:linear-gradient(120deg,#3668ff,#2440c2);color:#fff}
 :root[data-skin=pandora] :is(.home-greeting h1,.home-section-head h2,.apple-title h1,.qq-hello h1){font-weight:700;letter-spacing:-.4px;color:#1b1f3b}
 :root[data-skin=pandora] .apple-title{border:0}
 :root[data-skin=pandora] :is(.apple-title h1,.home-greeting h1,.qq-hello h1){background:linear-gradient(100deg,#1b1f3b 0,#2440c2 55%,#5c86ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content;max-width:100%}
@@ -489,7 +486,7 @@
 :root[data-skin=pandora] .home-card:hover .music-art{transform:translateY(-3px);box-shadow:0 14px 28px #1b1f3b29;filter:none}
 :root[data-skin=pandora] .home-card-badge{border-radius:0 14px 0 0}
 :root[data-skin=pandora] .home-card strong{font-weight:600}
-:root[data-skin=pandora] :is(.home-card-play,.floating-play,.home-shortcut-play){background:#fff;color:#3668ff;box-shadow:0 6px 16px #1b1f3b33}
+
 :root[data-skin=pandora] .apple-pick-art{border-radius:18px 18px 0 0}
 :root[data-skin=pandora] .apple-pick-caption{border-radius:0 0 18px 18px}
 :root[data-skin=pandora] .home-banner{border-radius:22px;background:#1b1f3b;box-shadow:0 16px 36px #2440c233}

@@ -67,7 +67,6 @@
 .theme-aurora .nav-item.selected svg { color: var(--accent); }
 .theme-aurora .appearance-button { border-color: #ffffff14; background: #ffffff06; border-radius: 12px; }
 .app.theme-aurora .platform-brand img { filter: invert(1); }
-.theme-dot.dot-aurora { background: linear-gradient(120deg, #b6a8ff, #6fe7da); }
 
 /* Controls */
 .theme-aurora .button.primary { background: var(--aurora-gradient); color: #121028; font-weight: 600; box-shadow: 0 6px 22px #a594ff3a; }
@@ -79,7 +78,7 @@
 .theme-aurora .track-row:hover { background: #ffffff0d; }
 .theme-aurora .modal { background: #1a1c31f0; border-color: #ffffff18; backdrop-filter: var(--glass); border-radius: 20px; }
 .theme-aurora .queue-panel { background: #17192ee8; border: 1px solid #ffffff14; border-radius: 20px; backdrop-filter: var(--glass); }
-.theme-aurora .toast { background: #1e2038f0; border: 1px solid #ffffff18; backdrop-filter: var(--glass); }
+.theme-aurora .toast { background: #1e2038f0; color: var(--text); border: 1px solid #ffffff18; backdrop-filter: var(--glass); }
 
 /* Lyric page */
 .theme-aurora .detail-view {
@@ -97,16 +96,6 @@
 .theme-aurora .large-cover > .cover { border-radius: 22px; }
 .theme-aurora .lyric-lines button { color: #9ea3c7; }
 .theme-aurora .lyric-lines button.current { color: #fff; text-shadow: 0 0 26px #a594ff80; }
-.theme-aurora .detail-tabs button.active:after { background: var(--aurora-gradient); }
+.theme-aurora .detail-tabs button[aria-selected=true]:after { background: var(--aurora-gradient); }
 
-/* Settings preview */
-.preview-aurora { background: radial-gradient(70% 60% at 0 0, #4b2fa8aa, transparent), radial-gradient(60% 60% at 100% 0, #0f8f8f88, transparent), #0b0d18; padding: 5px 5px 21px; gap: 5px; }
-.preview-aurora .preview-sidebar { background: #ffffff10; border-radius: 5px; padding-top: 17px; }
-.preview-aurora .preview-sidebar b { background: #ffffff2a; }
-.preview-aurora .preview-sidebar b:first-child { background: #a594ff; }
-.preview-aurora .preview-main { background: #ffffff08; border-radius: 5px; }
-.preview-aurora .preview-main > b { background: #ffffff30; }
-.preview-aurora .preview-main > span i { background: #a594ff55; }
-.preview-aurora .preview-player { background: #ffffff12; border-color: transparent; left: 5px; right: 5px; bottom: 4px; border-radius: 5px; }
-.preview-aurora .preview-player:after { background: var(--aurora-gradient); }
 }

@@ -32,8 +32,8 @@
 :root[data-skin=vapor] .appearance-button,:root[data-skin=vapor] .theme-aurora .appearance-button{background:#0f052080;border:1px solid #2de2e64d;border-radius:4px;color:#2de2e6}
 :root[data-skin=vapor] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item),:root[data-skin=vapor] .home-aurora .home-pick-chip{background:#0f052080;border:1px solid #ff4fd840;border-radius:3px;color:#d7bde9;font-size:13px;font-style:italic;letter-spacing:.5px}
 :root[data-skin=vapor] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip):hover{border-color:#2de2e6;color:#fff;box-shadow:0 0 10px #2de2e640}
-:root[data-skin=vapor] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected),:root[data-skin=vapor] .home-aurora .home-pick-chip.chosen{background:linear-gradient(90deg,#ff4fd8,#ff9e3d);border-color:transparent;color:#1a0b2e;font-weight:700;box-shadow:0 0 16px #ff4fd866}
-:root[data-skin=vapor] .search-chips>button{background:#0f052080;border:1px solid #2de2e640;border-radius:3px;color:#d7bde9}
+:root[data-skin=vapor] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected),:root[data-skin=vapor] .home-aurora .home-pick-chip[aria-pressed=true]{background:linear-gradient(90deg,#ff4fd8,#ff9e3d);border-color:transparent;color:#1a0b2e;font-weight:700;box-shadow:0 0 16px #ff4fd866}
+
 :root[data-skin=vapor] :is(.home-greeting h1,.section-title h2,.home-section-head h2,.apple-title h1,.qq-hello h1,.page-heading h1){font-weight:800;font-style:italic;letter-spacing:.5px;color:#fdf0ff;text-shadow:var(--vp-title)}
 :root[data-skin=vapor] .theme-aurora .page-heading h1{background:none;-webkit-text-fill-color:#fdf0ff;text-shadow:var(--vp-title)}
 :root[data-skin=vapor] .home-aurora .home-greeting h1{background:linear-gradient(180deg,#ffe36e,#ff9e3d 40%,#ff4fd8 75%,#b04fff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(2px 2px 0 #2de2e699) drop-shadow(0 0 14px #ff4fd866);font-size:42px}
@@ -49,13 +49,13 @@
 :root[data-skin=vapor] .home-bento-link:nth-child(even) svg{background:#2de2e626;color:#2de2e6}
 :root[data-skin=vapor] :is(.home-bento-stats:hover,.home-bento-link:hover,.home-bento-faces button:hover){background:#ff4fd81a}
 :root[data-skin=vapor] :is(.home-track:hover,.home-recent>button:hover,.home-bento-rows>button:hover),:root[data-skin=vapor] .home-aurora :is(.home-track:hover,.home-recent>button:hover,.home-bento-rows>button:hover){background:#ff4fd817}
-:root[data-skin=vapor] :is(.home-card .music-art,.album-art .cover,.home-rank-art .music-art,.home-recent-art .music-art,.apple-pick-art),:root[data-skin=vapor] .home-aurora .home-card .music-art{border-radius:6px}
+:root[data-skin=vapor] .home-aurora .home-card .music-art{border-radius:6px}
 :root[data-skin=vapor] .home-card .music-art{box-shadow:0 0 0 1px #ff4fd833,0 10px 24px #0a021a99}
 :root[data-skin=vapor] .home-card:hover .music-art,:root[data-skin=vapor] .home-aurora .home-card:hover .music-art{box-shadow:0 0 0 1px #2de2e6,0 0 22px #2de2e659,0 0 40px #ff4fd833}
 :root[data-skin=vapor] .home-card.round .music-art,:root[data-skin=vapor] .home-aurora .home-card.round .music-art{border-radius:50%}
 :root[data-skin=vapor] .home-card strong{font-weight:600}
 :root[data-skin=vapor] :is(.home-card:hover strong,.home-card.now strong),:root[data-skin=vapor] .home-aurora :is(.home-card:hover strong,.home-card.now strong){color:#ff4fd8;text-shadow:0 0 8px #ff4fd866}
-:root[data-skin=vapor] :is(.home-card-play,.floating-play,.home-shortcut-play),:root[data-skin=vapor] .home-aurora .home-card-play{background:linear-gradient(135deg,#ff4fd8,#ff9e3d);color:#1a0b2e;box-shadow:0 0 16px #ff4fd899}
+:root[data-skin=vapor] .home-aurora .home-card-play{background:linear-gradient(135deg,#ff4fd8,#ff9e3d);color:#1a0b2e;box-shadow:0 0 16px #ff4fd899}
 :root[data-skin=vapor] .home-card-badge,:root[data-skin=vapor] .home-aurora .home-card-badge{background:#1a0b2ecc;color:#2de2e6;border:1px solid #2de2e666;border-radius:2px}
 :root[data-skin=vapor] .home-shortcut{background:#2b1450b3;border:1px solid #ff4fd833;border-radius:8px;box-shadow:inset 0 1px 0 #ff4fd81f;backdrop-filter:blur(14px)}
 :root[data-skin=vapor] .home-shortcut:hover{border-color:#2de2e6;box-shadow:0 0 16px #2de2e633}
@@ -68,7 +68,7 @@
 :root[data-skin=vapor] :is(.qq-feature-card.tone-green,.qq-chart.tone-green){background:linear-gradient(140deg,#ff4fd8,#7b2cbf)}
 :root[data-skin=vapor] :is(.qq-chart.tone-blue,.qq-cover-card){background:linear-gradient(140deg,#2de2e6,#7b2cbf)}
 :root[data-skin=vapor] .qq-chart.tone-amber{background:linear-gradient(140deg,#ff9e3d,#ff4fd8)}
-:root[data-skin=vapor] :is(.home-hero-empty,.feature-banner){background:linear-gradient(180deg,transparent 60%,#1a0b2e),var(--vp-sun);border-radius:8px}
+
 :root[data-skin=vapor] .home-banner{background:#2b1450b3;border:1px solid #ff4fd833}
 :root[data-skin=vapor] :is(.home-now-bars i,.equalizer i){background:linear-gradient(180deg,#2de2e6,#ff4fd8)}
 :root[data-skin=vapor] .home-arrow{background:#1a0b2ecc;border:1px solid #ff4fd866;color:#ff4fd8}
@@ -129,7 +129,7 @@
 :root[data-skin=vapor] .large-cover,:root[data-skin=vapor] .large-cover .cover,:root[data-skin=vapor] .theme-aurora .large-cover,:root[data-skin=vapor] .theme-aurora .large-cover>.cover{border-radius:6px}
 :root[data-skin=vapor] .theme-aurora .large-cover{box-shadow:0 0 0 1px #ff4fd8,0 0 40px #ff4fd84d,10px 10px 0 #2de2e659}
 :root[data-skin=vapor] .detail-art>h1{font-style:italic;font-weight:800;text-shadow:var(--vp-title)}
-:root[data-skin=vapor] .detail-tabs button.active:after,:root[data-skin=vapor] .theme-aurora .detail-tabs button.active:after{background:linear-gradient(90deg,#ff4fd8,#2de2e6);box-shadow:0 0 8px #ff4fd8}
+:root[data-skin=vapor] .detail-tabs button[aria-selected=true]:after,:root[data-skin=vapor] .theme-aurora .detail-tabs button[aria-selected=true]:after{background:linear-gradient(90deg,#ff4fd8,#2de2e6);box-shadow:0 0 8px #ff4fd8}
 :root[data-skin=vapor] .lyric-lines button,:root[data-skin=vapor] .theme-aurora .lyric-lines button{color:#9c7fbf}
 :root[data-skin=vapor] .lyric-lines button.current,:root[data-skin=vapor] .theme-aurora .lyric-lines button.current{color:#ff4fd8;font-style:italic;text-shadow:0 0 14px #ff4fd899,2px 2px 0 #2de2e666}
 :root[data-skin=vapor] .detail-actions .button.primary{background:linear-gradient(90deg,#ff4fd8,#ff9e3d);color:#1a0b2e}
@@ -147,7 +147,7 @@
 :root[data-skin=vapor] .cassette-screws i{filter:hue-rotate(260deg) saturate(3)}
 :root[data-skin=vapor] .visualizer-strip{--accent:#ff4fd8;filter:drop-shadow(0 0 6px #ff4fd899)}
 :root[data-skin=vapor] .app[data-np=cassette] .detail-art>.artist-name{-webkit-text-fill-color:#2de2e6;letter-spacing:1px}
-:root[data-skin=vapor] .app[data-np=cassette] .detail-tabs button.active{-webkit-text-fill-color:#fdf0ff}
+:root[data-skin=vapor] .app[data-np=cassette] .detail-tabs button[aria-selected=true]{-webkit-text-fill-color:#fdf0ff}
 :root[data-skin=vapor] .app[data-np=cassette] .lyric-lines button.current{text-shadow:0 0 14px #ff4fd8b3,2px 2px 0 #2de2e680}
 :root[data-skin=vapor] .app[data-np=cassette].detail-open .player{box-shadow:0 -1px 0 #ff4fd8,0 -12px 30px #ff4fd826}
 :root[data-skin=vapor] .listening-calendar{--panel:#2b1450b3}

@@ -21,7 +21,7 @@
 :root[data-skin=pixel] .sidebar{background:#29366f;border-radius:0;box-shadow:inset -3px 0 0 #1a1c2c,inset -6px 0 0 #3b5dc9}
 :root[data-skin=pixel] .workspace{background:#1a1c2c;border-radius:0}
 :root[data-skin=pixel] .brand{color:#ffcd75;text-transform:uppercase;letter-spacing:2px;text-shadow:2px 2px 0 #b13e53}
-:root[data-skin=pixel] .brand .brand-icon{color:#ef7d57}
+
 :root[data-skin=pixel] .nav-item{border-radius:0;height:34px;font-size:13px;color:#c2d3dd;letter-spacing:1px;text-transform:uppercase}
 :root[data-skin=pixel] .nav-item svg{color:#73eff7}
 :root[data-skin=pixel] .nav-item:hover{background:#3b5dc9;color:#f4f4f4}
@@ -77,15 +77,11 @@
 :root[data-skin=pixel] .home-modular .modular-chart li:nth-child(3) b{color:#ef7d57}
 :root[data-skin=pixel] .home-modular .modular-chart li button:hover{background:#3b5dc9;box-shadow:inset 3px 0 0 #ffcd75}
 :root[data-skin=pixel] .home-modular .modular-chart-art{border-radius:0}
-/* 卡片与标签：方块按钮，选中是黄色凸起砖块 */
-:root[data-skin=pixel] :is(.home-card .music-art,.album-art .cover,.home-rank-art .music-art,.home-recent-art .music-art){border-radius:0;box-shadow:var(--px-frame)}
+
 :root[data-skin=pixel] .home-card strong{color:#f4f4f4;font-weight:700}
 :root[data-skin=pixel] .home-card small{color:#94b0c2}
-:root[data-skin=pixel] :is(.home-card:hover,.album-card:hover){background:#29366f;border-radius:0}
-:root[data-skin=pixel] :is(.home-card-play,.floating-play,.home-shortcut-play,.qq-play-round){background:#a7f070;color:#1a1c2c;border-radius:0;box-shadow:var(--px-frame),var(--px-bevel)}
-:root[data-skin=pixel] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.top-nav button.top-nav-item){background:#333c57;border:0;border-radius:0;color:#c2d3dd;font-size:12px;text-transform:uppercase;letter-spacing:1px;box-shadow:var(--px-frame-lite)}
-:root[data-skin=pixel] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button):hover{background:#3b5dc9;color:#f4f4f4}
-:root[data-skin=pixel] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected){background:#ffcd75;color:#1a1c2c;font-weight:700;box-shadow:var(--px-frame),var(--px-bevel)}
+
+:root[data-skin=pixel] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected){background:#ffcd75;color:#1a1c2c;font-weight:700;box-shadow:var(--px-frame),var(--px-bevel)}
 :root[data-skin=pixel] .home-shortcut{background:#333c57;border:0;border-radius:0;box-shadow:var(--px-frame)}
 :root[data-skin=pixel] .home-shortcut:hover{background:#3b5dc9}
 :root[data-skin=pixel] .home-shortcut-likes .home-shortcut-art{background:#b13e53;color:#ffcd75}
@@ -94,7 +90,7 @@
 :root[data-skin=pixel] .home-shortcut-library .home-shortcut-art{background:#38b764;color:#1a1c2c}
 :root[data-skin=pixel] :is(.home-card-icon,.apple-pick-icon){background:repeating-linear-gradient(90deg,transparent 0 8px,#0000001f 8px 16px),repeating-linear-gradient(180deg,transparent 0 8px,#0000001f 8px 16px),linear-gradient(180deg,#3b5dc9,#29366f);color:#ffcd75}
 :root[data-skin=pixel] .apple-pick.icon .apple-pick-caption,:root[data-skin=pixel] .apple-pick.icon .apple-pick-caption::before{background:#29366f}
-:root[data-skin=pixel] :is(.home-hero-empty,.feature-banner,.qq-feature-main.home-hero-empty){background:linear-gradient(180deg,#29366f 0 40%,#3b5dc9 40% 60%,#41a6f6 60% 75%,#73eff7 75%)}
+
 :root[data-skin=pixel] :is(.qq-feature-card.tone-green,.qq-chart.tone-green){background:#257179}
 :root[data-skin=pixel] .qq-chart.tone-blue{background:#3b5dc9}
 :root[data-skin=pixel] .qq-chart.tone-amber{background:#b13e53}
@@ -148,6 +144,8 @@
 :root[data-skin=pixel] .app[data-progress=lyric] .lyric-marks i{border-radius:0;width:3px;background:#566c86}
 :root[data-skin=pixel] .app[data-progress=lyric] .lyric-marks i.chorus{background:#ef7d57}
 :root[data-skin=pixel] .app[data-progress=lyric] .lyric-marks i:is(.passed,.chorus.passed){background:#ffcd75}
+:root[data-skin=pixel] .chorus-range{border-radius:0;background:#ef7d57}
+:root[data-skin=pixel] .chorus-dot{border-radius:0;background:#ffcd75;box-shadow:0 0 0 2px #0b0c14}
 /* 正在播放（卡拉 OK）：夜空舞台，星点格子背景 + 底部砖块地面，当前句是带硬投影的黄字 */
 :root[data-skin=pixel] .detail-view{--accent:#ffcd75;border-radius:0}
 :root[data-skin=pixel] .app[data-np=karaoke] .detail-view::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(0deg,#5d275d 0 12px,#b13e53 12px 16px,transparent 16px),repeating-linear-gradient(90deg,#333c57 0 30px,#29366f 30px 32px) bottom/100% 12px no-repeat,radial-gradient(circle at 12% 18%,#73eff7 0 1.5px,transparent 2px) 0 0/160px 120px,radial-gradient(circle at 70% 60%,#f4f4f4 0 1.5px,transparent 2px) 0 0/220px 170px,radial-gradient(circle at 40% 80%,#ffcd75 0 1.5px,transparent 2px) 0 0/300px 210px,linear-gradient(180deg,#1a1c2c 0,#29366f 75%,#3b5dc9 100%)}
@@ -156,8 +154,8 @@
 :root[data-skin=pixel] .app[data-np=karaoke] .detail-art>.artist-name{-webkit-text-fill-color:#94b0c2}
 :root[data-skin=pixel] .app[data-np=karaoke] .detail-tabs{border-color:#566c86}
 :root[data-skin=pixel] .app[data-np=karaoke] .detail-tabs button{-webkit-text-fill-color:#94b0c2;text-transform:uppercase;letter-spacing:1px}
-:root[data-skin=pixel] .app[data-np=karaoke] .detail-tabs button.active{-webkit-text-fill-color:#ffcd75}
-:root[data-skin=pixel] .detail-tabs button.active:after{background:#ffcd75;border-radius:0;height:3px}
+:root[data-skin=pixel] .app[data-np=karaoke] .detail-tabs button[aria-selected=true]{-webkit-text-fill-color:#ffcd75}
+:root[data-skin=pixel] .detail-tabs button[aria-selected=true]:after{background:#ffcd75;border-radius:0;height:3px}
 :root[data-skin=pixel] .app[data-np=karaoke] .lyric-lines{--accent:#ffcd75;--subtle:#94b0c2}
 :root[data-skin=pixel] .app[data-np=karaoke] .lyric-lines button{-webkit-text-fill-color:#566c86;letter-spacing:1px}
 :root[data-skin=pixel] .app[data-np=karaoke] .lyric-lines button.current{-webkit-text-fill-color:#ffcd75;text-shadow:3px 3px 0 #b13e53,6px 6px 0 #0b0c14}

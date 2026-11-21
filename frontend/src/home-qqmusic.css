@@ -89,7 +89,7 @@
   .home-qqmusic .qq-songs .home-track-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @container home (max-width: 720px) {
-  .qq-feature { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: 180px 116px; height: auto; }
+  .qq-feature { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: minmax(180px, auto) 116px; height: auto; }
   .qq-feature-main { grid-column: 1 / -1; }
   .qq-feature-art { width: 136px; height: 136px; }
   .qq-charts { grid-template-columns: repeat(2, minmax(0, 1fr)); }

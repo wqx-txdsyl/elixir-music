@@ -152,7 +152,7 @@ export function LayoutEditor({ look, resolved, appearance, notify, onDone }) {
           <div className="le-tray">
             <h3>已拆下的部件<small>{removed.length ? '点一下装回原位' : ''}</small></h3>
             {removed.length ? <div className="le-tray-list">{removed.map(s => <button type="button" key={s.key} onClick={() => { setPart(s.key, reinstallValue(s.key, resolved.skin)); notify('已装回' + s.title); }}><Plus size={13} weight="bold" />{s.title}</button>)}</div>
-              : <p>还没有拆下任何部件。点开一个区域，选「拆下」就会放到这里。</p>}
+              : <Note className="tight">还没有拆下任何部件。点开一个区域，选「拆下」就会放到这里。</Note>}
           </div>
         </>}
       </div>

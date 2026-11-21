@@ -18,7 +18,7 @@
 :root[data-skin=brutal] .sidebar{background:#ffde59;border-radius:0;box-shadow:inset -3px 0 0 #111}
 :root[data-skin=brutal] .workspace{background:transparent;border-radius:0}
 :root[data-skin=brutal] .brand{color:#111;font-family:var(--br-font);font-weight:900;letter-spacing:-.5px}
-:root[data-skin=brutal] .brand .brand-icon{color:#111}
+
 :root[data-skin=brutal] .nav-item{border-radius:0;border:2px solid transparent;color:#111;font-weight:700;transition:transform .08s,box-shadow .08s}
 :root[data-skin=brutal] .nav-item svg{color:#111}
 :root[data-skin=brutal] .nav-item:hover{background:#fff;border-color:#111;box-shadow:var(--br-hard-sm);color:#111}
@@ -80,20 +80,13 @@
 :root[data-skin=brutal] .home-modular .modular-chart li+li{border-top:1px solid var(--br-thin)}
 :root[data-skin=brutal] .home-modular .modular-chart li:nth-child(-n+3) b{--accent:#111;color:#111;font-family:var(--br-font)}
 :root[data-skin=brutal] .home-modular .modular-chart-art{box-shadow:0 0 0 2px #111}
-/* 卡片：封面粗框加硬投影，悬停上抬 */
-:root[data-skin=brutal] :is(.home-card .music-art,.album-art .cover,.home-rank-art .music-art,.home-recent-art .music-art){border-radius:0;box-shadow:0 0 0 2px #111}
+
 :root[data-skin=brutal] .home-card .music-art{box-shadow:0 0 0 3px #111,6px 6px 0 3px #111;transition:transform .1s}
 :root[data-skin=brutal] .home-card:hover .music-art{transform:translate(-2px,-2px)}
 :root[data-skin=brutal] .home-card strong{color:#111;font-weight:900}
 :root[data-skin=brutal] .home-card small{color:#4a4536;font-weight:600}
-:root[data-skin=brutal] :is(.home-card:hover,.album-card:hover){background:transparent}
-:root[data-skin=brutal] :is(.home-card-play,.floating-play,.home-shortcut-play,.qq-play-round){background:#ff5ca8;color:#111;border:2px solid #111;border-radius:0;box-shadow:var(--br-hard-sm)}
-:root[data-skin=brutal] :is(.home-card-play,.floating-play,.home-shortcut-play,.qq-play-round):active{transform:translate(3px,3px);box-shadow:none}
-/* 标签/筛选：白底黑框小贴纸，选中变粉 */
-:root[data-skin=brutal] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.top-nav button.top-nav-item){background:#fff;border:2px solid #111;border-radius:0;color:#111;font-weight:800;box-shadow:2px 2px 0 #111}
-:root[data-skin=brutal] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.top-nav button.top-nav-item):hover{background:#ffde59;color:#111}
-:root[data-skin=brutal] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.top-nav button.top-nav-item):active{transform:translate(2px,2px);box-shadow:none}
-:root[data-skin=brutal] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected){background:#ff5ca8;border-color:#111;color:#111;font-weight:900}
+
+:root[data-skin=brutal] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected){background:#ff5ca8;border-color:#111;color:#111;font-weight:900}
 :root[data-skin=brutal] .home-shortcut{background:#fff;border:2px solid #111;border-radius:0;box-shadow:var(--br-hard)}
 :root[data-skin=brutal] .home-shortcut:active{transform:translate(4px,4px);box-shadow:none}
 :root[data-skin=brutal] .home-shortcut-likes .home-shortcut-art{background:#ff5ca8;color:#111}
@@ -101,7 +94,7 @@
 :root[data-skin=brutal] .home-shortcut-ranking .home-shortcut-art{background:#7bf29a;color:#111}
 :root[data-skin=brutal] .home-shortcut-library .home-shortcut-art{background:#ff914d;color:#111}
 :root[data-skin=brutal] :is(.home-card-icon,.apple-pick-icon){background:#ffde59;color:#111;box-shadow:inset 0 0 0 3px #111}
-:root[data-skin=brutal] :is(.home-hero-empty,.feature-banner,.qq-feature-main.home-hero-empty){background:#ff914d}
+
 :root[data-skin=brutal] .home-rank-row:hover,:root[data-skin=brutal] .home-track:hover{background:#ffde59}
 :root[data-skin=brutal] :is(.home-now-bars i,.equalizer i){background:#ff5ca8;box-shadow:0 0 0 1px #111}
 /* 页头与歌曲列表：页头大块撞色，列表只用细线 */
@@ -150,7 +143,7 @@
 :root[data-skin=brutal] .app[data-np=poster] .detail-actions .button.primary:active{transform:translate(4px,4px);box-shadow:none}
 :root[data-skin=brutal] .app[data-np=poster] .detail-tabs{border-bottom:3px solid #111}
 :root[data-skin=brutal] .app[data-np=poster] .detail-tabs button{font-weight:800}
-:root[data-skin=brutal] .detail-tabs button.active::after{height:5px;border-radius:0;background:#111}
+:root[data-skin=brutal] .detail-tabs button[aria-selected=true]::after{height:5px;border-radius:0;background:#111}
 :root[data-skin=brutal] .app[data-np=poster] .lyric-lines button.current{text-shadow:3px 3px 0 #fff}
 :root[data-skin=brutal] .large-cover,:root[data-skin=brutal] .large-cover .cover{border-radius:0}
 /* 弹窗、菜单：白底粗框硬投影，悬停项亮黄 */
@@ -160,7 +153,7 @@
 :root[data-skin=brutal] :is(.theme-popover button[aria-checked=true],.quality-popover>button[aria-checked=true]){background:#ff5ca8;color:#111}
 :root[data-skin=brutal] .modal-head{border-bottom:2px solid #111}
 :root[data-skin=brutal] .modal-head h2{font-family:var(--br-font);font-weight:900;color:#111}
-:root[data-skin=brutal] .queue-item.active{background:#ff5ca833;box-shadow:inset 5px 0 0 #ff5ca8}
+:root[data-skin=brutal] .queue-item[aria-current=true]{background:#ff5ca833;box-shadow:inset 5px 0 0 #ff5ca8}
 :root[data-skin=brutal] .toast{background:#111;color:#ffde59;border:2px solid #111;border-radius:0;box-shadow:4px 4px 0 #ff5ca8;font-weight:800}
 /* 通用按钮：会陷下去 */
 :root[data-skin=brutal] .button{border-radius:0;font-weight:800;transition:transform .06s,box-shadow .06s}
@@ -180,7 +173,7 @@
 :root[data-skin=brutal] .setting-row{border-color:var(--br-thin)}
 :root[data-skin=brutal] .setting-row strong{color:#111;font-weight:800}
 :root[data-skin=brutal] .source-segment button[aria-pressed=true]{background:#ff5ca8;color:#111;font-weight:900}
-:root[data-skin=brutal] .sleep-options>button.chosen{background:#ff5ca8;color:#111}
+:root[data-skin=brutal] .sleep-options>button[aria-pressed=true]{background:#ff5ca8;color:#111}
 /* 非默认首页（qqmusic/apple/aurora）：色块换成撞色，去掉底层的红与暗渐变 */
 :root[data-skin=brutal] .qq-feature-main{border:3px solid #111;box-shadow:var(--br-hard);background:#5ce1ff}
 :root[data-skin=brutal] .qq-feature-main::before{display:none}
@@ -225,6 +218,8 @@
 :root[data-skin=brutal] :is(.record-crate,.listening-calendar,.cd-player){border:3px solid #111;border-radius:0;box-shadow:var(--br-hard)}
 :root[data-skin=brutal] .lyric-marks i{background:#111}
 :root[data-skin=brutal] .lyric-marks i.chorus{background:#ff914d}
+:root[data-skin=brutal] .chorus-range{border-radius:0;background:#ff914d}
+:root[data-skin=brutal] .chorus-dot{border-radius:0;background:#111;box-shadow:0 0 0 2px #fff}
 /* 杂项 */
 :root[data-skin=brutal] ::-webkit-scrollbar-thumb{border-radius:0;background:#111;border:3px solid #fff4cf}
 :root[data-skin=brutal] :focus-visible{outline:3px solid #111;outline-offset:2px}

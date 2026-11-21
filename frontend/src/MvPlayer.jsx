@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, mediaUrl } from './api';
+import { Loading } from './ui';
 
 export function MvPlayer({ item, external }) {
   const [result, setResult] = useState(null);
@@ -14,7 +15,7 @@ export function MvPlayer({ item, external }) {
   return <div className="mv-player">
     {result?.url && <video src={mediaUrl(result.url)} poster={item.cover || undefined} onError={failed} autoPlay controls playsInline />}
     {result?.embed && <iframe title={item.title} src={result.embed} referrerPolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen />}
-    {!result && <p role="status">正在加载 MV…</p>}
+    {!result && <Loading compact text="正在加载 MV…" />}
     {result?.reason && <p role="status">{result.reason}</p>}
     {item.source_url && <button className="button quiet" onClick={() => external(item.source_url)}>在原平台打开</button>}
   </div>;

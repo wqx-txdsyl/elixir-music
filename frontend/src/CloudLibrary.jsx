@@ -2,10 +2,11 @@ import React,{memo,useEffect,useMemo,useRef,useState} from 'react';
 import {ArrowsClockwise} from '@phosphor-icons/react';
 import {api,SOURCE_NAMES} from './api';
 import {PlaybackTrackTable} from './TrackTable';
+import {Empty,ErrorNote,Tabs} from './ui';
 
 const labels={track:'喜欢的歌曲',album:'专辑',artist:'歌手',playlist:'歌单'};
 export function LibraryOrigins({value,onChange}){
- return <div className="source-tabs library-origins" aria-label="收藏来源">{[['local','Elixir'],['all','全部收藏'],['netease','网易云音乐'],['qqmusic','QQ音乐'],['spotify','Spotify']].map(([id,title])=><button key={id} className={value===id?'active':''} onClick={()=>onChange(id)}>{title}</button>)}</div>;
+ return <Tabs className="source-tabs library-origins" label="收藏来源" value={value} onChange={onChange} items={[['local','Elixir'],['all','全部收藏'],['netease','网易云音乐'],['qqmusic','QQ音乐'],['spotify','Spotify']]} />;
 }
 
 export const CloudLibrary=memo(function CloudLibrary({source,localData,liked,currentId,playing,actions,EntityCards,onOpen,onPlaylist,onRemotePlaylist,notify}){
@@ -34,11 +35,11 @@ export const CloudLibrary=memo(function CloudLibrary({source,localData,liked,cur
  const unread=active.filter(c=>c.status==='not_read'||c.status==='login_required');
  const latest=Math.max(0,...active.map(c=>c.synced_at||0));
  function open(item){if(kind==='playlist'){if(item.kind==='playlist'&&item.source_id)onOpen(item);else if(item.scope==='local')onPlaylist(item.id);else onRemotePlaylist({id:item.source_id,title:item.title},item.source);}else onOpen(item);}
- return <section className="cloud-library"><div className="library-browser-head"><div className="music-type-tabs" role="tablist" aria-label="平台收藏分类">{Object.keys(labels).map(k=><button key={k} role="tab" aria-selected={kind===k} onClick={()=>setKind(k)}>{labels[k]}<small>{merged[k].length}</small></button>)}</div><button className="button quiet" disabled={busy} onClick={()=>load(true)}><ArrowsClockwise size={17} className={busy?'spin':''}/>{busy?'正在读取…':'读取收藏'}</button></div>
+ return <section className="cloud-library"><div className="library-browser-head"><Tabs label="平台收藏分类" value={kind} onChange={setKind} items={Object.keys(labels).map(k=>[k,labels[k],<small>{merged[k].length}</small>])} /><button className="button quiet" disabled={busy} onClick={()=>load(true)}><ArrowsClockwise size={17} className={busy?'spin':''}/>{busy?'正在读取…':'读取收藏'}</button></div>
   <div className="cloud-library-filter"><input aria-label="筛选平台收藏" placeholder="筛选名称、歌手或专辑" value={query} onChange={e=>setQuery(e.target.value)}/><span title="读取不会修改三家云端收藏">云端只读{latest?' · '+new Date(latest*1000).toLocaleString('zh-CN'):''}</span></div>
-  {warnings.map((w,i)=><div className="error-note" role="alert" key={i}>{w}</div>)}
+  {warnings.map((w,i)=><ErrorNote key={i}>{w}</ErrorNote>)}
   {unread.length>0&&<div className="cloud-library-unread">{unread.map(c=><span key={c.source}>{SOURCE_NAMES[c.source]} · {c.status==='login_required'?'请先连接账号':'尚未读取'}</span>)}</div>}
   {kind==='track'?<PlaybackTrackTable viewKey={'cloud:'+source} localEdits items={items} currentId={currentId} playing={playing} liked={liked} actions={actions}/>:<EntityCards items={items} onOpen={open}/>}
-  {!items.length&&!busy&&<div className="history-empty">{unread.length?'连接账号后读取收藏':warnings.length?'读取未完成':'暂无收藏'}</div>}
+  {!items.length&&!busy&&<Empty compact title={unread.length?'连接账号后读取收藏':warnings.length?'读取未完成':'暂无收藏'} />}
  </section>;
 });

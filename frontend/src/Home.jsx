@@ -155,8 +155,8 @@ function Banner({slides,history,currentId,playing,onToggle,run,onPlayHero,heroNo
 
 // QQ Music-style section tabs that jump to, and follow, the sections below.
 // Apple Music "Top Picks": a tall card whose caption strip takes its colour from the blurred artwork.
-function ApplePick({eyebrow,cover,icon:Icon,title,detail,now,playing,onClick,label}){
-  return <button className={'apple-pick'+(Icon?' icon':'')+(now?' now':'')} style={{'--pick-cover':cssUrl(cover)}} onClick={onClick} aria-label={label||title}>
+function ApplePick({eyebrow,cover,icon:Icon,tone,title,detail,now,playing,onClick,label}){
+  return <button className={'apple-pick'+(Icon?' icon':'')+(tone?' tone-'+tone:'')+(now?' now':'')} style={{'--pick-cover':cssUrl(cover)}} onClick={onClick} aria-label={label||title}>
     <span className="apple-pick-eyebrow">{eyebrow}</span>
     <span className="apple-pick-art">{Icon?<span className="apple-pick-icon"><Icon size={64} weight="fill"/></span>:<MusicArt src={cover} title={title}/>}{now&&playing&&<NowBars/>}</span>
     <span className="apple-pick-caption"><strong>{title||'未命名'}</strong>{detail&&<small>{detail}</small>}</span>
@@ -205,7 +205,7 @@ function PlatformPicks({id,title='平台推荐',accounts,actions,currentId,playi
   return <section className="home-section home-picks" id={id}>
     <div className="home-section-head"><h2>{title}</h2>{active&&usable(active)&&<button className="home-text-button" disabled={busy} onClick={()=>select(active,true)}><ArrowsClockwise size={14}/>刷新</button>}</div>
     <div className="home-pick-modes">{groups.map(([source,list])=><div className="home-pick-group" key={source}><span>{SOURCE_NAMES[source]}</span>
-      {list.map(mode=><button key={mode.id} className={'home-pick-chip'+(active?.id===mode.id?' chosen':'')} title={mode.description} aria-pressed={active?.id===mode.id} onClick={()=>select(mode)}>{mode.title}
+      {list.map(mode=><button key={mode.id} className="home-pick-chip" title={mode.description} aria-pressed={active?.id===mode.id} onClick={()=>select(mode)}>{mode.title}
         {mode.mode!=='read'?<ArrowSquareOut size={13} aria-label="在官方页面打开"/>:!usable(mode)&&<LockSimple size={12} aria-label="需要连接账号"/>}
       </button>)}
     </div>)}</div>
@@ -233,7 +233,7 @@ export default function Home({theme,modules,actions,current,currentId,playing,li
   const toggle=(track,list)=>track.id===currentId?onToggle():run.play(track,list);
   const topTracks=(ranking?.tracks||[]).slice(0,12),artists=(ranking?.artists||[]).slice(0,10),albums=(library?.albums||[]).slice(0,16);
   const nav=[
-    {key:'likes',icon:Heart,title:labels.likes,detail:liked.size?liked.size+' 首':'还没有喜欢的歌',go:()=>run.navigate('likes')},
+    {key:'likes',icon:Heart,title:labels.likes,detail:liked.size?liked.size+' 首':'还没有喜欢的歌',count:liked.size?liked.size+' 首':'',go:()=>run.navigate('likes')},
     {key:'history',icon:ClockCounterClockwise,title:labels.history,detail:history?.length?history.length+' 首':'',go:()=>run.navigate('history')},
     {key:'ranking',icon:MusicNotes,title:'听歌排行',detail:stats?.plays?'本周 '+stats.plays+' 次':'',go:()=>run.navigate('ranking')},
     {key:'library',icon:FolderSimple,title:labels.library,detail:library?.local_count?library.local_count+' 首':'',go:()=>run.navigate('library')},
@@ -266,7 +266,7 @@ export default function Home({theme,modules,actions,current,currentId,playing,li
       {greet}
       {loading?<div className="home-banner home-hero-loading" aria-label="正在读取听歌记录"/>:hero?<Banner slides={slides} heroNow={heroNow} onPlayHero={playHero} {...common}/>:<EmptyHero run={run} onImport={onImport}/>}
       <Shelf grid title="我的歌单" className="home-netease-lists" action={musicLink}>
-        {tiles.map(item=><CoverCard key={item.key} icon={item.icon} cover={item.cover} title={item.title} badge={item.detail} label={'打开 '+item.title} onClick={item.go}/>)}
+        {tiles.map(item=><CoverCard key={item.key} icon={item.icon} cover={item.cover} title={item.title} badge={item.count??item.detail} label={'打开 '+item.title} onClick={item.go}/>)}
       </Shelf>
       {topTracks.length>0&&<section className="home-section"><div className="home-section-head"><h2>最近常听</h2>{rankingLink}</div><RankList tracks={topTracks.slice(0,10)} {...common}/></section>}
       {picks('平台推荐')}
@@ -317,7 +317,7 @@ export default function Home({theme,modules,actions,current,currentId,playing,li
     const tiles=[heroTile,...nav,...lists].filter(Boolean).slice(0,8);
     const recentCards=recent.slice(0,12).map(track=><CoverCard key={track.id} cover={track.cover} title={track.title} detail={track.artist} playable now={track.id===currentId} playing={playing} label={'播放 '+track.title} onClick={()=>toggle(track,history)}/>);
     body=<>
-      <nav className="home-filters" aria-label="筛选">{filters.map(([key,label])=><button key={key} className={shown===key?'chosen':undefined} aria-pressed={shown===key} onClick={()=>setFilter(key)}>{label}</button>)}</nav>
+      <nav className="home-filters" aria-label="筛选">{filters.map(([key,label])=><button key={key} aria-pressed={shown===key} onClick={()=>setFilter(key)}>{label}</button>)}</nav>
       {has('music')&&<>
         {greet}
         {loading?<div className="home-shortcuts home-quick-loading" aria-label="正在读取听歌记录"><i/><i/><i/><i/></div>:<nav className="home-shortcuts" aria-label="快捷入口">{tiles.map(item=><Shortcut key={item.key} item={item} playing={playing}/>)}</nav>}
@@ -333,9 +333,11 @@ export default function Home({theme,modules,actions,current,currentId,playing,li
     // Large title, tall "Top Picks" cards, then the familiar shelves of square artwork.
     const firstList=lists[0],pickCards=[
       hero&&{key:'hero',eyebrow:heroNow&&playing?'正在播放':'接着听',cover:hero.cover,title:hero.title,detail:hero.artist,now:heroNow,go:playHero,label:(heroNow&&playing?'暂停 ':'播放 ')+hero.title},
-      {key:'likes',eyebrow:'你的资料库',icon:Heart,title:labels.likes,detail:liked.size?liked.size+' 首歌曲':'还没有喜爱的歌曲',go:()=>run.navigate('likes')},
+      {key:'likes',eyebrow:'你的资料库',icon:Heart,tone:'likes',title:labels.likes,detail:liked.size?liked.size+' 首歌曲':'还没有喜爱的歌曲',go:()=>run.navigate('likes')},
       ...lists.slice(0,3).map(item=>({key:item.key,eyebrow:'你的歌单',cover:item.cover,title:item.title,detail:item.detail,go:item.go})),
       topTracks[0]&&{key:'top',eyebrow:'最近常听',cover:topTracks[0].cover,title:topTracks[0].title,detail:topTracks[0].artist,now:topTracks[0].id===currentId,go:()=>toggle(topTracks[0],topTracks)},
+      // 资料库还空着时，用其余入口把这一排补满，不让首页只剩一张孤卡。
+      ...nav.slice(1).map(item=>({key:item.key,eyebrow:'你的资料库',icon:item.icon,tone:item.key,title:item.title,detail:item.detail||'还没有记录',go:item.go})),
     ].filter(Boolean).slice(0,5);
     const recentCards=(history||[]).slice(0,14).map(track=><CoverCard key={track.id} cover={track.cover} title={track.title} detail={track.artist} playable now={track.id===currentId} playing={playing} label={'播放 '+track.title} onClick={()=>toggle(track,history)}/>);
     body=<>

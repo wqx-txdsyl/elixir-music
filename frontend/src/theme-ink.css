@@ -34,7 +34,7 @@
 .theme-ink .playlist-heading { margin-top: 32px; padding: 0 14px 14px; }
 .theme-ink .playlist-navigation .nav-item { height: 38px; font-size: 12px; }
 .theme-ink .appearance-button { border-radius: 4px; background: #ffffff06; }
-.theme-dot.dot-ink { background: #b73729; border: 1px solid #c5c9bc; }
+
 .theme-ink .sidebar .theme-popover { --accent: #f0b2a7; box-shadow: 0 12px 35px #0004; }
 .theme-ink .theme-popover button[aria-checked=true] { background: #ffffff0a; }
 .theme-ink .sidebar-bottom { padding-top: 18px; }
@@ -52,10 +52,10 @@
 .theme-ink .button.primary:hover { background: #9b2c20; }
 .theme-ink .button.quiet { background: transparent; border-color: #cdd1c5; }
 .theme-ink .button.quiet:hover { background: var(--hover); border-color: #9ba28f; }
-.theme-ink :is(.cover,.music-art,.select-trigger,.select-options,.list-disclosure,.modal) { border-radius: 5px; }
+
 .theme-ink :is(button,summary):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .theme-ink .source-tabs { gap: 28px; }
-.theme-ink .source-tabs button.active { color: var(--accent); }
+.theme-ink .source-tabs button[aria-selected=true] { color: var(--accent); }
 .theme-ink .source-tag { border-radius: 2px; }
 .theme-ink .track-row { border-radius: 3px; height: 65px; }
 .theme-ink .track-row:nth-child(odd) { background: transparent; }
@@ -101,19 +101,10 @@
 .theme-ink .detail-art>h1 { font-weight: 650; letter-spacing: -.7px; }
 .theme-ink .lyric-lines button { color: #7a7e73; font-weight: 550; }
 .theme-ink .lyric-lines button.current { color: var(--accent); text-shadow: none; }
-.theme-ink .metadata-box { border-color: #cbd0c0; }
 
 /* Five choices fit on a wide settings page, and wrap without shrinking previews. */
 .section-body .theme-options { grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); }
-.preview-ink { background: #f4f4f0; }
-.preview-ink .preview-sidebar { background: #202221; }
-.preview-ink .preview-sidebar b { background: #ffffff30; }
-.preview-ink .preview-sidebar b:first-child { background: #f1f2eb; }
-.preview-ink .preview-main>b { background: #b73729; }
-.preview-ink .preview-main>span i { background: #dde0d5; border-radius: 1px; }
-.preview-ink .preview-main>span i:nth-child(2) { background: #343930; }
-.preview-ink .preview-player { background: #fafaf7; border-color: #cbd0c0; }
-.preview-ink .preview-player::after { background: #b73729; }
+
 @media(max-width:1150px) {
   :root[data-theme=ink] { --side-width: 195px; }
   .theme-ink .main-scroll { padding: 20px 24px 36px; }

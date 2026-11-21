@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Heart, Queue, MicrophoneStage } from '@phosphor-icons/react';
 import { api, mediaUrl } from './api';
-import { Cover, IconButton } from './ui';
+import { Cover, IconButton, Note } from './ui';
 import { usePlaybackPosition } from './usePlaybackPosition';
 
 // A tiny window drawn from a skin's swatch: sidebar, page, cards and the player.
@@ -27,9 +27,9 @@ export function NowPanel({ current, queue, upNext, liked, lyric, onOpenDetail, o
       <button className="now-panel-art" onClick={() => onOpenDetail(current)} aria-label={'查看《' + current.title + '》的歌词与资料'}><Cover src={current.cover} title={current.title} /></button>
       <div className="now-panel-title"><div><strong>{current.title}</strong><span>{[current.artist, current.album].filter(Boolean).join(' · ')}</span></div><IconButton icon={Heart} title="喜欢" active={liked.has(current.id)} onClick={() => onToggleLike(current)} /></div>
       <section className="now-panel-card now-panel-lyric"><h3>歌词<IconButton icon={MicrophoneStage} title="完整歌词" onClick={() => onOpenDetail(current)} /></h3><PanelLyric lines={lyric} /></section>
-    </> : <p className="now-panel-empty">还没有在播放的歌。选一首歌开始，这里会显示封面、歌词和接下来要播的歌。</p>}
+    </> : <Note className="tight">还没有在播放的歌。选一首歌开始，这里会显示封面、歌词和接下来要播的歌。</Note>}
     <section className="now-panel-card now-panel-queue"><h3>接下来播放</h3>
-      {following.length ? following.map((track, i) => <button className="queue-row" key={track.id + ':' + i} onClick={() => onPlay(track)}><Cover src={track.cover} title={track.title} /><span><strong>{track.title}</strong><small>{track.artist}</small></span></button>) : <p className="now-panel-empty">队列里没有更多歌曲。</p>}
+      {following.length ? following.map((track, i) => <button className="queue-row" key={track.id + ':' + i} onClick={() => onPlay(track)}><Cover src={track.cover} title={track.title} /><span><strong>{track.title}</strong><small>{track.artist}</small></span></button>) : <Note className="tight">队列里没有更多歌曲。</Note>}
     </section>
   </aside>;
 }
@@ -42,9 +42,9 @@ function currentLine(lines, position) {
 function PanelLyric({ lines }) {
   const position = usePlaybackPosition();
   const index = currentLine(lines, position);
-  if (!lines.length) return <p className="now-panel-empty">这首歌暂时没有时间轴歌词。</p>;
+  if (!lines.length) return <Note className="tight">这首歌暂时没有时间轴歌词。</Note>;
   const start = Math.max(0, index - 1);
-  return <div>{lines.slice(start, start + 4).map((line, i) => <p key={start + i} className={start + i === index ? 'current' : ''}>{lineText(line) || '♪'}</p>)}</div>;
+  return <div>{lines.slice(start, start + 4).map((line, i) => <p key={start + i} className={start + i === index ? 'current' : ''} aria-current={start + i === index ? 'true' : undefined}>{lineText(line) || '♪'}</p>)}</div>;
 }
 const lineText = line => line.text ?? line.words?.map(w => w.text).join('') ?? '';
 

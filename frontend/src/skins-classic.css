@@ -18,7 +18,7 @@
 /* 外框：顶部 64px 是带金色条纹的标题栏 */
 :root[data-skin=winamp] .app{background:repeating-linear-gradient(180deg,#a8984f 0 1px,transparent 1px 3px) 0 26px/100% 12px no-repeat,linear-gradient(180deg,#3d3d56 0,#252534 63px,transparent 64px),var(--wa-grain),#15151d}
 :root[data-skin=winamp] .brand{background:#30304a;padding:0 12px 0 8px;height:30px;top:17px;box-shadow:0 0 0 1px #0006;letter-spacing:2px;text-transform:uppercase;font-family:var(--wa-mono);font-size:14px;color:#e8dfa8}
-:root[data-skin=winamp] .brand .brand-icon{color:#e8dfa8}
+
 :root[data-skin=winamp] .sidebar{background:var(--wa-grain),var(--wa-metal);border-radius:0;box-shadow:var(--wa-bevel),0 0 0 1px #000}
 :root[data-skin=winamp] .workspace{background:var(--wa-grain),linear-gradient(#272738,#1d1d27 280px);border-radius:0;box-shadow:var(--wa-bevel),0 0 0 1px #000}
 :root[data-skin=winamp] .topbar{background:var(--wa-grain),var(--wa-metal);box-shadow:inset 0 -1px 0 #000,inset 0 1px 0 #5c5c78}
@@ -67,17 +67,12 @@
 :root[data-skin=winamp] .home-card small{color:#8a8aa2}
 :root[data-skin=winamp] .home-card.now strong{color:#00e050}
 :root[data-skin=winamp] .home-card-badge{background:#000;color:#00e050;border-radius:0;font-family:var(--wa-mono)}
-:root[data-skin=winamp] :is(.home-card .music-art,.home-rank-art .music-art,.home-recent-art .music-art,.album-art .cover){box-shadow:0 0 0 1px #000,0 0 0 2px #4a4a62}
-:root[data-skin=winamp] :is(.home-card:hover,.album-card:hover,.home-track:hover){background:#ffffff0a}
-:root[data-skin=winamp] :is(.home-card-play,.floating-play,.home-shortcut-play,.feature-button,.qq-play-round){background:var(--wa-key);color:#00e050;box-shadow:var(--wa-bevel),0 0 0 1px #000,0 4px 12px #000a}
-:root[data-skin=winamp] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item,.search-chips>button,.music-type-tabs button){background:var(--wa-key);border:0;border-radius:0;color:#d8d8e8;box-shadow:var(--wa-bevel),0 0 0 1px #000;font-size:11px}
-:root[data-skin=winamp] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.music-type-tabs button):hover{background:linear-gradient(#686884,#46465e);color:#fff}
-:root[data-skin=winamp] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected,.music-type-tabs button.active){background:var(--wa-key-down);color:#00e050;box-shadow:var(--wa-sunk),0 0 0 1px #000;text-shadow:var(--wa-glow)}
+
+:root[data-skin=winamp] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected,.music-type-tabs button[aria-selected=true]){background:var(--wa-key-down);color:#00e050;box-shadow:var(--wa-sunk),0 0 0 1px #000;text-shadow:var(--wa-glow)}
 :root[data-skin=winamp] :is(.home-pick-group>span,.home-pick-note){color:#8a8aa2}
 :root[data-skin=winamp] .apple-pick-eyebrow{color:#00e050;font-family:var(--wa-mono)}
 :root[data-skin=winamp] .apple-pick.icon .apple-pick-caption,:root[data-skin=winamp] .apple-pick.icon .apple-pick-caption::before{background:#2b2b3d}
-:root[data-skin=winamp] :is(.qq-feature-card.tone-green,.qq-chart.tone-green,.qq-chart.tone-blue,.qq-chart.tone-amber,.qq-cover-card,.qq-feature-main.home-hero-empty,.home-hero-empty,.feature-banner){background:var(--wa-grain),linear-gradient(150deg,#45455e,#18181f);box-shadow:var(--wa-bevel),0 0 0 1px #000}
-:root[data-skin=winamp] :is(.feature-copy .eyebrow,.feature-copy p){color:#b8f5c8}
+
 :root[data-skin=winamp] .home-shortcut{border:0;background:var(--wa-key);box-shadow:var(--wa-bevel),0 0 0 1px #000}
 :root[data-skin=winamp] .home-shortcut:hover{background:linear-gradient(#686884,#46465e)}
 :root[data-skin=winamp] :is(.home-shortcut-likes,.home-shortcut-history,.home-shortcut-ranking,.home-shortcut-library) .home-shortcut-art{background:var(--wa-lcd);color:#00e050;box-shadow:var(--wa-sunk)}
@@ -147,8 +142,8 @@
 :root[data-skin=winamp] .detail-toolbar{background:var(--wa-grain),var(--wa-metal);box-shadow:inset 0 -1px 0 #000}
 :root[data-skin=winamp] .detail-art>h1{color:#00e050;font-family:var(--wa-mono);text-shadow:var(--wa-glow)}
 :root[data-skin=winamp] .detail-tabs button{color:#8a8aa2;font-family:var(--wa-mono)}
-:root[data-skin=winamp] .detail-tabs button.active{color:#00e050}
-:root[data-skin=winamp] .detail-tabs button.active:after{background:#00e050;border-radius:0;box-shadow:0 0 6px #00e050}
+:root[data-skin=winamp] .detail-tabs button[aria-selected=true]{color:#00e050}
+:root[data-skin=winamp] .detail-tabs button[aria-selected=true]:after{background:#00e050;border-radius:0;box-shadow:0 0 6px #00e050}
 :root[data-skin=winamp] .lyric-lines{--accent:#00e050}
 :root[data-skin=winamp] .app:not([data-lyrics=block]) .lyric-lines button{font-family:var(--wa-mono);-webkit-text-fill-color:#11883c}
 :root[data-skin=winamp] .app:not([data-lyrics=block]) .lyric-lines button.current{-webkit-text-fill-color:#46ff84}
@@ -167,7 +162,7 @@
 
 /* ===== 千千静听 ===== */
 /* 2008 年的银蓝金属面板：上下两段的光泽渐变按钮，深蓝显示屏里的青色发光字，蓝色发光选中条和紧凑的列表。 */
-:root[data-skin=qianqian]{--bg:#e3ebf3;--sidebar:#cddbe9;--panel:#f1f5f9;--panel-solid:#f1f5f9;--text:#1d2c3d;--muted:#687c93;--subtle:#3f546b;--line:#b3c6da;--hover:#d8e6f4;--accent:#2b7fd8;--accent-tint:#2b7fd822;--accent-text:#fff;--radius:0px;--chip:#dbe6f1;--shadow:0 12px 36px #1d3a5c40;
+:root[data-skin=qianqian]{--bg:#e3ebf3;--sidebar:#cddbe9;--panel:#f1f5f9;--panel-solid:#f1f5f9;--text:#1d2c3d;--muted:#5f7289;--subtle:#3f546b;--line:#b3c6da;--hover:#d8e6f4;--accent:#2b7fd8;--accent-tint:#2b7fd822;--accent-text:#fff;--radius:0px;--chip:#dbe6f1;--shadow:0 12px 36px #1d3a5c40;
   --qj-metal:linear-gradient(180deg,#fdfeff 0,#e9f0f7 46%,#d6e2ee 50%,#c9d8e8 100%);
   --qj-panel:linear-gradient(180deg,#f7fafd,#e2eaf3);
   --qj-btn:linear-gradient(180deg,#fff 0,#f0f5fa 46%,#d9e5f1 50%,#e6eef6 100%);
@@ -220,11 +215,8 @@
 :root[data-skin=qianqian] .home-card small{color:#687c93}
 :root[data-skin=qianqian] .home-card.now strong{color:#2b7fd8}
 :root[data-skin=qianqian] .home-card-badge{border-radius:0;background:#0f2848;color:#8fdcff}
-:root[data-skin=qianqian] :is(.home-card .music-art,.home-rank-art .music-art,.home-recent-art .music-art,.album-art .cover){box-shadow:0 0 0 1px var(--qj-edge),0 2px 5px #1d3a5c30}
-:root[data-skin=qianqian] :is(.home-card-play,.floating-play,.home-shortcut-play,.qq-play-round){background:var(--qj-sel);color:#fff;box-shadow:inset 0 1px 0 #ffffffa0,0 0 0 1px #1f69bd,0 3px 10px #1d3a5c50}
-:root[data-skin=qianqian] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item,.search-chips>button,.music-type-tabs button){height:26px;background:var(--qj-btn);border:1px solid var(--qj-edge);border-radius:0;color:#1d3a5c;font-size:12px;box-shadow:inset 0 1px 0 #fff}
-:root[data-skin=qianqian] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.music-type-tabs button):hover{background:var(--qj-btn-hover);border-color:#5d9be0}
-:root[data-skin=qianqian] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected,.music-type-tabs button.active){background:var(--qj-sel);border-color:#1f69bd;color:#fff;box-shadow:inset 0 1px 0 #ffffff90,0 0 6px #2b7fd880}
+
+:root[data-skin=qianqian] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected,.music-type-tabs button[aria-selected=true]){background:var(--qj-sel);border-color:#1f69bd;color:#fff;box-shadow:inset 0 1px 0 #ffffff90,0 0 6px #2b7fd880}
 :root[data-skin=qianqian] :is(.home-pick-group>span,.home-pick-note){color:#687c93}
 :root[data-skin=qianqian] .apple-pick.icon .apple-pick-caption,:root[data-skin=qianqian] .apple-pick.icon .apple-pick-caption::before{background:#1f5fa8}
 :root[data-skin=qianqian] :is(.qq-feature-card.tone-green,.qq-chart.tone-green,.qq-feature-main.home-hero-empty,.home-hero-empty){background:var(--qj-sel)}
@@ -299,7 +291,7 @@
 /* 正在播放：深蓝歌词屏 */
 :root[data-skin=qianqian] .detail-view{--accent:#4aa8ff;border-radius:0}
 :root[data-skin=qianqian] .app[data-np=karaoke] .detail-view::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(70% 50% at 50% 0,#2b7fd840,transparent 70%),linear-gradient(180deg,#0f2848e0,#08162ae0)}
-:root[data-skin=qianqian] .detail-tabs button.active:after{background:#6cc8ff;border-radius:0;box-shadow:0 0 6px #6cc8ff}
+:root[data-skin=qianqian] .detail-tabs button[aria-selected=true]:after{background:#6cc8ff;border-radius:0;box-shadow:0 0 6px #6cc8ff}
 :root[data-skin=qianqian] .lyric-lines{--accent:#4aa8ff}
 :root[data-skin=qianqian] .app[data-np=karaoke] .lyric-lines button.current{-webkit-text-fill-color:#dff4ff}
 :root[data-skin=qianqian] .large-cover{box-shadow:0 0 0 1px var(--qj-edge),0 0 0 4px #fff,0 0 0 5px var(--qj-edge),0 14px 34px #1d3a5c50}
@@ -390,7 +382,7 @@
 :root[data-skin=itunes] .home-section-head{margin-bottom:10px;padding:3px 10px;background:var(--it-head);border:1px solid #b5b5b5;border-radius:3px}
 :root[data-skin=itunes] .home-section-head h2{font-size:12px;font-weight:700;color:#2a2a2a;letter-spacing:0;text-shadow:0 1px 0 #fff}
 :root[data-skin=itunes] .home-text-button{color:#2f6fd0;font-size:12px}
-:root[data-skin=itunes] :is(.apple-pick-art,.home-card .music-art,.home-rank-art .music-art,.home-recent-art .music-art,.album-art .cover){border-radius:2px;box-shadow:0 0 0 1px #0000002e,0 3px 8px #00000030}
+
 :root[data-skin=itunes] .apple-pick-caption{border-radius:0 0 2px 2px}
 :root[data-skin=itunes] .apple-pick-eyebrow{color:#2f6fd0;font-weight:700}
 :root[data-skin=itunes] :is(.home-card-icon,.apple-pick-icon,.home-apple .home-card-icon,.home-netease .home-netease-lists .home-card.icon:nth-child(n) .home-card-icon){background:linear-gradient(180deg,#8fbaf2 0,#4a8ae2 50%,#2f6fd0 51%,#5a95e4 100%);color:#fff}
@@ -398,12 +390,10 @@
 :root[data-skin=itunes] .home-card strong{color:#1f1f1f;font-size:12px;font-weight:700}
 :root[data-skin=itunes] .home-card small{color:#7a7a7a}
 :root[data-skin=itunes] .home-card.now strong{color:#2f6fd0}
-:root[data-skin=itunes] :is(.home-card-play,.floating-play,.home-shortcut-play,.qq-play-round){background:var(--it-btn);color:#262626;border:1px solid #7d7d7d;box-shadow:inset 0 1px 0 #fff,0 2px 6px #0004}
-:root[data-skin=itunes] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item,.search-chips>button,.music-type-tabs button){height:24px;background:var(--it-btn);border:1px solid #8d8d8d;border-radius:12px;color:#222;font-size:12px;box-shadow:inset 0 1px 0 #fff}
-:root[data-skin=itunes] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.music-type-tabs button):hover{border-color:#5f5f5f;background:var(--it-btn)}
-:root[data-skin=itunes] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected,.music-type-tabs button.active){background:linear-gradient(180deg,#8e8e8e,#6a6a6a 50%,#5a5a5a 51%,#7a7a7a);border-color:#4a4a4a;color:#fff;text-shadow:0 -1px 0 #0006;box-shadow:inset 0 1px 2px #0005}
+
+:root[data-skin=itunes] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected,.music-type-tabs button[aria-selected=true]){background:linear-gradient(180deg,#8e8e8e,#6a6a6a 50%,#5a5a5a 51%,#7a7a7a);border-color:#4a4a4a;color:#fff;text-shadow:0 -1px 0 #0006;box-shadow:inset 0 1px 2px #0005}
 :root[data-skin=itunes] :is(.home-pick-group>span,.home-pick-note){color:#7a7a7a}
-:root[data-skin=itunes] :is(.qq-feature-card.tone-green,.qq-chart.tone-green,.qq-feature-main.home-hero-empty,.home-hero-empty,.feature-banner){background:linear-gradient(180deg,#6ea3ea,#2f6fd0)}
+
 :root[data-skin=itunes] :is(.qq-chart.tone-blue,.qq-chart.tone-amber,.qq-cover-card){background:linear-gradient(180deg,#9a9a9a,#5a5a5a)}
 :root[data-skin=itunes] .home-banner{border-radius:4px;background:#2a2a2a}
 :root[data-skin=itunes] .home-banner::after{background:linear-gradient(180deg,#ffffff1f 0,#ffffff00 45%),linear-gradient(90deg,#000000b0,#0000 70%)}
@@ -454,7 +444,7 @@
 :root[data-skin=itunes] :is(.detail-layout,.detail-toolbar){--text:#fff;--muted:#8c8c8c;--subtle:#c4c4c4;--line:#ffffff26;--hover:#ffffff1a;color:#fff}
 :root[data-skin=itunes] .large-cover{border-radius:0;-webkit-box-reflect:below 1px linear-gradient(#0000 88%,#ffffff40)}
 :root[data-skin=itunes] .detail-art>h1{font-weight:700;color:#fff}
-:root[data-skin=itunes] .detail-tabs button.active:after{background:#fff;border-radius:0}
+:root[data-skin=itunes] .detail-tabs button[aria-selected=true]:after{background:#fff;border-radius:0}
 :root[data-skin=itunes] .lyric-lines button.current{-webkit-text-fill-color:#fff}
 :root[data-skin=itunes] .detail-view .button.primary{background:var(--it-btn);color:#1f1f1f;border:1px solid #000}
 /* 按钮、弹窗、滚动条 */
@@ -479,7 +469,7 @@
   --wm-glow:0 0 10px #3fa9ff99;
   color-scheme:dark}
 :root[data-skin=wmp] .app{font-family:"Segoe UI","Microsoft YaHei UI","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,#3b4352 0,#232a35 30px,#0c0f14 32px,#121720 64px,#07090c 65px) #07090c}
-:root[data-skin=wmp] .brand .brand-icon{color:#bfe3ff;filter:drop-shadow(0 0 6px #3fa9ff)}
+
 :root[data-skin=wmp] .brand{color:#e8eef6;text-shadow:0 0 8px #3fa9ff66}
 :root[data-skin=wmp] .sidebar{background:linear-gradient(180deg,#171d27,#0d1117);border-radius:4px;box-shadow:inset 0 1px 0 #ffffff12,0 0 0 1px #000}
 :root[data-skin=wmp] .workspace{background:radial-gradient(90% 320px at 50% 0,#1d3a5c55,transparent 70%),linear-gradient(180deg,#151a23,#0f1218 320px);border-radius:4px;box-shadow:inset 0 1px 0 #ffffff12,0 0 0 1px #000}
@@ -510,7 +500,7 @@
 :root[data-skin=wmp] .home-section-head h2{font-size:16px;font-weight:400;color:#dbe9f8}
 :root[data-skin=wmp] .home-text-button{color:#6fb6f0}
 :root[data-skin=wmp] .home-text-button:hover:not(:disabled){color:#bfe3ff;text-decoration:none}
-:root[data-skin=wmp] :is(.apple-pick-art,.home-card .music-art,.home-rank-art .music-art,.home-recent-art .music-art,.album-art .cover){border-radius:3px;box-shadow:0 0 0 1px #000,0 8px 20px #000a}
+
 :root[data-skin=wmp] .apple-pick{-webkit-box-reflect:below 2px linear-gradient(#0000 82%,#ffffff26)}
 :root[data-skin=wmp] .apple-pick-caption{border-radius:0 0 3px 3px}
 :root[data-skin=wmp] .apple-pick-eyebrow{color:#6fb6f0}
@@ -520,15 +510,12 @@
 :root[data-skin=wmp] .home-card strong{color:#e8eef6}
 :root[data-skin=wmp] .home-card small{color:#7f8ea3}
 :root[data-skin=wmp] .home-card.now strong{color:#3fa9ff}
-:root[data-skin=wmp] :is(.home-card:hover,.album-card:hover,.home-track:hover){background:#3fa9ff12}
-:root[data-skin=wmp] :is(.home-card-play,.floating-play,.home-shortcut-play,.feature-button,.qq-play-round){background:linear-gradient(180deg,#ffffff50 0,#ffffff10 48%,#0000 50%),var(--wm-orb);color:#fff;box-shadow:0 0 0 1px #0a2f6a,0 0 12px #3fa9ff80}
-:root[data-skin=wmp] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item,.search-chips>button,.music-type-tabs button){background:var(--wm-glass-soft);border:1px solid #000;border-radius:14px;color:#c8d4e3;box-shadow:inset 0 1px 0 #ffffff1c}
-:root[data-skin=wmp] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.music-type-tabs button):hover{color:#fff;background:var(--wm-glass);box-shadow:inset 0 1px 0 #ffffff26,0 0 8px #3fa9ff55}
-:root[data-skin=wmp] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected,.music-type-tabs button.active){background:var(--wm-sel);border-color:#4f86c4;color:#fff;box-shadow:inset 0 1px 0 #ffffff40,0 0 10px #3fa9ff55}
+
+:root[data-skin=wmp] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected,.music-type-tabs button[aria-selected=true]){background:var(--wm-sel);border-color:#4f86c4;color:#fff;box-shadow:inset 0 1px 0 #ffffff40,0 0 10px #3fa9ff55}
 :root[data-skin=wmp] :is(.home-pick-group>span,.home-pick-note){color:#7f8ea3}
-:root[data-skin=wmp] :is(.qq-feature-card.tone-green,.qq-chart.tone-green,.qq-feature-main.home-hero-empty,.home-hero-empty,.feature-banner){background:radial-gradient(80% 120% at 50% 120%,#1666c8,#0c1a30 70%);box-shadow:inset 0 1px 0 #ffffff1a}
+
 :root[data-skin=wmp] :is(.qq-chart.tone-blue,.qq-chart.tone-amber,.qq-cover-card){background:var(--wm-glass)}
-:root[data-skin=wmp] :is(.feature-copy .eyebrow,.feature-copy p){color:#b4c2d4}
+
 :root[data-skin=wmp] .home-banner{background:#0a0d12;border-radius:4px;box-shadow:0 0 0 1px #000,inset 0 1px 0 #ffffff1a}
 :root[data-skin=wmp] .home-banner::after{background:linear-gradient(180deg,#ffffff1c 0,#ffffff06 49%,#0000 50%),linear-gradient(90deg,#000000c0,#0000 70%)}
 :root[data-skin=wmp] .home-banner-tag{background:var(--wm-sel);border-radius:3px}
@@ -593,7 +580,7 @@
 :root[data-skin=wmp] .large-cover{border-radius:2px;box-shadow:0 0 0 1px #000,0 0 40px #3fa9ff33;-webkit-box-reflect:below 2px linear-gradient(#0000 86%,#ffffff33)}
 :root[data-skin=wmp] .detail-art>h1{font-weight:400;color:#fff}
 :root[data-skin=wmp] .detail-tabs{border-color:#ffffff14}
-:root[data-skin=wmp] .detail-tabs button.active:after{background:#3fa9ff;box-shadow:0 0 8px #3fa9ff}
+:root[data-skin=wmp] .detail-tabs button[aria-selected=true]:after{background:#3fa9ff;box-shadow:0 0 8px #3fa9ff}
 :root[data-skin=wmp] .lyric-lines button{color:#7f8ea3}
 :root[data-skin=wmp] .lyric-lines button.current{-webkit-text-fill-color:#fff;text-shadow:0 0 14px #3fa9ffaa}
 /* 按钮、弹窗、滚动条 */
@@ -608,7 +595,7 @@
 
 /* ===== iPod Classic ===== */
 /* 银白阳极铝机身，侧栏和列表都做成 iPod 屏幕里的菜单：渐变状态栏、粗体菜单行、蓝色渐变高亮条和右侧箭头，播放键是一枚小转盘。 */
-:root[data-skin=ipod]{--bg:#f4f4f4;--sidebar:#fff;--panel:#fff;--panel-solid:#fff;--text:#111;--muted:#7b8088;--subtle:#4a4f57;--line:#d5d8dc;--hover:#e6f0fe;--accent:#2f7cf6;--accent-tint:#2f7cf61f;--accent-text:#fff;--radius:6px;--chip:#eceef1;--shadow:0 14px 40px #0000002e;
+:root[data-skin=ipod]{--bg:#f4f4f4;--sidebar:#fff;--panel:#fff;--panel-solid:#fff;--text:#111;--muted:#73777f;--subtle:#4a4f57;--line:#d5d8dc;--hover:#e6f0fe;--accent:#2f7cf6;--accent-tint:#2f7cf61f;--accent-text:#fff;--radius:6px;--chip:#eceef1;--shadow:0 14px 40px #0000002e;
   --ip-body:linear-gradient(180deg,#fbfbfc 0,#eceef0 50%,#dfe1e4 100%);
   --ip-brush:repeating-linear-gradient(90deg,#ffffff24 0 1px,#00000006 1px 2px,transparent 2px 4px);
   --ip-bar:linear-gradient(180deg,#f8f9fb 0,#e3e6eb 50%,#c9ced6 100%);
@@ -653,7 +640,7 @@
 :root[data-skin=ipod] .home-section-head{margin-bottom:12px;padding:4px 12px;background:var(--ip-bar);border:1px solid #a9b0ba;border-bottom-color:#8f96a0;border-radius:5px;box-shadow:inset 0 1px 0 #fff}
 :root[data-skin=ipod] .home-section-head h2{font-size:14px;font-weight:700;color:#111}
 :root[data-skin=ipod] .home-text-button{color:#2f7cf6;font-weight:600}
-:root[data-skin=ipod] :is(.apple-pick-art,.home-card .music-art,.home-rank-art .music-art,.home-recent-art .music-art,.album-art .cover){border-radius:4px;box-shadow:0 0 0 1px #0000001f,0 6px 14px #00000026}
+
 :root[data-skin=ipod] .apple-pick-caption{border-radius:0 0 4px 4px}
 :root[data-skin=ipod] .apple-pick-eyebrow{color:#2f7cf6;font-weight:700}
 :root[data-skin=ipod] :is(.home-card-icon,.apple-pick-icon,.home-apple .home-card-icon,.home-netease .home-netease-lists .home-card.icon:nth-child(n) .home-card-icon){background:var(--ip-hi);color:#fff}
@@ -661,10 +648,8 @@
 :root[data-skin=ipod] .home-card strong{color:#111;font-weight:700}
 :root[data-skin=ipod] .home-card small{color:#6b7078}
 :root[data-skin=ipod] .home-card.now strong{color:#2f7cf6}
-:root[data-skin=ipod] :is(.home-card-play,.floating-play,.home-shortcut-play,.qq-play-round){background:radial-gradient(circle,#fdfdfd 0 40%,#c9ccd1 42%,#f2f3f5 46%,#dcdfe3 100%);color:#333;box-shadow:0 0 0 1px #b8bcc2,0 4px 12px #0003}
-:root[data-skin=ipod] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item,.search-chips>button,.music-type-tabs button){background:var(--ip-body);border:1px solid #c3c7cd;border-radius:14px;color:#222;font-weight:600;box-shadow:inset 0 1px 0 #fff}
-:root[data-skin=ipod] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.music-type-tabs button):hover{border-color:#9aa0a8;background:var(--ip-body)}
-:root[data-skin=ipod] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected,.music-type-tabs button.active){background:var(--ip-hi);border-color:#1f5fc8;color:#fff;text-shadow:0 -1px 0 #1d5bc080}
+
+:root[data-skin=ipod] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected,.music-type-tabs button[aria-selected=true]){background:var(--ip-hi);border-color:#1f5fc8;color:#fff;text-shadow:0 -1px 0 #1d5bc080}
 :root[data-skin=ipod] :is(.home-pick-group>span,.home-pick-note){color:#6b7078}
 :root[data-skin=ipod] :is(.qq-feature-card.tone-green,.qq-chart.tone-green,.qq-feature-main.home-hero-empty,.home-hero-empty){background:var(--ip-hi)}
 :root[data-skin=ipod] :is(.qq-chart.tone-blue,.qq-chart.tone-amber,.qq-cover-card){background:linear-gradient(180deg,#8a9098,#4a4f57)}
@@ -726,7 +711,7 @@
 :root[data-skin=ipod] :is(.settings-section,.account-card){border:1px solid #d0d3d8;border-radius:10px;background:#fff}
 /* 正在播放：机身底色衬托转盘 */
 :root[data-skin=ipod] .detail-view::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(60% 70% at 30% 45%,#2f7cf61a,transparent 70%),var(--ip-brush),linear-gradient(180deg,#f7f7f8,#e4e6e9)}
-:root[data-skin=ipod] .detail-tabs button.active:after{background:#2f7cf6}
+:root[data-skin=ipod] .detail-tabs button[aria-selected=true]:after{background:#2f7cf6}
 :root[data-skin=ipod] .lyric-lines button{font-weight:600}
 /* 按钮、弹窗、滚动条 */
 :root[data-skin=ipod] .button{border-radius:14px}
@@ -795,15 +780,13 @@
 :root[data-skin=foobar] .home-modular .modular-chart li button{padding:2px 4px;border-radius:0}
 :root[data-skin=foobar] .home-modular .modular-chart li button:hover{background:#e5f3ff}
 :root[data-skin=foobar] .home-modular .modular-chart-art{width:22px;height:22px;border-radius:0}
-:root[data-skin=foobar] :is(.home-card .music-art,.home-rank-art .music-art,.home-recent-art .music-art,.album-art .cover,.apple-pick-art){border-radius:0;box-shadow:none;border:1px solid #c8c8c8}
+
 :root[data-skin=foobar] :is(.home-card-icon,.apple-pick-icon,.home-apple .home-card-icon,.home-netease .home-netease-lists .home-card.icon:nth-child(n) .home-card-icon){background:#3399ff;color:#fff}
 :root[data-skin=foobar] .apple-pick.icon .apple-pick-caption,:root[data-skin=foobar] .apple-pick.icon .apple-pick-caption::before{background:#1f6fc0}
 :root[data-skin=foobar] .home-card strong{font-size:12px;font-weight:400;color:#000}
 :root[data-skin=foobar] .home-card.now strong{color:#0066cc;font-weight:600}
-:root[data-skin=foobar] :is(.home-card-play,.floating-play,.home-shortcut-play,.qq-play-round){background:#fff;color:#000;border:1px solid var(--fb-edge);box-shadow:none}
-:root[data-skin=foobar] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.top-nav button.top-nav-item,.search-chips>button,.music-type-tabs button){height:24px;padding:0 10px;background:var(--fb-btn);border:1px solid var(--fb-btn-edge);border-radius:0;color:#000;font-size:12px;font-weight:400;box-shadow:none}
-:root[data-skin=foobar] :is(.home-tabs button,.source-tabs button,.home-filters button,.home-pick-chip,.search-chips>button,.music-type-tabs button):hover{background:#e5f1fb;border-color:#0078d7}
-:root[data-skin=foobar] :is(.home-tabs button.active,.source-tabs button.active,.home-filters button.chosen,.home-pick-chip.chosen,.top-nav button.top-nav-item.selected,.music-type-tabs button.active){background:#cce4f7;border-color:#005499;color:#000}
+
+:root[data-skin=foobar] :is(.source-tabs button[aria-selected=true],.home-filters button[aria-pressed=true],.home-pick-chip[aria-pressed=true],.top-nav button.top-nav-item.selected,.music-type-tabs button[aria-selected=true]){background:#cce4f7;border-color:#005499;color:#000}
 :root[data-skin=foobar] :is(.home-tabs button,.source-tabs button).active:after{display:none}
 :root[data-skin=foobar] :is(.home-pick-group>span,.home-pick-note){color:#6d6d6d;font-size:12px}
 :root[data-skin=foobar] :is(.qq-feature-card.tone-green,.qq-chart.tone-green,.qq-chart.tone-blue,.qq-chart.tone-amber,.qq-cover-card,.qq-feature-main.home-hero-empty,.home-hero-empty){background:#fff;color:#000;border:1px solid var(--fb-edge)}
@@ -881,7 +864,7 @@
 :root[data-skin=foobar] .detail-art>h1{font-size:18px;font-weight:600}
 :root[data-skin=foobar] .detail-content{background:#fff;border-left:1px solid var(--fb-edge)}
 :root[data-skin=foobar] .detail-tabs button{font-size:12px}
-:root[data-skin=foobar] .detail-tabs button.active:after{border-radius:0;height:2px;background:#3399ff}
+:root[data-skin=foobar] .detail-tabs button[aria-selected=true]:after{border-radius:0;height:2px;background:#3399ff}
 :root[data-skin=foobar] .lyric-lines button{font-size:14px}
 :root[data-skin=foobar] .lyric-lines button.current{-webkit-text-fill-color:#0066cc}
 /* 按钮、弹窗、滚动条 */
