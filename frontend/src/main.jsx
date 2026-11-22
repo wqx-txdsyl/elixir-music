@@ -217,6 +217,14 @@ function App() {
   const spotifyPendingTrack=useRef(null),spotifyPendingSeek=useRef(null),spotifyControlGeneration=useRef(0);
   // 续播 Spotify：播放命令不带进度，等播放器真正换到这首歌后再跳到上次听到的位置。
   const spotifyResumeAt=useRef(null);
+  // 暂停、继续时的音量渐变：每次操作递增序号，淡出途中又点了继续，旧的淡出就不会再去暂停。
+  const fadeToken=useRef(0);
+  // 自动连播时遇到放不了的歌就跳过，连续失败 3 首后停下。
+  const playAuto=useRef(false),autoSkips=useRef(0),playFailedSkip=useRef(false);
+  // 睡眠定时的「播完这首再停」：sleepFinishTrack 是设置项，sleepAfterTrack 表示已经到点、正等这首播完。
+  const [sleepAfterTrack,setSleepAfterTrack]=useState(false),sleepAfterTrackRef=useRef(false);sleepAfterTrackRef.current=sleepAfterTrack;
+  const [sleepFinishTrack,setSleepFinishTrack]=useState(()=>localStorage.getItem('musicplatform-sleep-finish-track')!=='0');
+  useEffect(()=>{localStorage.setItem('musicplatform-sleep-finish-track',sleepFinishTrack?'1':'0');},[sleepFinishTrack]);
   // spotifyPendingAt：最近一次播放命令发出的时间；spotifyEngaged：发出过 Spotify 播放、切走时需要停掉它。
   const spotifyPendingAt=useRef(0),spotifyEngaged=useRef(false);
   const spotifyClock=useRef({position_ms:0,duration_ms:0,at:0,playing:false});
@@ -437,8 +445,8 @@ function App() {
       { label: '加入播放队列', icon: Queue, onClick: load(list => batchTracks('queue', list)) },
     ], title);
   }
-  async function play(track, list, resume=false) {
-    setSpotifyInterlude(null);
+  async function play(track, list, resume=false, auto=false) {
+    setSpotifyInterlude(null);playAuto.current=auto;if(!auto)autoSkips.current=0;++fadeToken.current;fadingOut.current=false;
     const resumePosition=resume && currentRef.current?.id===track.id?playbackClock.get():0;
     const req = ++playRequestId.current;
     officialTrack.current=null;
@@ -470,7 +478,7 @@ function App() {
     if(track.source==='spotify'){++spotifyControlGeneration.current;spotifyEngaged.current=true;spotifyPendingAt.current=performance.now();setPlaying(false);}
     setRemoteWatch(track.source==='spotify');setCurrent(track);setPosition(0);setDuration(track.duration_ms/1000||0);
     spotifyClock.current={position_ms:0,duration_ms:track.duration_ms||0,at:performance.now(),playing:false};setBuffering(true);setPlayHint('');
-    const audio = audioRef.current; if(track.source!=='spotify')await effects.prepare();audio.pause(); audio.removeAttribute('src'); audio.load();
+    const audio = audioRef.current; if(track.source!=='spotify'){await effects.prepare();effects.fade(1);}audio.pause(); audio.removeAttribute('src'); audio.load();
     try {
       if (track.source === 'spotify') {
         if(!window.desktop?.spotifyPlay)throw Error('请使用 Elixir 桌面版的应用内 Spotify 播放器');
@@ -506,6 +514,14 @@ function App() {
   }
   // 播放失败的提示带「重试 / 下一首」，不自动消失
   function playFailed(track, message) {
+    // 连播中自动换到的歌放不了：提示一下直接跳过；连续 3 首都失败就停下，免得整个队列一路报错。
+    if (playAuto.current && autoSkips.current < 3 && queueRef.current.length > 1) {
+      autoSkips.current++; playFailedSkip.current = true;
+      notify('「' + track.title + '」无法播放，已跳过');
+      next(1, true);
+      return;
+    }
+    autoSkips.current = 0;
     const actions = [{ label: '重试', run: () => play(track, null, true) }];
     if (queueRef.current.length > 1) actions.push({ label: '下一首', run: () => next(1) });
     notify(message, { sticky: true, actions });
@@ -519,15 +535,22 @@ function App() {
   }),[]);
   function next(direction = 1, automatic = false) {
     if(spotifyInterlude){notify(spotifyInterlude.ad?'广告结束后可切歌':'插播结束后可切歌');return;}
+    // 睡眠定时选了「播完这首再停」：这首自然播完时停下，不再接下一首。跳过失败歌曲不算播完。
+    if (automatic && sleepAfterTrackRef.current && !playFailedSkip.current) {
+      setSleepAfterTrack(false); setSleepUntil(null);
+      if (currentRef.current?.source === 'spotify') spotifyControl('pause'); else audioRef.current?.pause();
+      setPlaying(false); notify('这首播完了，睡眠定时已结束'); return;
+    }
+    playFailedSkip.current = false;
     const items = queueRef.current; if (!items.length) return;
     const pinned = direction > 0 ? pinnedNext(items, upNextRef.current, spotifyPendingTrack.current?.id || currentRef.current?.id) : null;
-    if (pinned) { play(pinned); return; }
+    if (pinned) { play(pinned, undefined, false, automatic); return; }
     if (modeRef.current === 'single' && automatic) { if (currentRef.current?.source === 'spotify') { play(currentRef.current); return; } const audio = audioRef.current; audio.currentTime = 0; audio.play().catch(e => notify(e.message)); return; }
     const index = items.findIndex(t => t.id === (spotifyPendingTrack.current?.id||currentRef.current?.id));
     if (automatic && modeRef.current === 'once' && index === items.length - 1) { if (currentRef.current?.source === 'spotify') spotifyControl('pause'); setPlaying(false); return; }
     let nextIndex = (index + direction + items.length) % items.length;
     if (modeRef.current === 'shuffle' && items.length > 1) { do { nextIndex = Math.floor(Math.random() * items.length); } while (nextIndex === index); }
-    play(items[nextIndex]);
+    play(items[nextIndex], undefined, false, automatic);
   }
   useEffect(()=>{
     if(!remoteWatch) return;
@@ -567,7 +590,7 @@ function App() {
       if(matches&&snapshot.track)spotifyLast.current={id:snapshot.track.id,position_ms:clockPosition,duration_ms:snapshot.duration_ms,playing:snapshot.playing,at:performance.now()};else if(!matches)spotifyLast.current=null;
       // Near the end, hand Spotify the next Elixir song so it starts without a new play command.
       const upcoming=matches&&snapshot.playing&&snapshot.track&&!spotifyPendingTrack.current&&snapshot.duration_ms-clockPosition<20000?(pinnedNext(queueRef.current,upNextRef.current,snapshot.track.id)||followingTrack(queueRef.current,snapshot.track.id,modeRef.current)):null;
-      if(upcoming?.source==='spotify'&&upcoming.id!==snapshot.track.id&&spotifyQueued.current?.after!==snapshot.track.id&&window.desktop?.spotifyQueue){spotifyQueued.current={after:snapshot.track.id,id:upcoming.id};window.desktop.spotifyQueue(upcoming.source_id).catch(()=>{spotifyQueued.current=null;});}
+      if(upcoming?.source==='spotify'&&upcoming.id!==snapshot.track.id&&!sleepAfterTrackRef.current&&spotifyQueued.current?.after!==snapshot.track.id&&window.desktop?.spotifyQueue){spotifyQueued.current={after:snapshot.track.id,id:upcoming.id};window.desktop.spotifyQueue(upcoming.source_id).catch(()=>{spotifyQueued.current=null;});}
       setPlaying(snapshot.playing);setPosition(spotifyClockPosition(spotifyClock.current,performance.now())/1000);
       if(matches&&snapshot.duration_ms)setDuration(snapshot.duration_ms/1000);
       setPlayHint(matches?(state.owned_license_error?'Spotify 音乐许可证未获批':state.reason||''):(state.owned_device_id?state.reason||'':''));
@@ -592,14 +615,42 @@ function App() {
     }
     const audio=audioRef.current;
     if(!audio?.src){if(track)play(track,undefined,true);else if(queueRef.current.length)play(queueRef.current[0]);return;}
-    if(audio.paused)audio.play().catch(e=>notify(e.message));else audio.pause();
+    if(audio.paused||fadingOut.current)resumeAudio();else pauseAudio();
+  }
+  // 本地和直链音频暂停前先淡出、继续时淡入，不会“咔”一下断掉。淡出途中又点继续，就从当前音量淡回来。
+  const fadingOut=useRef(false);
+  function resumeAudio(){
+    const audio=audioRef.current;if(!audio)return;
+    const token=++fadeToken.current;
+    if(fadingOut.current&&!audio.paused){fadingOut.current=false;setPlaying(true);effects.fade(1,.2);return;}
+    fadingOut.current=false;effects.fade(0);
+    audio.play().then(()=>{if(token===fadeToken.current)effects.fade(1,.25);}).catch(e=>{effects.fade(1);notify(e.message);});
+  }
+  async function pauseAudio(seconds=.2){
+    const audio=audioRef.current;if(!audio||audio.paused)return;
+    const token=++fadeToken.current;fadingOut.current=true;setPlaying(false);
+    await effects.fade(0,seconds);
+    if(token!==fadeToken.current)return;
+    fadingOut.current=false;audio.pause();effects.fade(1);
   }
   useEffect(() => {
     const keydown = e => { if (e.target.closest('.shortcut-key')) return; const inField = e.target.closest('input,textarea,select,[contenteditable="true"]'); if (e.code === 'Escape') { if (inField || palette) return; setModalInput(''); setModal(null); setDetail(null); setQueueOpen(false); setEditing(false); return; } const combo = comboFromEvent(e); if (!combo) return; if (combo === 'Ctrl+Z' && editing && !e.target.closest('input,textarea')) { e.preventDefault(); appearance.undo(); return; } if (combo === 'Space' && e.target.closest('button,a,[role=button]')) return; const action = shortcuts.localActionFor(combo); if (!action) return; if (inField && !ANYWHERE.has(action)) return; if (action === 'search' && e.defaultPrevented) return; e.preventDefault(); runAction(action); };
     document.addEventListener('keydown', keydown); return () => document.removeEventListener('keydown', keydown);
   });
-  useEffect(() => { if (!('mediaSession' in navigator)) return; navigator.mediaSession.setActionHandler('play', () => { if (currentRef.current?.source === 'spotify') spotifyControl('resume'); else audioRef.current?.play().catch(e=>notify(e.message)); }); navigator.mediaSession.setActionHandler('pause', () => { if(currentRef.current?.source==='spotify')spotifyControl('pause');else audioRef.current?.pause(); }); navigator.mediaSession.setActionHandler('nexttrack', () => next(1)); navigator.mediaSession.setActionHandler('previoustrack', () => next(-1)); navigator.mediaSession.setActionHandler('seekto', e => { if (!Number.isFinite(e.seekTime)) return; if(currentRef.current?.source==='spotify')spotifyControl('seek',Math.round(e.seekTime*1000));else if(audioRef.current)audioRef.current.currentTime=e.seekTime; }); });
-  useEffect(() => { if (!sleepUntil) return; const timer = setTimeout(async () => { const track = currentRef.current; if (track?.source === 'spotify') { if (await spotifyControl('pause')) setPlaying(false); } else if (track?.id && officialTrack.current?.id === track.id) { const result = await window.desktop?.platformControl?.(track.id, false).catch(() => null); if (!result?.accepted) { await window.desktop?.platformStop?.(); officialTrack.current = null; } setPlaying(false); } else audioRef.current?.pause(); setSleepUntil(null); notify('睡眠定时已结束'); }, Math.max(0, sleepUntil - Date.now())); return () => clearTimeout(timer); }, [sleepUntil]);
+  useEffect(() => { if (!('mediaSession' in navigator)) return; navigator.mediaSession.setActionHandler('play', () => { if (currentRef.current?.source === 'spotify') spotifyControl('resume'); else resumeAudio(); }); navigator.mediaSession.setActionHandler('pause', () => { if(currentRef.current?.source==='spotify')spotifyControl('pause');else pauseAudio(); }); navigator.mediaSession.setActionHandler('nexttrack', () => next(1)); navigator.mediaSession.setActionHandler('previoustrack', () => next(-1)); navigator.mediaSession.setActionHandler('seekto', e => { if (!Number.isFinite(e.seekTime)) return; if(currentRef.current?.source==='spotify')spotifyControl('seek',Math.round(e.seekTime*1000));else if(audioRef.current)audioRef.current.currentTime=e.seekTime; }); });
+  // 真正播起来了，自动跳过的连续失败计数清零。
+  useEffect(() => { if (playing) autoSkips.current = 0; }, [playing]);
+  // 窗口标题显示「歌名 - 歌手」，Alt+Tab 和任务栏悬停时能看出在放哪首。
+  useEffect(() => { document.title = current ? current.title + (current.artist ? ' - ' + current.artist : '') + ' · Elixir' : 'Elixir'; }, [current?.title, current?.artist]);
+  // 任务栏：缩略图上的上一首 / 播放 / 下一首按钮，图标上显示播放进度，每秒最多更新一次。
+  useEffect(() => {
+    if (!window.desktop?.updateTaskbar) return;
+    let last = -1;
+    const send = () => { const total = duration || (current?.duration_ms || 0) / 1000, progress = current && total > 0 ? Math.min(1, playbackClock.get() / total) : -1; window.desktop.updateTaskbar({ hasTrack: !!current, playing: !!playing, progress }).catch(() => {}); };
+    send();
+    return playbackClock.subscribe(() => { const second = Math.floor(playbackClock.get()); if (second !== last) { last = second; send(); } });
+  }, [current?.id, playing, duration]);
+  useEffect(() => { if (!sleepUntil) return; const timer = setTimeout(async () => { const track = currentRef.current; if (sleepFinishTrack && playing) { setSleepUntil(null); setSleepAfterTrack(true); notify('定时已到，这首播完就停'); return; } if (track?.source === 'spotify') { if (await spotifyControl('pause')) setPlaying(false); } else if (track?.id && officialTrack.current?.id === track.id) { const result = await window.desktop?.platformControl?.(track.id, false).catch(() => null); if (!result?.accepted) { await window.desktop?.platformStop?.(); officialTrack.current = null; } setPlaying(false); } else await pauseAudio(3); setSleepUntil(null); notify('睡眠定时已结束'); }, Math.max(0, sleepUntil - Date.now())); return () => clearTimeout(timer); }, [sleepUntil, sleepFinishTrack, playing]);
   useEffect(()=>{
     let cancelled=false;setPlayerLyric([]);if(current)api(trackPath(current.id)+'/lyrics').then(data=>{if(!cancelled)setPlayerLyric(lyricTimeline(data));}).catch(()=>{});return()=>{cancelled=true;};
   },[current?.id]);
@@ -796,7 +847,7 @@ function App() {
   return <div className={'app theme-' + theme + (detail ? ' detail-open' : '')} {...frameData} style={{ '--now-cover': current?.cover ? `url("${mediaUrl(current.cover).replace(/["\\]/g, '\\$&')}")` : 'none', '--user-bg': look.backgroundImage ? `url("${look.backgroundImage}")` : 'none' }}>
     {frameData['data-bg'] && <div className="app-backdrop" aria-hidden="true">{parts.background === 'mosaic' && <CoverMosaic tracks={queue.length ? queue : current ? [current] : []} currentId={current?.id} />}</div>}
     <div className="drag-strip" aria-hidden="true" />
-    <audio ref={audioRef} onTimeUpdate={e => setPosition(e.currentTarget.currentTime)} onLoadedMetadata={e => setDuration(Number.isFinite(e.currentTarget.duration) ? e.currentTarget.duration : 0)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => next(1, true)} onWaiting={() => setBuffering(true)} onCanPlay={() => setBuffering(false)} onPlaying={() => { audioRetry.current = ''; }} onError={() => { const track = currentRef.current; if (!audioRef.current?.src || !track || track.source === 'spotify') return; if (audioRetry.current !== track.id) { audioRetry.current = track.id; play(track, null, true); return; } setBuffering(false); setPlaying(false); setPlayHint(AUDIO_FAILED); playFailed(track, AUDIO_FAILED); }} />
+    <audio ref={audioRef} onTimeUpdate={e => setPosition(e.currentTarget.currentTime)} onLoadedMetadata={e => setDuration(Number.isFinite(e.currentTarget.duration) ? e.currentTarget.duration : 0)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => next(1, true)} onWaiting={() => setBuffering(true)} onCanPlay={() => setBuffering(false)} onPlaying={() => { audioRetry.current = ''; }} onError={() => { const track = currentRef.current; if (!audioRef.current?.src || !track || track.source === 'spotify') return; if (audioRetry.current !== track.id) { audioRetry.current = track.id; play(track, null, true, playAuto.current); return; } setBuffering(false); setPlaying(false); setPlayHint(AUDIO_FAILED); playFailed(track, AUDIO_FAILED); }} />
     {phone && navOpen && <div className="mobile-scrim" aria-hidden="true" onClick={() => setNavOpen(false)} />}
     <aside className={'sidebar' + (phone && navOpen ? ' nav-open' : '')}>
       <button type="button" className="brand platform-brand" aria-label="Elixir 首页" onClick={()=>navigate('home')}><img src="/elixir-mark.svg" alt=""/><span>Elixir</span></button>
@@ -819,7 +870,7 @@ function App() {
         {page === 'accounts' && <div className="accounts-page"><PageHero compact kind="accounts" icon={UserCircle} title="账号与会员" meta={'已连接 ' + connectedCount(accounts) + ' / 3 · 会员与播放权限以平台为准'} actions={<button className="button quiet" onClick={()=>refreshAccounts(true)}><ArrowsClockwise size={18} />刷新状态</button>} />
           <AccountCenter accounts={accounts} onLogin={login} onLogout={logout} onCloud={loadCloudPlaylists} />
           <details className="account-help"><summary>登录与会员说明</summary><div><p>账号信息只保存在本机。会员与播放权限由各平台提供。</p></div></details></div>}
-        {page === 'settings' && <div className="settings-page"><PageHero compact kind="settings" icon={GearSix} title="设置" meta={'Elixir' + (appVersion ? ' v' + appVersion : '') + ' · 界面、播放、音效与连接'} /><div className="section-page"><SectionNav sections={settingSections} /><div className="section-body"><section className="settings-section" id="settings-theme"><h2>外观</h2><div className="settings-look"><SkinPreview skin={resolved.skin} /><div><strong>{resolved.skin.name}</strong><p>{resolved.skin.note}</p><div className="settings-look-actions"><button className="button quiet" onClick={() => navigate('studio')}><PaintBrush size={17} />打开个性化工坊</button><button className="button quiet" onClick={() => setEditing(true)}><PuzzlePiece size={17} />在界面上拆装组件</button><button className="button quiet" onClick={() => setPalette(true)}>命令面板 <kbd>Ctrl K</kbd></button></div></div></div></section><section className="settings-section" id="settings-playback"><h2>播放</h2><div className="setting-row"><div><strong>优先音质</strong><p>可用音质取决于账号与平台授权。</p></div><SelectMenu aria-label="播放音质" value={settings.quality || 'standard'} onChange={e => changeQuality(e.target.value)}><option value="standard">标准音质</option><option value="higher">较高音质</option><option value="exhigh">极高音质</option><option value="lossless">无损音质</option></SelectMenu></div><div className="setting-row"><div><strong>播放速度</strong></div><SelectMenu aria-label="播放速度" value={speed} onChange={e => setSpeed(Number(e.target.value))}>{[0.75, 1, 1.25, 1.5, 2].map(rate => <option value={rate} key={rate}>{rate}×</option>)}</SelectMenu></div><div className="setting-row"><div><strong>睡眠定时</strong><p>{sleepUntil ? '将在 ' + new Date(sleepUntil).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + ' 暂停' : ''}</p></div><button className="button quiet" onClick={() => setModal({ type: 'sleep' })}><Timer size={18} />{sleepUntil ? '修改定时' : '设置定时'}</button></div></section><div id="settings-effects" className="section-anchor"><AudioEffects effects={effects} remote={current?.source==='spotify'}/></div><section className="settings-section" id="settings-desktop"><h2>桌面与快捷键</h2><div className="setting-row"><div><strong>桌面歌词</strong></div><button className="button quiet" onClick={toggleDesktopLyrics}>{desktopLyrics?'关闭桌面歌词':'打开桌面歌词'}</button></div><ShortcutSettings shortcuts={shortcuts}/></section><section className="settings-section" id="settings-connection"><h2>连接</h2><label className="field-label">网络代理<input placeholder="http://127.0.0.1:7890" value={settingsDraft.proxy || ''} onChange={e => setSettingsDraft(d => ({ ...d, proxy: e.target.value }))} onBlur={saveProxy} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }} /></label></section><section className="settings-section about-section" id="settings-about"><img className="app-about-icon" src="/elixir-icon.png" alt=""/><div><h2>Elixir <small>{appVersion}</small></h2><p>独立音乐客户端</p></div><button className="button quiet" onClick={()=>window.desktop?.window('quit')}>退出 Elixir</button></section></div></div></div>}
+        {page === 'settings' && <div className="settings-page"><PageHero compact kind="settings" icon={GearSix} title="设置" meta={'Elixir' + (appVersion ? ' v' + appVersion : '') + ' · 界面、播放、音效与连接'} /><div className="section-page"><SectionNav sections={settingSections} /><div className="section-body"><section className="settings-section" id="settings-theme"><h2>外观</h2><div className="settings-look"><SkinPreview skin={resolved.skin} /><div><strong>{resolved.skin.name}</strong><p>{resolved.skin.note}</p><div className="settings-look-actions"><button className="button quiet" onClick={() => navigate('studio')}><PaintBrush size={17} />打开个性化工坊</button><button className="button quiet" onClick={() => setEditing(true)}><PuzzlePiece size={17} />在界面上拆装组件</button><button className="button quiet" onClick={() => setPalette(true)}>命令面板 <kbd>Ctrl K</kbd></button></div></div></div></section><section className="settings-section" id="settings-playback"><h2>播放</h2><div className="setting-row"><div><strong>优先音质</strong><p>可用音质取决于账号与平台授权。</p></div><SelectMenu aria-label="播放音质" value={settings.quality || 'standard'} onChange={e => changeQuality(e.target.value)}><option value="standard">标准音质</option><option value="higher">较高音质</option><option value="exhigh">极高音质</option><option value="lossless">无损音质</option></SelectMenu></div><div className="setting-row"><div><strong>播放速度</strong></div><SelectMenu aria-label="播放速度" value={speed} onChange={e => setSpeed(Number(e.target.value))}>{[0.75, 1, 1.25, 1.5, 2].map(rate => <option value={rate} key={rate}>{rate}×</option>)}</SelectMenu></div><div className="setting-row"><div><strong>睡眠定时</strong><p>{sleepAfterTrack ? '这首播完后暂停' : sleepUntil ? '将在 ' + new Date(sleepUntil).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) + (sleepFinishTrack ? ' 后播完当前歌曲再暂停' : ' 暂停') : ''}</p></div><button className="button quiet" onClick={() => setModal({ type: 'sleep' })}><Timer size={18} />{sleepUntil || sleepAfterTrack ? '修改定时' : '设置定时'}</button></div></section><div id="settings-effects" className="section-anchor"><AudioEffects effects={effects} remote={current?.source==='spotify'}/></div><section className="settings-section" id="settings-desktop"><h2>桌面与快捷键</h2><div className="setting-row"><div><strong>桌面歌词</strong></div><button className="button quiet" onClick={toggleDesktopLyrics}>{desktopLyrics?'关闭桌面歌词':'打开桌面歌词'}</button></div><ShortcutSettings shortcuts={shortcuts}/></section><section className="settings-section" id="settings-connection"><h2>连接</h2><label className="field-label">网络代理<input placeholder="http://127.0.0.1:7890" value={settingsDraft.proxy || ''} onChange={e => setSettingsDraft(d => ({ ...d, proxy: e.target.value }))} onBlur={saveProxy} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }} /></label></section><section className="settings-section about-section" id="settings-about"><img className="app-about-icon" src="/elixir-icon.png" alt=""/><div><h2>Elixir <small>{appVersion}</small></h2><p>独立音乐客户端</p></div><button className="button quiet" onClick={()=>window.desktop?.window('quit')}>退出 Elixir</button></section></div></div></div>}
       </main>
     </div>
     <PlayerBar current={current} interlude={spotifyInterlude} playHint={playHint} liked={liked} playing={playing} buffering={buffering} playMode={playMode} queueLength={queue.length} queueOpen={queueOpen} duration={duration} volume={volume} quality={settings.quality} onOpenDetail={openDetail} onToggleLike={toggleLike} onPlayMode={setPlayMode} onSkip={next} onToggle={togglePlayback} onSeek={value=>{if(current?.source!=='spotify')audioRef.current.currentTime=value;setPosition(value);}} onSeekEnd={value=>{if(current?.source==='spotify')spotifyControl('seek',Math.round(value*1000));}} onQualityChange={changeQuality} desktopLyrics={desktopLyrics} onDesktopLyrics={window.desktop?.openLyrics ? toggleDesktopLyrics : undefined} onVolume={setVolume} onVolumeEnd={value=>{if(current?.source==='spotify')spotifyControl('volume',Math.round(value*100));}} onQueue={()=>setQueueOpen(!queueOpen)} lyric={parts.lyricBar === 'on' ? playerLyric : null} marks={parts.progress === 'lyric' ? playerLyric : null} chorus={chorus} />
@@ -840,7 +891,7 @@ function App() {
       {modal.type === 'spotify-cookie' && <><form onSubmit={e=>{e.preventDefault();loginSpotifyCookie();}}><p className="modal-description">粘贴 Spotify 的 sp_dc Cookie，或打开官方登录。</p><label className="field-label">Spotify Cookie<textarea autoFocus autoComplete="off" spellCheck="false" value={modalInput} onChange={e=>setModalInput(e.target.value)} placeholder="sp_dc=你的登录 Cookie" rows={4} /></label><p className="field-help">Cookie 仅保存在本机。</p><div className="modal-footer"><button type="button" className="button quiet" onClick={()=>{setModalInput('');loginOfficial('spotify');}}>官方网页登录</button><button className="button primary" disabled={modalBusy||!modalInput.trim()}>{modalBusy?'正在打开…':'导入并打开 Spotify'}</button></div></form></>}
       {modal.type === 'platform-qr' && <><div className="login-instructions"><h3>使用{SOURCE_NAMES[modal.source]} App 扫码</h3><div className="qr-code">{qr?.qr_png ? <img src={qr.qr_png.startsWith('data:') ? qr.qr_png : 'data:image/png;base64,' + qr.qr_png} alt={SOURCE_NAMES[modal.source]+'登录二维码'} /> : <CircleNotch className="spin" size={34} />}{['expired','error','timeout'].includes(qrStatus) && <button className="qr-overlay" onClick={()=>loadQr(modal.source)}><ArrowsClockwise size={25} />刷新二维码</button>}</div><p>{{loading:'正在生成二维码…',waiting:'打开手机 App，扫一扫并确认登录',scanned:'扫码成功，请在手机上确认',expired:'二维码已过期',authorized:'登录成功',verifying:'已收到扫码确认，正在核实账号资料…',retrying:'连接暂时中断，正在自动重试，请勿重复扫码',timeout:'等待时间较长，请刷新二维码后重试',error:'连接失败，请刷新二维码'}[qrStatus]}</p>{qrError&&<ErrorNote className="qr-error-reason">{qrError}</ErrorNote>}</div><div className="modal-footer">{modal.source==='netease' && <button className="button quiet" onClick={() => loginOfficial('netease')}>改用官方网页登录</button>}<button className="button primary" onClick={()=>loadQr(modal.source)}><ArrowsClockwise size={17} />刷新</button></div></>}
       {modal.type === 'cloud-playlists' && <>{modalBusy ? <Loading text="正在读取云端歌单…" /> : <>{cloudPlaylistStatus?.state==='error'?<ErrorNote title="云端歌单读取失败" retry={()=>loadCloudPlaylists(modal.source)} retryText="重新读取">{cloudPlaylistStatus.reason}</ErrorNote>:<><Note>已读取 {cloudPlaylists.length} 个歌单{cloudPlaylistStatus?.partial?' · 当前为部分结果':''}</Note>{cloudPlaylistStatus?.warnings?.map((w,i)=><ErrorNote key={i}>{w}</ErrorNote>)}<div className="playlist-picker">{cloudPlaylists.length?cloudPlaylists.map(item=><button key={item.id} onClick={()=>openCloudPlaylist(item,modal.source)}><Cover src={item.cover}/><span>{item.title || item.name}<small>{Number.isFinite(item.count)?item.count+' 首歌曲':'曲目数待返回'}{item.collection_kind==='created'?' · 自建':item.collection_kind==='saved'?' · 收藏':''}</small></span><CaretRight size={17}/></button>):<Empty icon={Playlist} title={cloudPlaylistStatus?.empty?'账号当前没有云端歌单':'平台未返回可确认的歌单目录'} text={cloudPlaylistStatus?.empty?'平台已成功返回空列表。':'这不代表你的账号没有歌单，请重试读取。'}/>}</div><button className="button quiet" onClick={()=>loadCloudPlaylists(modal.source)}><ArrowsClockwise size={16}/>刷新歌单</button></>}</>}</>}
-      {modal.type === 'sleep' && <><p className="modal-description">定时结束后自动暂停音乐。</p><div className="sleep-options">{[15, 30, 45, 60, 90].map(minutes => <button key={minutes} aria-pressed={sleepMinutes === minutes} onClick={() => setSleepMinutes(minutes)}>{minutes} 分钟</button>)}</div><div className="modal-footer">{sleepUntil && <button className="button quiet" onClick={() => { setSleepUntil(null); setModal(null); notify('睡眠定时已取消'); }}>取消定时</button>}<button className="button primary" onClick={() => { setSleepUntil(Date.now() + sleepMinutes * 60000); setModal(null); notify(sleepMinutes + ' 分钟后暂停'); }}><Moon size={18} />开始定时</button></div></>}
+      {modal.type === 'sleep' && <><p className="modal-description">定时结束后自动暂停音乐。</p><div className="sleep-options">{[15, 30, 45, 60, 90].map(minutes => <button key={minutes} aria-pressed={sleepMinutes === minutes} onClick={() => setSleepMinutes(minutes)}>{minutes} 分钟</button>)}</div><label className="sleep-finish-track"><input type="checkbox" checked={sleepFinishTrack} onChange={e => setSleepFinishTrack(e.target.checked)} />到点后把正在放的这首播完再停</label><div className="modal-footer">{(sleepUntil || sleepAfterTrack) && <button className="button quiet" onClick={() => { setSleepUntil(null); setSleepAfterTrack(false); setModal(null); notify('睡眠定时已取消'); }}>取消定时</button>}<button className="button quiet" onClick={() => { setSleepUntil(null); setSleepAfterTrack(true); setModal(null); notify('这首播完就停'); }}>播完这首就停</button><button className="button primary" onClick={() => { setSleepAfterTrack(false); setSleepUntil(Date.now() + sleepMinutes * 60000); setModal(null); notify(sleepMinutes + ' 分钟后暂停'); }}><Moon size={18} />开始定时</button></div></>}
       {modal.type === 'devices' && <><div className="device-tools"><button className="button quiet" onClick={()=>external('https://open.spotify.com')}>打开网页播放器<ArrowSquareOut size={16}/></button></div><div className="playlist-picker">{devices.length ? devices.map(device => <button key={device.id} onClick={() => { setDeviceId(device.id); setModal(null); notify('已选择 ' + device.name); }}><MonitorPlay size={25} /><span>{device.name}<small>{device.type}{device.is_active ? ' · 当前活动设备' : ''}</small></span>{deviceId === device.id && <Check size={18} />}</button>) : <Empty icon={MonitorPlay} title="未发现可用设备" text="没有在线设备" />}</div><button className="button quiet" onClick={loadDevices}><ArrowsClockwise size={17} />刷新设备</button></>}
     </Modal>}
     {editing && <LayoutEditor look={look} resolved={resolved} appearance={appearance} notify={notify} onDone={closeEditor} />}

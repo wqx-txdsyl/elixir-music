@@ -44,5 +44,6 @@ contextBridge.exposeInMainWorld('desktop', {
   ,onLyricsClosed: callback => { const handler=()=>callback();ipcRenderer.on('lyrics-closed',handler);return ()=>ipcRenderer.removeListener('lyrics-closed',handler); }
   ,getGlobalShortcuts: () => ipcRenderer.invoke('shortcuts-global-get')
   ,setGlobalShortcuts: data => ipcRenderer.invoke('shortcuts-global-set', data)
+  ,updateTaskbar: state => ipcRenderer.invoke('taskbar-update', state)
   ,onPlayerAction: callback => { const handler=(_event,action)=>callback(action);ipcRenderer.on('player-action',handler);return ()=>ipcRenderer.removeListener('player-action',handler); }
 });

@@ -145,6 +145,8 @@ function createWindow() {
   mainWindow.webContents.on('will-navigate',(event,url)=>{if(!url.startsWith(ORIGIN+'/')){event.preventDefault();if(allowedExternal(url))shell.openExternal(url);}});
   mainWindow.webContents.session.setPermissionRequestHandler((_wc,_permission,callback)=>callback(false));
   mainWindow.once('ready-to-show',()=>mainWindow.show());
+  // 窗口隐藏到托盘再显示时，Windows 会丢掉缩略图按钮，重新设一次。
+  mainWindow.on('show',applyTaskbar);
   retainInBackground(mainWindow,{canHide:()=>!!tray&&!tray.isDestroyed(),isQuitting:()=>closing});
   for(const event of ['maximize','unmaximize','minimize','restore'])mainWindow.on(event,()=>mainWindow?.webContents.send('window-state-changed',{maximized:mainWindow.isMaximized(),minimized:mainWindow.isMinimized()}));
   mainWindow.on('closed',()=>{mainWindow=null;app.quit();});
@@ -211,6 +213,51 @@ function trayAndKeys(){
   tray.on('click',show);
   applyGlobalShortcuts();
 }
+// 任务栏缩略图上的上一首 / 播放 / 下一首按钮，以及图标上的播放进度（仅 Windows）。
+// 图标用代码画成 32×32 的白色图形，按 2 倍缩放显示为 16 像素，不额外带图片文件。
+function inTriangle(x,y,[ax,ay,bx,by,cx,cy]){const side=(px,py,qx,qy,rx,ry)=>(px-rx)*(qy-ry)-(qx-rx)*(py-ry);const a=side(x,y,ax,ay,bx,by),b=side(x,y,bx,by,cx,cy),c=side(x,y,cx,cy,ax,ay);return !((a<0||b<0||c<0)&&(a>0||b>0||c>0));}
+function taskbarIcon(shapes){
+  const size=32,buffer=Buffer.alloc(size*size*4);
+  const inside=(x,y)=>shapes.some(s=>s.rect?x>=s.rect[0]&&x<=s.rect[2]&&y>=s.rect[1]&&y<=s.rect[3]:inTriangle(x,y,s.tri));
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+    let hit=0;for(let sy=0;sy<4;sy++)for(let sx=0;sx<4;sx++)if(inside(x+(sx+.5)/4,y+(sy+.5)/4))hit++;
+    const alpha=Math.round(hit/16*255),i=(y*size+x)*4;buffer[i]=buffer[i+1]=buffer[i+2]=buffer[i+3]=alpha;
+  }
+  return nativeImage.createFromBitmap(buffer,{width:size,height:size,scaleFactor:2});
+}
+let taskbarIcons=null,taskbarState={hasTrack:false,playing:false,progress:-1};
+function taskbarIconSet(){
+  return taskbarIcons||(taskbarIcons={
+    previous:taskbarIcon([{rect:[7,7,10,25]},{tri:[25,7,25,25,11,16]}]),
+    play:taskbarIcon([{tri:[10,6,10,26,26,16]}]),
+    pause:taskbarIcon([{rect:[9,7,13,25]},{rect:[19,7,23,25]}]),
+    next:taskbarIcon([{rect:[22,7,25,25]},{tri:[7,7,7,25,21,16]}]),
+  });
+}
+function applyTaskbarProgress(){
+  if(process.platform!=='win32'||!mainWindow||mainWindow.isDestroyed())return;
+  const {hasTrack,playing,progress}=taskbarState;
+  mainWindow.setProgressBar(hasTrack&&progress>=0?progress:-1,{mode:playing?'normal':'paused'});
+}
+function applyTaskbar(){
+  if(process.platform!=='win32'||!mainWindow||mainWindow.isDestroyed())return;
+  const {hasTrack,playing}=taskbarState,icons=taskbarIconSet(),flags=hasTrack?[]:['disabled'];
+  mainWindow.setThumbarButtons([
+    {tooltip:'上一首',icon:icons.previous,flags,click:()=>sendPlayerAction('previous')},
+    {tooltip:playing?'暂停':'播放',icon:playing?icons.pause:icons.play,flags,click:()=>sendPlayerAction('toggle')},
+    {tooltip:'下一首',icon:icons.next,flags,click:()=>sendPlayerAction('next')},
+  ]);
+  applyTaskbarProgress();
+}
+ipcMain.handle('taskbar-update',(event,state)=>{
+  trusted(event);
+  if(!state||typeof state!=='object')return false;
+  const progress=Number(state.progress),next={hasTrack:state.hasTrack===true,playing:state.playing===true,progress:Number.isFinite(progress)?Math.max(-1,Math.min(1,progress)):-1};
+  const buttonsChanged=next.hasTrack!==taskbarState.hasTrack||next.playing!==taskbarState.playing;
+  taskbarState=next;
+  if(buttonsChanged)applyTaskbar();else applyTaskbarProgress();
+  return true;
+});
 function trustedLyric(event){if(!lyricWindow||event.sender!==lyricWindow.webContents||event.senderFrame!==lyricWindow.webContents.mainFrame||!event.senderFrame.url.startsWith(ORIGIN+'/'))throw Error('不允许的歌词窗口调用');}
 ipcMain.handle('lyrics-open',event=>{trusted(event);lyricsWindow();return true;});
 ipcMain.handle('lyrics-ready',event=>{trustedLyric(event);lyricWindow.webContents.send('lyrics-data',lyricData);return true;});
