@@ -27,3 +27,45 @@
 }
 .theme-spotify .visualizer-strip { height: 48px; }
 }
+
+/* 环形音浪：封面做成圆形唱片（参考网易云），播放时缓慢转动，音浪贴着圆转一圈。
+   不放进 @layer，才能盖过各皮肤给封面设的直角、圆角、描边和倒影。 */
+.detail-cover-stage.ring-disc > .large-cover {
+  position: relative;
+  box-sizing: border-box;
+  aspect-ratio: 1;
+  padding: 13%;
+  overflow: hidden;
+  border-radius: 50% !important;
+  background: repeating-radial-gradient(circle, #15171c 0 1px, #24272e 2px, #1a1c22 3px) !important;
+  box-shadow: 0 0 0 6px #ffffff12, 0 18px 46px #0000006b !important;
+  outline: none !important;
+  filter: none !important;
+  -webkit-box-reflect: none !important;
+  animation: ring-disc-spin 28s linear infinite paused;
+}
+.detail-cover-stage.ring-disc.spinning > .large-cover { animation-play-state: running; }
+.detail-cover-stage.ring-disc > .large-cover > .cover {
+  width: 100%;
+  height: 100%;
+  border-radius: 50% !important;
+  overflow: hidden;
+  box-shadow: 0 0 0 3px #0d0e11;
+}
+.detail-cover-stage.ring-disc > .large-cover > .cover img { border-radius: 50%; }
+/* 唱片中心的轴孔 */
+.detail-cover-stage.ring-disc > .large-cover::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3.5%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #e9ebef;
+  box-shadow: 0 0 0 2px #15171c;
+  transform: translate(-50%, -50%);
+}
+@keyframes ring-disc-spin { from { transform: rotate(0); } to { transform: rotate(1turn); } }
+.app[data-motion=reduced] .detail-cover-stage.ring-disc > .large-cover { animation: none; }
+@media (prefers-reduced-motion: reduce) { .detail-cover-stage.ring-disc > .large-cover { animation: none; } }
