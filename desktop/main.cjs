@@ -89,8 +89,10 @@ function spotifyPlayer(){
     onObservation:data=>backend('/api/spotify/player-observation',data).finally(()=>mainWindow?.webContents.send('spotify-player-state',{observation:data.debug_source})),
     onState:state=>{fs.appendFileSync(path.join(dataRoot,'spotify-player-status.jsonl'),JSON.stringify({at:Date.now(),...state})+'\n');
       // 已经切到别的音源，Spotify 却因为晚到的播放命令自己开播了：马上再暂停一次。
+      const playbackBlocked=state.license_error&&spotifyWanted;
+      if(playbackBlocked)stopSpotifyPlayback();
       if(state.media_started&&!spotifyWanted)pauseSpotify(spotifyPlaySequence);
-      mainWindow?.webContents.send('spotify-player-state',state);}
+      mainWindow?.webContents.send('spotify-player-state',playbackBlocked?{...state,playback_blocked:true}:state);}
   });return inAppSpotify;
 }
 async function syncLogin(source) {
@@ -310,20 +312,28 @@ function pauseSpotify(sequence){
 ipcMain.handle('spotify-play',async(event,trackId)=>{
   trusted(event);
   if(!/^[A-Za-z0-9]{22}$/.test(trackId))throw Error('无效的 Spotify 歌曲编号');
-  const request=++spotifyPlaySequence;spotifyWanted=true;spotifyPlayer().setMuted(false);
-  const player=await spotifyPlayer().ready();
+  const request=++spotifyPlaySequence;
+  const spotify=spotifyPlayer();
+  spotify.beginPlayback();
+  spotifyWanted=true;
+  spotify.setMuted(false);
+  const player=await spotify.ready();
   if(request!==spotifyPlaySequence)return {cancelled:true};
   // 播放命令发出期间如果切到了别的音源，命令完成后再补一次暂停，保证不会和别的音源同时出声。
   submitSpotifyCommand('/api/spotify/play',{track_id:trackId,device_id:player.device_id},request).then(()=>{if(!spotifyWanted)pauseSpotify(spotifyPlaySequence);});
   return {pending:true,confirmed:false,...player,transport:'web'};
 });
-// 切到其他音源时调用：作废还没发出的播放命令，并暂停网页播放器。
-ipcMain.handle('spotify-stop',event=>{
-  trusted(event);
+// 切出 Spotify 或许可失败时作废待发命令，并立即让网页播放器静音、暂停。
+function stopSpotifyPlayback(){
   const sequence=++spotifyPlaySequence;spotifyWanted=false;inAppSpotify?.setMuted(true);
   for(const timer of spotifyControlTimers.values())clearTimeout(timer);
   spotifyControlTimers.clear();
   pauseSpotify(sequence);
+}
+
+ipcMain.handle('spotify-stop',event=>{
+  trusted(event);
+  stopSpotifyPlayback();
   return {stopped:true};
 });
 ipcMain.handle('spotify-state',async event=>{trusted(event);const player=spotifyPlayer();const state=await backend('/api/spotify/state',undefined,'GET');const media=await player.sampleMedia();if(media&&state.device?.id===media.device_id&&media.ready_state>=3&&!media.seeking&&Math.abs((state.duration_ms||0)-media.duration_ms)<1500&&(!media.title||!state.track?.title||media.title.normalize('NFKC').replace(/\s+/g,'').toLocaleLowerCase()===state.track.title.normalize('NFKC').replace(/\s+/g,'').toLocaleLowerCase()))backend('/api/spotify/player-observation',{device_id:media.device_id,position_ms:media.position_ms,debug_source:media.paused||media.ended?'pause':'progress'}).catch(()=>{});return {...state,owned_device_id:player.deviceId,owned_media_playing:player.playing,owned_license_error:player.licenseError,owned_media_sample:media};});
@@ -332,7 +342,8 @@ ipcMain.handle('spotify-queue',(event,trackId)=>{
   if(!/^[A-Za-z0-9]{22}$/.test(trackId))throw Error('无效的 Spotify 歌曲编号');
   const player=spotifyPlayer();
   if(!player.deviceId)throw Error('Spotify 应用内播放器尚未就绪');
-  submitSpotifyCommand('/api/spotify/queue',{track_id:trackId,device_id:player.deviceId});
+  if(!spotifyWanted||player.licenseError)return {cancelled:true};
+  submitSpotifyCommand('/api/spotify/queue',{track_id:trackId,device_id:player.deviceId},spotifyPlaySequence);
   return {pending:true};
 });
 ipcMain.handle('spotify-control',async(event,action,value)=>{
@@ -340,7 +351,7 @@ ipcMain.handle('spotify-control',async(event,action,value)=>{
   if(!['pause','resume','next','previous','seek','volume'].includes(action))throw Error('不支持此操作');
   const player=spotifyPlayer();
   if(!player.deviceId)throw Error('Spotify 应用内播放器尚未就绪');
-  if(action==='resume'){spotifyWanted=true;player.setMuted(false);}
+  if(action==='resume'){player.beginPlayback();spotifyWanted=true;player.setMuted(false);}
   const sequence=spotifyPlaySequence;
   const send=()=>{if(sequence===spotifyPlaySequence)submitSpotifyCommand('/api/spotify/control',{action,value,device_id:player.deviceId},sequence);};
   if(['seek','volume'].includes(action)){clearTimeout(spotifyControlTimers.get(action));spotifyControlTimers.set(action,setTimeout(send,120));}else send();

@@ -14,6 +14,7 @@ export function ownedSpotifySnapshot(state={},fallbackDeviceId=''){
   if(local)position=sample.position_ms;
   return {
     owned:true,
+    license_error:!!state.owned_license_error,
     playing:!!(state.playing??state.is_playing)&&state.is_paused!==true&&state.owned_media_playing!==false&&!state.owned_license_error&&(!local||!sample.paused&&!sample.ended&&sample.ready_state>=3),
     position_ms:duration?Math.min(position,duration):position,
     duration_ms:duration,
@@ -55,7 +56,7 @@ export function followingTrack(queue,currentId,mode){
 // What the end of a Spotify song needs from Elixir. `previous` is the last owned sample with its local time `at`;
 // 'continued' means Spotify moved on to the track Elixir queued, 'advance' means Elixir must start its next song itself.
 export function spotifyHandoff(previous,snapshot,queued,now){
-  if(!previous?.id||!previous.duration_ms||!snapshot?.owned)return 'none';
+  if(!previous?.id||!previous.duration_ms||!snapshot?.owned||snapshot.license_error)return 'none';
   const projected=previous.position_ms+(previous.playing?Math.max(0,now-previous.at):0);
   if(previous.duration_ms-projected>3000)return 'none';
   const id=snapshot.track?.id;

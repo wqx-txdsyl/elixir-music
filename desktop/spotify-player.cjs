@@ -6,6 +6,7 @@ function spotifyRequest(details){
   try{const u=new URL(details.url);return u.protocol==='https:'&&!u.username&&!u.password&&(!u.port||u.port==='443')&&(u.hostname==='spotify.com'||u.hostname.endsWith('.spotify.com'))?u:null;}catch{return null;}
 }
 function mediaPermission(permission,url){return permission==='mediaKeySystem'&&!!spotifyRequest({url});}
+function audioLicenseRequest(details){return spotifyRequest(details)?.pathname==='/widevine-license/v1/audio/license';}
 function uploadJson(details){
   try{return JSON.parse(Buffer.concat((details.uploadData || []).filter(x=>x.bytes).map(x=>Buffer.from(x.bytes))).toString('utf8'));}catch{return null;}
 }
@@ -30,7 +31,13 @@ class SpotifyPlayer{
     this.closing=false;this.installedHooks=false;
     this.playing=false;this.refreshing=null;this.tokenGeneration=0;
     this.initializing=null;this.componentsReady=null;
+    this.licenseRequests=new Set();
+    this.beginPlayback();
+  }
+  beginPlayback(){
+    this.licenseRequests.clear();
     this.licenseError=false;
+    this.licenseStatus=0;
   }
   async prepareAudio(){
     if(!components)throw Error('当前应用运行时未包含 Spotify 音频组件，请安装支持应用内播放的版本');
@@ -65,17 +72,19 @@ class SpotifyPlayer{
       this.installedHooks=true;
       ownSession.webRequest.onBeforeRequest({urls:['https://*.spotify.com/*']},(details,callback)=>{
         const id=registration(details);if(id)this.deviceCandidate={id,requestId:details.id};
+        if(audioLicenseRequest(details))this.licenseRequests.add(details.id);
         const report=observation(details,this.deviceId);callback({cancel:false});
         if(report)this.onObservation(report).catch(()=>{});
       });
       ownSession.webRequest.onCompleted({urls:['https://*.spotify.com/*']},details=>{
         if(this.deviceCandidate?.requestId===details.id&&details.statusCode>=200&&details.statusCode<300){this.deviceId=this.deviceCandidate.id;this.onState?.({ready:true,device_id:this.deviceId});}
-        const url=spotifyRequest(details);
-        if(url?.pathname==='/widevine-license/v1/audio/license'){
-          this.licenseError=details.statusCode>=400;
-          this.onState?.({license_error:this.licenseError,license_ready:!this.licenseError,status:details.statusCode});
+        if(this.licenseRequests.delete(details.id)){
+          this.licenseStatus=details.statusCode;
+          this.licenseError=this.licenseStatus>=400;
+          this.onState?.({license_error:this.licenseError,license_ready:!this.licenseError,status:this.licenseStatus});
         }
       });
+      ownSession.webRequest.onErrorOccurred({urls:['https://*.spotify.com/*']},details=>this.licenseRequests.delete(details.id));
       ownSession.webRequest.onBeforeSendHeaders({urls:['https://*.spotify.com/*']},(details,callback)=>{
         if(spotifyRequest(details))for(const [name,value] of Object.entries(details.requestHeaders)){
           if(name.toLowerCase()==='authorization'&&typeof value==='string'&&value.startsWith('Bearer ')){this.token=value.slice(7);this.tokenGeneration++;}
@@ -183,7 +192,7 @@ class SpotifyPlayer{
     }catch{return null;}
   }
 
-  reset(){clearTimeout(this.syncTimer);this.closing=true;this.win?.destroy();this.win=null;this.deviceId='';this.token='';this.syncedToken='';this.profile=null;this.playing=false;this.licenseError=false;this.closing=false;}
+  reset(){clearTimeout(this.syncTimer);this.closing=true;this.win?.destroy();this.win=null;this.deviceId='';this.token='';this.syncedToken='';this.profile=null;this.playing=false;this.beginPlayback();this.closing=false;}
   close(){clearTimeout(this.syncTimer);this.closing=true;this.win?.destroy();}
 }
 module.exports={SpotifyPlayer,spotifyRequest,registration,observation,mediaPermission};

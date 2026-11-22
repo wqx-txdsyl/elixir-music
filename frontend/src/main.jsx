@@ -215,6 +215,7 @@ function App() {
   const scrollRef = useRef(null);
   const currentRef = useRef(current); currentRef.current = current;
   const spotifyPendingTrack=useRef(null),spotifyPendingSeek=useRef(null),spotifyControlGeneration=useRef(0);
+  const spotifyBlocked=useRef(false);
   // 续播 Spotify：播放命令不带进度，等播放器真正换到这首歌后再跳到上次听到的位置。
   const spotifyResumeAt=useRef(null);
   // 暂停、继续时的音量渐变：每次操作递增序号，淡出途中又点了继续，旧的淡出就不会再去暂停。
@@ -255,7 +256,15 @@ function App() {
   },[notify]);
   useEffect(()=>{
     const off=window.desktop?.onAccountsUpdated?.(provider=>{refreshAccounts(true);if(provider==='spotify')setModal(old=>old?.type==='login'&&old.source==='spotify'||old?.type==='spotify-cookie'?null:old);});
-    const stop=window.desktop?.onSpotifyState?.(state=>{if(state.observation||state.media_started||state.media_paused||state.native)spotifyUpdate.current?.();if(state.device_id)setDeviceId(state.device_id);if(state.media_started||(state.ready&&currentRef.current?.source==='spotify'))setRemoteWatch(true);if(state.media_paused)spotifyClock.current={...spotifyClock.current,position_ms:spotifyClockPosition(spotifyClock.current,performance.now()),at:performance.now(),playing:false};if(state.license_error){spotifyClock.current.playing=false;setPlaying(false);setPlayHint('Spotify 音乐许可证未获批');}else if(state.reason)notify(state.reason);});
+    const stop=window.desktop?.onSpotifyState?.(state=>{
+      if(state.playback_blocked)stopForSpotifyLicense(state.status);
+      if(state.license_error||spotifyBlocked.current)return;
+      if(state.observation||state.media_started||state.media_paused||state.native)spotifyUpdate.current?.();
+      if(state.device_id)setDeviceId(state.device_id);
+      if(state.media_started||(state.ready&&currentRef.current?.source==='spotify'))setRemoteWatch(true);
+      if(state.media_paused)spotifyClock.current={...spotifyClock.current,position_ms:spotifyClockPosition(spotifyClock.current,performance.now()),at:performance.now(),playing:false};
+      if(state.reason)notify(state.reason);
+    });
     return()=>{off?.();stop?.();};
   },[refreshAccounts,notify]);
   const setPrivateListening=useCallback(async value=>{try{const result=await api('/api/settings',{method:'PUT',body:{private_session:value}});setSettings(result);setSettingsDraft(old=>({...old,private_session:value}));}catch(e){notify(e.message);}},[notify]);
@@ -446,6 +455,8 @@ function App() {
     ], title);
   }
   async function play(track, list, resume=false, auto=false) {
+    if(auto&&spotifyBlocked.current)return;
+    spotifyBlocked.current=false;
     setSpotifyInterlude(null);playAuto.current=auto;if(!auto)autoSkips.current=0;++fadeToken.current;fadingOut.current=false;
     const resumePosition=resume && currentRef.current?.id===track.id?playbackClock.get():0;
     const req = ++playRequestId.current;
@@ -512,11 +523,40 @@ function App() {
     } catch (e) { if (req === playRequestId.current) { officialTrack.current=null;if(track.source==='spotify')spotifyPendingTrack.current=null;setPlaying(false); if (e?.name === 'AbortError') return; const message = e?.name === 'NotSupportedError' ? AUDIO_FAILED : e?.message || '播放失败'; setPlayHint(message); playFailed(track, message); } }
     finally { if (req === playRequestId.current) setBuffering(false); }
   }
+  function stopForSpotifyLicense(status) {
+    const track=spotifyPendingTrack.current || currentRef.current;
+    if(track?.source!=='spotify'||!spotifyEngaged.current||spotifyBlocked.current)return;
+    spotifyBlocked.current=true;
+    ++playRequestId.current;
+    ++spotifyControlGeneration.current;
+    spotifyPendingTrack.current=null;
+    spotifyPendingSeek.current=null;
+    spotifyResumeAt.current=null;
+    spotifyQueued.current=null;
+    spotifyLast.current=null;
+    playAuto.current=false;
+    playFailedSkip.current=false;
+    const now=performance.now();
+    spotifyClock.current={...spotifyClock.current,position_ms:spotifyClockPosition(spotifyClock.current,now),at:now,playing:false};
+    setRemoteWatch(false);
+    setSpotifyInterlude(null);
+    setBuffering(false);
+    setPlaying(false);
+    const message=status>=500
+      ? 'Spotify 暂时无法发放播放许可证（HTTP '+status+'），已停止自动切歌'
+      : 'Spotify 未返回可用的播放许可证，已停止自动切歌';
+    setPlayHint(message);
+    const actions=[{label:'重试',run:()=>play(track,undefined,true)}];
+    if(/^[A-Za-z0-9]{22}$/.test(track.source_id || '')){
+      actions.push({label:'在 Spotify 网页打开',run:()=>external('https://open.spotify.com/track/'+track.source_id)});
+    }
+    notify(message,{sticky:true,actions});
+  }
   // 播放失败的提示带「重试 / 下一首」，不自动消失
   function playFailed(track, message) {
     // 连播中自动换到的歌放不了：提示一下直接跳过；连续 3 首都失败就停下，免得整个队列一路报错。
-    if (playAuto.current && autoSkips.current < 3 && queueRef.current.length > 1) {
-      autoSkips.current++; playFailedSkip.current = true;
+    if (playAuto.current && queueRef.current.length > 1 && ++autoSkips.current < 3) {
+      playFailedSkip.current = true;
       notify('「' + track.title + '」无法播放，已跳过');
       next(1, true);
       return;
@@ -534,7 +574,8 @@ function App() {
     setPlayHint(state.closed || state.playing?'':official.reason);
   }),[]);
   function next(direction = 1, automatic = false) {
-    if(spotifyInterlude){notify(spotifyInterlude.ad?'广告结束后可切歌':'插播结束后可切歌');return;}
+    if(automatic&&spotifyBlocked.current)return;
+    if(spotifyInterlude&&!spotifyBlocked.current){notify(spotifyInterlude.ad?'广告结束后可切歌':'插播结束后可切歌');return;}
     // 睡眠定时选了「播完这首再停」：这首自然播完时停下，不再接下一首。跳过失败歌曲不算播完。
     if (automatic && sleepAfterTrackRef.current && !playFailedSkip.current) {
       setSleepAfterTrack(false); setSleepUntil(null);
@@ -557,7 +598,8 @@ function App() {
     let cancelled=false,pending=false,again=false,lastPoll=0;
     const update=async()=>{if(pending){again=true;return;}pending=true;lastPoll=performance.now();try{
       const generation=spotifyControlGeneration.current;
-      const state=await (window.desktop?.spotifyState?window.desktop.spotifyState():api('/api/spotify/state'));if(cancelled||generation!==spotifyControlGeneration.current)return;
+      const state=await (window.desktop?.spotifyState?window.desktop.spotifyState():api('/api/spotify/state'));if(cancelled||generation!==spotifyControlGeneration.current||spotifyBlocked.current)return;
+      if(state.owned_license_error)return;
       if(state.owned_device_id&&state.owned_device_id!==deviceId)setDeviceId(state.owned_device_id);
       const snapshot=ownedSpotifySnapshot(state,deviceId),matches=snapshot.owned;
       if(snapshot.media_mismatch){spotifyClock.current.playing=false;setPlaying(false);setBuffering(true);return;}
@@ -593,7 +635,7 @@ function App() {
       if(upcoming?.source==='spotify'&&upcoming.id!==snapshot.track.id&&!sleepAfterTrackRef.current&&spotifyQueued.current?.after!==snapshot.track.id&&window.desktop?.spotifyQueue){spotifyQueued.current={after:snapshot.track.id,id:upcoming.id};window.desktop.spotifyQueue(upcoming.source_id).catch(()=>{spotifyQueued.current=null;});}
       setPlaying(snapshot.playing);setPosition(spotifyClockPosition(spotifyClock.current,performance.now())/1000);
       if(matches&&snapshot.duration_ms)setDuration(snapshot.duration_ms/1000);
-      setPlayHint(matches?(state.owned_license_error?'Spotify 音乐许可证未获批':state.reason||''):(state.owned_device_id?state.reason||'':''));
+      setPlayHint((matches||state.owned_device_id)?state.reason||'':'');
       if(matches && state.track_finished && state.track_id){remoteRecorded.current=playRequestId.current;next(1,true);return;}
       
     }catch(e){if(!cancelled){setPlayHint(e.message);spotifyClock.current.playing=false;}}finally{pending=false;if(again&&!cancelled){again=false;update();}}};
@@ -601,11 +643,11 @@ function App() {
     update();spotifyUpdate.current=update;const timer=setInterval(()=>{if(performance.now()-lastPoll>=(spotifyTransport.current==='native'?900:2950))update();},1000);return()=>{cancelled=true;clearInterval(timer);if(spotifyUpdate.current===update)spotifyUpdate.current=null;};
   },[remoteWatch,current?.id,deviceId]);
   useEffect(()=>{window.desktop?.spotifyState?.().then(state=>{if(ownedSpotifySnapshot(state).playing){spotifyEngaged.current=true;setRemoteWatch(true);}}).catch(()=>{});if(currentRef.current?.source==='spotify'){setRemoteWatch(true);const track=currentRef.current;if(!track.artist)api(trackPath(track.id)+'?refresh=true').then(data=>setCurrent(old=>old?.id===track.id?{...old,...data}:old)).catch(()=>{});}let frame,last=0;const tick=now=>{if(now-last>=200){last=now;if(spotifyClock.current.playing)setPosition(spotifyClockPosition(spotifyClock.current,now)/1000);}frame=requestAnimationFrame(tick);};frame=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frame);},[]);
-  async function spotifyControl(action, value) { try {if(!window.desktop?.spotifyControl)throw Error('Spotify 应用内播放器尚未启动');if(action==='seek'){++spotifyControlGeneration.current;spotifyPendingSeek.current={position_ms:Math.max(0,value),until:Date.now()+5000};spotifyClock.current={...spotifyClock.current,position_ms:Math.max(0,value),at:performance.now()};setPosition(Math.max(0,value)/1000);}const data=await window.desktop.spotifyControl(action,value);setRemoteWatch(true);if(data.state){setPlaying(!!data.state.is_playing);setPosition(Number(data.state.position_ms || 0)/1000);}if(data.reason)notify(data.reason);return data.confirmed===true; } catch (e) { notify(e.message); return false; } }
+  async function spotifyControl(action, value) { if(spotifyBlocked.current){if(action==='resume'&&currentRef.current?.source==='spotify')await play(currentRef.current,undefined,true);return false;} try {if(!window.desktop?.spotifyControl)throw Error('Spotify 应用内播放器尚未启动');if(action==='seek'){++spotifyControlGeneration.current;spotifyPendingSeek.current={position_ms:Math.max(0,value),until:Date.now()+5000};spotifyClock.current={...spotifyClock.current,position_ms:Math.max(0,value),at:performance.now()};setPosition(Math.max(0,value)/1000);}const data=await window.desktop.spotifyControl(action,value);setRemoteWatch(true);if(data.state){setPlaying(!!data.state.is_playing);setPosition(Number(data.state.position_ms || 0)/1000);}if(data.reason)notify(data.reason);return data.confirmed===true; } catch (e) { notify(e.message); return false; } }
   async function togglePlayback() {
     const track=currentRef.current;
     if(track?.source==='spotify'){
-      if((!remoteWatch||!deviceId)&&!playing){await play(track,undefined,true);return;}
+      if(spotifyBlocked.current||(!remoteWatch||!deviceId)&&!playing){await play(track,undefined,true);return;}
       await spotifyControl(playing?'pause':'resume');return;
     }
     if(track?.id && officialTrack.current?.id===track.id){
@@ -639,7 +681,7 @@ function App() {
   });
   useEffect(() => { if (!('mediaSession' in navigator)) return; navigator.mediaSession.setActionHandler('play', () => { if (currentRef.current?.source === 'spotify') spotifyControl('resume'); else resumeAudio(); }); navigator.mediaSession.setActionHandler('pause', () => { if(currentRef.current?.source==='spotify')spotifyControl('pause');else pauseAudio(); }); navigator.mediaSession.setActionHandler('nexttrack', () => next(1)); navigator.mediaSession.setActionHandler('previoustrack', () => next(-1)); navigator.mediaSession.setActionHandler('seekto', e => { if (!Number.isFinite(e.seekTime)) return; if(currentRef.current?.source==='spotify')spotifyControl('seek',Math.round(e.seekTime*1000));else if(audioRef.current)audioRef.current.currentTime=e.seekTime; }); });
   // 真正播起来了，自动跳过的连续失败计数清零。
-  useEffect(() => { if (playing) autoSkips.current = 0; }, [playing]);
+  useEffect(() => { if (playing && !spotifyInterlude) autoSkips.current = 0; }, [playing, spotifyInterlude]);
   // 窗口标题显示「歌名 - 歌手」，Alt+Tab 和任务栏悬停时能看出在放哪首。
   useEffect(() => { document.title = current ? current.title + (current.artist ? ' - ' + current.artist : '') + ' · Elixir' : 'Elixir'; }, [current?.title, current?.artist]);
   // 任务栏：缩略图上的上一首 / 播放 / 下一首按钮，图标上显示播放进度，每秒最多更新一次。
