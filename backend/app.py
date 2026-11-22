@@ -228,6 +228,22 @@ async def search(q:str='',source:str='all',limit:int=30):
             'web_search':[name for name in names if name in LINKED_SOURCES and PLATFORMS[name].get('search') and not providers[name].has_catalog()],
             'login_required':source not in {'all','local'} and not connected_for_search(source)}
 
+@app.get('/api/search/suggest')
+def search_suggest(q:str='',limit:int=6):
+    """输入搜索词时的下拉建议：只查本机的曲库、收藏和搜索历史，不请求平台，也不记入搜索历史。"""
+    from .text import matches, normalized
+    q=q.strip()[:100]; limit=max(1,min(limit,20))
+    history=store.searches()
+    if not q: return {'queries':history[:8],'tracks':[]}
+    key=normalized(q)
+    queries=[x for x in history if key and key in normalized(x) and x!=q][:5]
+    tracks,seen=[],set()
+    for track in store.tracks('local',q,limit)+[t for t in store.likes() if matches(q,t.get('title'),t.get('artist'),t.get('album'))]:
+        if track['id'] in seen: continue
+        seen.add(track['id']); tracks.append(track)
+        if len(tracks)>=limit: break
+    return {'queries':queries,'tracks':public_tracks(tracks)}
+
 @app.get('/api/home')
 async def home():
     tracks=store.history() or store.likes() or store.tracks('local',limit=24)
