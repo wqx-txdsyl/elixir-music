@@ -96,7 +96,8 @@ export const SLOTS = [
   ] },
   { key: 'panel', group: 'extra', title: '右侧正在播放栏', removable: 'off', variants: [
     ['off', '拆下'],
-    ['on', '装上', 'Spotify'],
+    ['on', '正在播放', 'Spotify'],
+    ['agent', '音乐 Agent', 'Elixir'],
   ] },
   { key: 'lyricBar', group: 'extra', title: '播放栏歌词', removable: 'off', variants: [
     ['off', '拆下'],

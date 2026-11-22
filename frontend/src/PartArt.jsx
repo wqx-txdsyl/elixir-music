@@ -38,7 +38,7 @@ export function frameRegions(parts) {
     r.sidebar = { x: right ? W - 23 : 3, y: top + 3, w: 20, h: bottom - top - 6, rx: 3 };
     if (right) end = W - 25; else left = 25;
   }
-  if (parts.panel === 'on') { r.panel = { x: end - 20, y: top, w: 20, h: bottom - top }; end -= 20; }
+  if (parts.panel === 'on' || parts.panel === 'agent') { r.panel = { x: end - 20, y: top, w: 20, h: bottom - top }; end -= 20; }
   if (topbar === 'full' || topbar === 'center') { r.topbar = { x: left, y: top, w: end - left, h: 8 }; top += 8; }
   r.main = { x: left, y: top, w: end - left, h: bottom - top };
   if (sidebar === 'dock') r.sidebar = { x: W / 2 - 20, y: bottom - (player === 'float' ? 18 : 9), w: 40, h: 6, rx: 3 };

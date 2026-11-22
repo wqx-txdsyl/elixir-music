@@ -7,12 +7,14 @@ import json
 import re
 import time
 from collections import Counter
+from typing import Literal
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
 from . import catalog
 from . import cloud_library
 from pydantic import BaseModel
-from .compat import ItemsField
+from .compat import Field, ItemsField
+from . import music_agent
 
 class BatchEntities(BaseModel):
     ids:list[str]=ItemsField(min_items=1,max_items=1000)
@@ -21,6 +23,18 @@ class BatchEntities(BaseModel):
 class SyncCloudLibrary(BaseModel):
     source:str='all'
     kinds:list[str]=ItemsField(default_factory=lambda:list(cloud_library.KINDS),min_items=1,max_items=4)
+
+
+class MusicAgentSuggestion(BaseModel):
+    mode: Literal['continue', 'change', 'rediscover']
+    current_track_id: str | None = None
+    exclude_track_ids: list[str] = ItemsField(default_factory=list, max_items=1000)
+    limit: int = Field(default=8, ge=1, le=30)
+
+
+class MusicAgentFeedback(BaseModel):
+    track_id: str = Field(min_length=1, max_length=200)
+    action: Literal['dismiss']
 
 
 def install(app, get_store, get_providers, public_track, track_get, public_tracks, search_platforms):
@@ -38,6 +52,23 @@ def install(app, get_store, get_providers, public_track, track_get, public_track
                 item=snapshot or {'source':name,'kind':kind,'tracks':[],'items':[],'count':0,'status':'not_read' if owner else 'login_required','scope':'cloud-read-only'}
                 collections.append(dict(item,tracks=public_tracks(item.get('tracks',[]))))
         return {'collections':collections,'cloud_mutations':False}
+
+    @app.post('/api/music-agent/suggest')
+    def music_agent_suggest(body: MusicAgentSuggestion):
+        candidates = music_agent.suggest(
+            get_store(), body.mode, body.current_track_id, body.exclude_track_ids, body.limit,
+        )
+        tracks = public_tracks([candidate['track'] for candidate in candidates])
+        return {'candidates': [
+            {'track': track, 'reason': candidate['reason']}
+            for track, candidate in zip(tracks, candidates)
+        ]}
+
+    @app.post('/api/music-agent/feedback')
+    def music_agent_feedback(body: MusicAgentFeedback):
+        if not get_store().dismiss_music_agent_track(body.track_id):
+            raise HTTPException(404, '曲库里找不到这首歌')
+        return {'ok': True}
 
     @app.get('/api/music/cloud-library')
     def read_cloud_library(source:str='all'):return cloud_view(source)

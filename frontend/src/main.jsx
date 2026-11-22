@@ -73,6 +73,7 @@ import Studio from './Studio';
 import CommandPalette from './CommandPalette';
 import { LayoutEditor } from './LayoutEditor';
 import { NowPanel, Cassette, SidebarClock, IpodPlayer, PosterMark, SkinPreview, CdPlayer, CoverMosaic } from './Parts';
+import { AgentPanel } from './MusicAgent';
 import { useShortcuts, comboFromEvent, comboParts, ANYWHERE } from './shortcuts';
 import ShortcutSettings from './ShortcutSettings';
 import './studio.css';
@@ -822,7 +823,7 @@ function App() {
     'data-frame': resolved.frame ? '' : undefined, 'data-side': parts.side,
     'data-sidebar': partAttr(parts.sidebar), 'data-topbar': partAttr(parts.topbar), 'data-player': partAttr(parts.player), 'data-progress': partAttr(parts.progress),
     'data-np': look.components.np === 'native' && resolved.skin.legacy ? undefined : partAttr(parts.np),
-    'data-bg': partAttr(parts.background), 'data-chrome': resolved.skin.chrome, 'data-lyrics': partAttr(parts.lyrics), 'data-panel': parts.panel === 'on' ? 'on' : undefined, 'data-lyric-bar': parts.lyricBar === 'on' ? 'on' : undefined,
+    'data-bg': partAttr(parts.background), 'data-chrome': resolved.skin.chrome, 'data-lyrics': partAttr(parts.lyrics), 'data-panel': parts.panel === 'on' || parts.panel === 'agent' ? 'on' : undefined, 'data-lyric-bar': parts.lyricBar === 'on' ? 'on' : undefined,
     'data-radius': partAttr(tuning.radius), 'data-font': partAttr(tuning.font), 'data-density': partAttr(tuning.density),
     'data-motion': tuning.motion === 'reduced' ? 'reduced' : undefined, 'data-playing': playing && !buffering ? '' : undefined, 'data-contrast': tuning.contrast === 'high' ? 'high' : undefined, 'data-edit': editing ? '' : undefined,
   };
@@ -918,6 +919,7 @@ function App() {
     </div>
     <PlayerBar current={current} interlude={spotifyInterlude} playHint={playHint} liked={liked} playing={playing} buffering={buffering} playMode={playMode} queueLength={queue.length} queueOpen={queueOpen} duration={duration} volume={volume} quality={settings.quality} onOpenDetail={openDetail} onToggleLike={toggleLike} onPlayMode={setPlayMode} onSkip={next} onToggle={togglePlayback} onSeek={value=>{if(current?.source!=='spotify')audioRef.current.currentTime=value;setPosition(value);}} onSeekEnd={value=>{if(current?.source==='spotify')spotifyControl('seek',Math.round(value*1000));}} onQualityChange={changeQuality} desktopLyrics={desktopLyrics} onDesktopLyrics={window.desktop?.openLyrics ? toggleDesktopLyrics : undefined} onVolume={setVolume} onVolumeEnd={value=>{if(current?.source==='spotify')spotifyControl('volume',Math.round(value*100));}} onQueue={()=>setQueueOpen(!queueOpen)} lyric={parts.lyricBar === 'on' ? playerLyric : null} marks={parts.progress === 'lyric' ? playerLyric : null} chorus={chorus} />
     {parts.panel === 'on' && !phone && <NowPanel current={current} queue={queue} upNext={upNext} liked={liked} lyric={playerLyric} onOpenDetail={openDetail} onToggleLike={toggleLike} onPlay={play} onQueue={() => setQueueOpen(!queueOpen)} />}
+      {parts.panel === 'agent' && !phone && <AgentPanel current={current} queue={queue} upNext={upNext} onAdd={batchTracks} onQueue={() => setQueueOpen(!queueOpen)} />}
     {phone && <nav className="mobile-tabs" aria-label="主导航">{[['home', labels.home, House], ['search', '搜索', MagnifyingGlass], ['music', labels.music || '我的音乐', Disc], ['likes', labels.likes, Heart]].map(([key, title, Icon]) => <button key={key} aria-current={page === key && !detail ? 'page' : undefined} onClick={() => { navigate(key); if (key === 'search') setTimeout(() => searchRef.current?.focus(), 50); }}><Icon size={23} weight={page === key && !detail ? 'fill' : 'regular'} /><span>{title}</span></button>)}<button aria-expanded={navOpen} onClick={() => { setDetail(null); setNavOpen(true); }}><DotsThree size={23} weight="bold" /><span>更多</span></button></nav>}
     <DesktopLyricSync current={current} lyric={playerLyric} interlude={spotifyInterlude} playing={playing} buffering={buffering} speed={speed} duration={duration} lyricOffset={lyricOffset} />
     {phone && queueOpen && <div className="mobile-scrim queue-scrim" aria-hidden="true" onClick={() => setQueueOpen(false)} />}

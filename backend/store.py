@@ -91,6 +91,7 @@ class Store:
         CREATE TABLE IF NOT EXISTS playlist_meta(playlist_id TEXT PRIMARY KEY REFERENCES playlists(id) ON DELETE CASCADE, description TEXT NOT NULL DEFAULT '', folder TEXT NOT NULL DEFAULT '', cover TEXT NOT NULL DEFAULT '', deleted_at REAL);
         CREATE TABLE IF NOT EXISTS search_history(query TEXT PRIMARY KEY, searched REAL NOT NULL);
         CREATE TABLE IF NOT EXISTS music_folders(path TEXT PRIMARY KEY, watched INTEGER NOT NULL DEFAULT 0, last_scan REAL);
+        CREATE TABLE IF NOT EXISTS music_agent_dismissals(track_id TEXT PRIMARY KEY REFERENCES tracks(id) ON DELETE CASCADE);
         CREATE TABLE IF NOT EXISTS removed_local_tracks(id TEXT PRIMARY KEY, removed REAL NOT NULL);
         ''')
         if 'added' not in {r[1] for r in self.db.execute('PRAGMA table_info(playlist_tracks)')}:
@@ -525,6 +526,51 @@ class Store:
 
     def searches(self):
         with self.lock: return [r[0] for r in self.db.execute('SELECT query FROM search_history ORDER BY searched DESC')]
+
+    def music_agent_facts(self, current_track_id, since):
+        with self.lock:
+            rows = self.db.execute(
+                '''WITH active_membership AS (
+                       SELECT p.track_id, MAX(current.track_id IS NOT NULL) AS shared_playlist
+                       FROM playlist_tracks p
+                       LEFT JOIN playlist_meta m ON m.playlist_id=p.playlist_id
+                       LEFT JOIN playlist_tracks current
+                           ON current.playlist_id=p.playlist_id AND current.track_id=?
+                       WHERE m.deleted_at IS NULL
+                       GROUP BY p.track_id
+                   ), sessions AS (
+                       SELECT track_id, MAX(started) AS last_started,
+                              SUM(CASE WHEN finished=1 AND started>=? THEN 1 ELSE 0 END) AS finished_recent
+                       FROM listening_sessions
+                       GROUP BY track_id
+                   )
+                   SELECT t.payload,
+                          (l.track_id IS NOT NULL) AS liked,
+                          (p.track_id IS NOT NULL) AS in_playlist,
+                          COALESCE(p.shared_playlist, 0) AS shared_playlist,
+                          MAX(COALESCE(h.played, 0), COALESCE(s.last_started, 0)) AS last_played,
+                          COALESCE(s.finished_recent, 0) AS finished_recent,
+                          (d.track_id IS NOT NULL) AS dismissed
+                   FROM tracks t
+                   LEFT JOIN likes l ON l.track_id=t.id
+                   LEFT JOIN history h ON h.track_id=t.id
+                   LEFT JOIN active_membership p ON p.track_id=t.id
+                   LEFT JOIN sessions s ON s.track_id=t.id
+                   LEFT JOIN music_agent_dismissals d ON d.track_id=t.id
+                   WHERE (t.source<>'local' OR t.path IS NOT NULL)
+                     AND (l.track_id IS NOT NULL OR h.track_id IS NOT NULL OR p.track_id IS NOT NULL
+                          OR s.track_id IS NOT NULL OR t.source='local')
+                   GROUP BY t.id''',
+                (current_track_id, since),
+            ).fetchall()
+        return [dict(row, track=json.loads(row['payload'])) for row in rows]
+
+    def dismiss_music_agent_track(self, track_id):
+        with self.lock, self.db:
+            if self.db.execute('SELECT 1 FROM tracks WHERE id=?', (track_id,)).fetchone() is None:
+                return False
+            self.db.execute('INSERT OR IGNORE INTO music_agent_dismissals VALUES(?)', (track_id,))
+            return True
 
     def clear_history(self):
         with self.lock,self.db:

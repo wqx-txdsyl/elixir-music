@@ -477,3 +477,43 @@ select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 @layer components {
 .app:is([data-topbar=full], [data-topbar=center], [data-sidebar=hidden]):not([data-player=top]) .topbar > .caption-spacer { display: block; flex: 0 0 138px; width: 138px; min-width: 138px; }
 }
+
+/* ================= 音乐 Agent（右侧栏的另一种用法） ================= */
+@layer components {
+.agent-panel { gap: 12px; overflow: hidden; }
+.agent-panel > * { flex-shrink: 0; }
+.agent-title { display: inline-flex; align-items: center; gap: 7px; }
+.agent-title svg { color: var(--accent); }
+.agent-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 3px; border-radius: 10px; background: var(--hover); }
+.agent-modes button { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 2px 6px; border-radius: 8px; font-size: 12px; color: var(--subtle); white-space: nowrap; }
+.agent-modes button:hover { color: var(--text); }
+.agent-modes button.selected { color: var(--text); font-weight: 650; background: var(--panel, var(--bg)); box-shadow: 0 1px 3px #0000001f; }
+.agent-modes button.selected svg { color: var(--accent); }
+.agent-hint { margin: -2px 2px 0; font-size: 12px; line-height: 1.5; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agent-stale { display: flex; align-items: center; gap: 6px; width: 100%; padding: 7px 10px; border-radius: 8px; font-size: 12px; color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agent-panel > .agent-list { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0 -6px; padding: 0 6px; scrollbar-width: thin; }
+.agent-list[aria-busy=true] .agent-row { opacity: .45; pointer-events: none; }
+.agent-list .note { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.agent-row { position: relative; display: flex; align-items: center; gap: 10px; padding: 6px; border-radius: 8px; }
+.agent-row:hover, .agent-row:focus-within { background: var(--hover); }
+.agent-row .cover { width: 42px; height: 42px; border-radius: 6px; flex: none; }
+.agent-row .cover svg { width: 20px; height: 20px; }
+.agent-row-text { min-width: 0; flex: 1; display: block; }
+.agent-row-text strong, .agent-row-text small, .agent-row-text em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agent-row-text strong { font-size: 13px; font-weight: 500; }
+.agent-row-text small { margin-top: 1px; font-size: 11px; color: var(--muted); }
+.agent-row-text em { margin-top: 3px; font-size: 11px; font-style: normal; color: var(--accent); opacity: .9; }
+.agent-row-tools { display: flex; flex: none; gap: 0; opacity: 0; transition: opacity .12s; }
+.agent-row:hover .agent-row-tools, .agent-row:focus-within .agent-row-tools { opacity: 1; }
+.agent-row-tools button { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; color: var(--subtle); }
+.agent-row-tools button:hover:not(:disabled) { color: var(--text); background: var(--hover); }
+.agent-row-tools button:disabled { opacity: .3; cursor: default; }
+.agent-skeleton { display: flex; flex-direction: column; gap: 8px; padding: 4px 6px; }
+.agent-skeleton i { height: 42px; border-radius: 8px; background: linear-gradient(90deg, var(--hover) 25%, color-mix(in srgb, var(--text) 8%, transparent) 50%, var(--hover) 75%); background-size: 200% 100%; animation: agent-shimmer 1.2s linear infinite; }
+@keyframes agent-shimmer { to { background-position: -200% 0; } }
+.agent-actions { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
+.agent-actions .button.primary { width: 100%; justify-content: center; }
+.agent-actions > div { display: flex; justify-content: space-between; }
+.agent-actions .text-button { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { .agent-skeleton i { animation: none; } }
+}

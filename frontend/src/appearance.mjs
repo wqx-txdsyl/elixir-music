@@ -86,7 +86,7 @@ export function resolveLook(look) {
   if (tuning.font === 'native' && d.font) tuning.font = d.font;
   if (tuning.density === 'native' && d.density) tuning.density = d.density;
   // The sidebar is the only home of the navigation unless a top navigation replaces it.
-  const frame = ['sidebar', 'side', 'topbar', 'player'].some(key => parts[key] !== 'native' && parts[key] !== 'left') || parts.panel === 'on';
+  const frame = ['sidebar', 'side', 'topbar', 'player'].some(key => parts[key] !== 'native' && parts[key] !== 'left') || parts.panel === 'on' || parts.panel === 'agent';
   return { skin, parts, tuning, frame };
 }
 
