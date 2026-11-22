@@ -79,6 +79,8 @@
 @layer components {
 @media (min-width: 900px) {
   :root[data-skin=spotify] .app:not([data-sidebar]) > .sidebar { overflow: hidden; }
+  :root[data-skin=spotify] .app:not([data-sidebar]) > .sidebar:has(.theme-popover) { overflow: visible; }
+  :root[data-skin=spotify] .app:not([data-sidebar])[data-side=right] .theme-popover { left: auto; right: 0; }
   :root[data-skin=spotify] .app:not([data-sidebar]) > .sidebar > nav { flex: 0 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
   :root[data-skin=spotify] .app:not([data-sidebar]) > .sidebar > .playlist-heading { flex-shrink: 0; margin-top: 6px; padding-top: 8px; border-top: 1px solid #ffffff14; }
   :root[data-skin=spotify] .app:not([data-sidebar]) > .sidebar > .playlist-navigation { flex: 1 1 0; min-height: 48px; overflow-y: auto; padding-bottom: 6px; scrollbar-width: thin; }
