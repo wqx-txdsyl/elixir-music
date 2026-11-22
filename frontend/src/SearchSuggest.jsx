@@ -11,13 +11,15 @@ export default function SearchSuggest({inputRef,value,onChange,onSearch,onPlay,p
   const text=value.trim();
   useEffect(()=>{
     if(!open)return;
+    // 关键词一变就清掉旧选项的选中，新结果回来之前按 Enter 搜的是新词，不会播放上一次结果里的歌。
+    setActive(-1);
     const id=++request.current;
-    const timer=setTimeout(()=>{api('/api/search/suggest?q='+encodeURIComponent(text)).then(result=>{if(id===request.current){setData({queries:result.queries||[],tracks:result.tracks||[]});setActive(-1);}}).catch(()=>{});},text?140:0);
+    const timer=setTimeout(()=>{api('/api/search/suggest?q='+encodeURIComponent(text)).then(result=>{if(id===request.current){setData({queries:result.queries||[],tracks:result.tracks||[],text});setActive(-1);}}).catch(()=>{});},text?140:0);
     return()=>clearTimeout(timer);
   },[text,open]);
   const options=[
     ...data.queries.map(q=>({kind:'query',key:'q:'+q,label:q})),
-    ...(text?data.tracks:[]).map(t=>({kind:'track',key:'t:'+t.id,track:t})),
+    ...(text&&data.text===text?data.tracks:[]).map(t=>({kind:'track',key:'t:'+t.id,track:t})),
     ...(text?[{kind:'all',key:'all',label:text}]:[]),
   ];
   const shown=open&&options.length>0;

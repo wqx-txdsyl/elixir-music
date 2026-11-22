@@ -62,7 +62,8 @@ export const PlaybackTrackTable=memo(function PlaybackTrackTable({items:sourceIt
   useEffect(()=>{
     if(!filterable)return;
     const key=e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey&&e.key.toLowerCase()==='f'&&filterRef.current?.isConnected){e.preventDefault();filterRef.current.focus();filterRef.current.select();}};
-    window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);
+    // 挂在 document 的捕获阶段，先于全局快捷键处理；全局那边见到 defaultPrevented 就不再聚焦顶栏或弹命令面板。
+    document.addEventListener('keydown',key,true);return()=>document.removeEventListener('keydown',key,true);
   },[filterable]);
   useEffect(()=>{
     const list=listRef.current,scroller=list?.closest('.main-scroll');

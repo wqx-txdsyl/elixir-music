@@ -240,13 +240,34 @@ class Store:
         if source not in ('all','local','netease','qqmusic','spotify'):raise ValueError('未知的历史来源')
         if not all(math.isfinite(x) and x>=0 for x in (since,until)) or until and until<=since:raise ValueError('请选择有效的时间范围')
 
+    def _listening_filter(self, source, since, until):
+        self.history_scope(source, since, until)
+        conditions = ['1=1']
+        params = []
+        if source != 'all':
+            conditions.append('t.source=?')
+            params.append(source)
+        if since:
+            conditions.append('s.started>=?')
+            params.append(since)
+        if until:
+            conditions.append('s.started<?')
+            params.append(until)
+        return ' AND '.join(conditions), params
+
     def history(self,source='all',since=0,until=0):
-        self.history_scope(source,since,until)
-        where=['1=1'];params=[]
-        if source!='all':where.append('t.source=?');params.append(source)
-        if since:where.append('h.played>=?');params.append(since)
-        if until:where.append('h.played<?');params.append(until)
-        with self.lock: rows=self.db.execute('SELECT t.payload,h.played,h.count FROM history h JOIN tracks t ON t.id=h.track_id WHERE '+' AND '.join(where)+' ORDER BY played DESC',params).fetchall()
+        where, params = self._listening_filter(source, since, until)
+        if since or until:
+            sql = '''SELECT t.payload, MAX(s.started) AS played, COUNT(*)
+                     FROM listening_sessions s JOIN tracks t ON t.id=s.track_id
+                     WHERE ''' + where + ' GROUP BY t.id ORDER BY played DESC'
+        else:
+            # Keep all-time history available for older libraries without session timestamps.
+            sql = '''SELECT t.payload, h.played, h.count
+                     FROM history h JOIN tracks t ON t.id=h.track_id
+                     WHERE ''' + where + ' ORDER BY played DESC'
+        with self.lock:
+            rows = self.db.execute(sql, params).fetchall()
         return [dict(json.loads(r[0]),played_at=r[1],play_count=r[2]) for r in rows]
 
     def record_listening(self,sid,track_id,sequence,listened_ms,finished=False,now=None):
@@ -272,12 +293,7 @@ class Store:
         return {'recorded':True,'listened_ms':total}
 
     def listening_stats(self,source='all',since=0,until=0):
-        self.history_scope(source,since,until)
-        conditions=['1=1'];params=[]
-        if source!='all':conditions.append('t.source=?');params.append(source)
-        if since:conditions.append('s.started>=?');params.append(since)
-        if until:conditions.append('s.started<?');params.append(until)
-        where=' AND '.join(conditions)
+        where, params = self._listening_filter(source, since, until)
         with self.lock:
             sessions=self.db.execute('SELECT s.*,t.payload,t.source,t.artist FROM listening_sessions s JOIN tracks t ON s.track_id=t.id WHERE '+where,params).fetchall()
             legacy=self.db.execute('SELECT h.count,t.source,t.artist,t.id FROM history h JOIN tracks t ON h.track_id=t.id'+(' WHERE t.source=?' if source!='all' else ''),[source] if source!='all' else []).fetchall()
@@ -310,27 +326,22 @@ class Store:
             'scope':'本应用记录的实际播放时长'}
 
     def export_listening(self,source='all',since=0,until=0):
-        self.history_scope(source,since,until)
-        where=['1=1'];params=[]
-        if source!='all':where.append('t.source=?');params.append(source)
-        if since:where.append('s.started>=?');params.append(since)
-        if until:where.append('s.started<?');params.append(until)
-        with self.lock:rows=self.db.execute('SELECT s.*,t.payload FROM listening_sessions s JOIN tracks t ON t.id=s.track_id WHERE '+' AND '.join(where)+' ORDER BY s.started DESC',params).fetchall()
+        where, params = self._listening_filter(source, since, until)
+        with self.lock:
+            rows = self.db.execute('SELECT s.*,t.payload FROM listening_sessions s JOIN tracks t ON s.track_id=t.id WHERE '+where+' ORDER BY s.started DESC',params).fetchall()
+            stats = self.listening_stats(source, since, until)
+            recent = self.history(source, since, until)
         allowed={'id','source','source_id','title','artist','album','duration_ms'}
         return {'format':'elixir-listening-history','version':1,'scope':'本应用观察记录',
-            'stats':self.listening_stats(source,since,until),
+            'stats':stats,
             'sessions':[{'track':{k:v for k,v in json.loads(r['payload']).items() if k in allowed},'started_at':r['started'],'updated_at':r['updated'],'listened_ms':r['listened_ms']} for r in rows],
-            'recent_tracks':[{k:v for k,v in t.items() if k in allowed|{'played_at','play_count'}} for t in self.history(source,since,until)]}
+            'recent_tracks':[{k:v for k,v in t.items() if k in allowed|{'played_at','play_count'}} for t in recent]}
 
     def listening_ranking(self,source='all',since=0,until=0):
-        self.history_scope(source,since,until)
         from .text import normalized
-        where=['1=1'];params=[]
-        if source!='all':where.append('t.source=?');params.append(source)
-        if since:where.append('s.started>=?');params.append(since)
-        if until:where.append('s.started<?');params.append(until)
+        where, params = self._listening_filter(source, since, until)
         with self.lock:
-            sessions=self.db.execute('SELECT s.track_id,s.listened_ms,t.payload FROM listening_sessions s JOIN tracks t ON t.id=s.track_id WHERE '+' AND '.join(where),params).fetchall()
+            sessions=self.db.execute('SELECT s.track_id,s.listened_ms,t.payload FROM listening_sessions s JOIN tracks t ON t.id=s.track_id WHERE '+where,params).fetchall()
             legacy=[] if since or until else self.db.execute('SELECT h.track_id,h.count,t.payload FROM history h JOIN tracks t ON t.id=h.track_id'+(' WHERE t.source=?' if source!='all' else ''),[source] if source!='all' else []).fetchall()
             links={r[0]:json.loads(r[1]) for r in self.db.execute('SELECT l.local_id,t.payload FROM links l JOIN tracks t ON t.id=l.remote_id')}
         tracks={}
@@ -380,9 +391,21 @@ class Store:
         chosen=[row for row in rows if eid in row['entity_ids'] or normalized(entity.get('title')) and normalized(entity.get('title'))==normalized(row['name']) and (kind=='artist' or normalized(entity.get('artist')) and normalized(entity.get('artist'))==normalized(row.get('artist')))]
         return {'play_count':sum(x['play_count'] for x in chosen),'listened_ms':sum(x['listened_ms'] for x in chosen),'scope':'Elixir 实际记录'}
 
-    def create_playlist(self,title):
-        pid=uuid.uuid4().hex
-        with self.lock,self.db: self.db.execute('INSERT INTO playlists VALUES(?,?,?)',(pid,title,time.time()))
+    def create_playlist(self, title, *, track_ids=None, description='', folder=''):
+        pid = uuid.uuid4().hex
+        now = time.time()
+        with self.lock, self.db:
+            self.db.execute('INSERT INTO playlists VALUES(?,?,?)', (pid, title, now))
+            if track_ids is not None:
+                self.db.executemany(
+                    'INSERT INTO playlist_tracks(playlist_id,track_id,position,added) VALUES(?,?,?,?)',
+                    [(pid, tid, position, now) for position, tid in enumerate(dict.fromkeys(track_ids), 1)],
+                )
+                self.db.execute(
+                    'INSERT INTO playlist_meta(playlist_id,description,folder) VALUES(?,?,?)',
+                    (pid, description, folder),
+                )
+                return self.playlist(pid)
         return {'id':pid,'title':title,'tracks':[],'count':0,'cover':''}
 
     def playlists(self, trash=False):
@@ -516,11 +539,18 @@ class Store:
     def folders(self):
         with self.lock:return [dict(r) for r in self.db.execute('SELECT * FROM music_folders ORDER BY path')]
 
-    def folder_update(self,path,watched=None,scanned=False):
-        with self.lock,self.db:
-            self.db.execute('INSERT OR IGNORE INTO music_folders(path) VALUES(?)',(path,))
-            if watched is not None:self.db.execute('UPDATE music_folders SET watched=? WHERE path=?',(int(bool(watched)),path))
-            if scanned:self.db.execute('UPDATE music_folders SET last_scan=? WHERE path=?',(time.time(),path))
+    def folder_update(self, path, watched=None):
+        with self.lock, self.db:
+            if watched is None:
+                self.db.execute('INSERT OR IGNORE INTO music_folders(path) VALUES(?)', (path,))
+            else:
+                updated = self.db.execute('UPDATE music_folders SET watched=? WHERE path=?', (int(watched), path))
+                if not updated.rowcount:
+                    raise ValueError('请先导入这个音乐目录')
+
+    def folder_scan_finished(self, path):
+        with self.lock, self.db:
+            self.db.execute('UPDATE music_folders SET last_scan=? WHERE path=?', (time.time(), path))
 
     def folder_forget(self,path):
         with self.lock,self.db:self.db.execute('DELETE FROM music_folders WHERE path=?',(path,))

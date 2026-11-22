@@ -489,11 +489,18 @@ async def import_worker(job_id,path,restore=True):
                 job['errors'].append({'file':p.name,'message':'文件无法读取或格式不支持','error_type':type(e).__name__})
             job['done']+=1
             await asyncio.sleep(0)
+        store.folder_scan_finished(str(path))
         job['status']='completed'
-        if Path(path).is_dir():store.folder_update(str(Path(path).resolve()),scanned=True)
     except Exception as e:
         log.warning('导入任务失败：%s',type(e).__name__,exc_info=not isinstance(e,(FileNotFoundError,ValueError)))
         job.update(status='failed',message=str(e) if isinstance(e,(FileNotFoundError,ValueError)) else '导入失败')
+
+def start_import(path, restore):
+    jid = secrets.token_hex(12)
+    jobs[jid] = {'id':jid,'path':str(path),'status':'queued','done':0,'total':0,'imported':0,'restored':0,'unchanged':0,'removed':0,'errors':[]}
+    asyncio.create_task(import_worker(jid, path, restore))
+    return jid
+
 
 @app.post('/api/library/import')
 async def import_folder(body:ImportRequest):
@@ -501,10 +508,7 @@ async def import_folder(body:ImportRequest):
     if not path.exists(): raise HTTPException(404,'音乐文件夹不存在')
     if str(path).startswith('\\\\'): raise ValueError('首版仅支持本机磁盘路径')
     if path.is_dir():store.folder_update(str(path))
-    jid=secrets.token_hex(12)
-    jobs[jid]={'id':jid,'status':'queued','done':0,'total':0,'imported':0,'restored':0,'unchanged':0,'removed':0,'errors':[]}
-    asyncio.create_task(import_worker(jid,path,body.restore))
-    return {'job_id':jid}
+    return {'job_id':start_import(path, body.restore)}
 
 @app.get('/api/jobs/{job_id}')
 def get_job(job_id:str):
@@ -517,7 +521,6 @@ def music_folders():return {'folders':store.folders()}
 @app.put('/api/music/folders')
 def update_folder(body:dict):
     path=str(Path(str(body.get('path',''))).expanduser().resolve())
-    if not any(x['path']==path for x in store.folders()):raise ValueError('请先导入这个音乐目录')
     watched=body.get('watched')
     if not isinstance(watched,bool):raise ValueError('请选择是否自动扫描')
     store.folder_update(path,watched=watched);return {'ok':True}
@@ -534,7 +537,7 @@ async def watch_music_folders():
             for folder in store.folders():
                 if folder['watched'] and time.time()-(folder['last_scan'] or 0)>300 and Path(folder['path']).is_dir():
                     if any(j.get('path')==folder['path'] and j['status'] in ('queued','running') for j in jobs.values()):continue
-                    result=await import_folder(ImportRequest(path=folder['path'],restore=False));jobs[result['job_id']]['path']=folder['path']
+                    start_import(Path(folder['path']), restore=False)
     app.state.folder_monitor=asyncio.create_task(monitor())
 
 @app.on_event('startup')

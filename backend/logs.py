@@ -10,13 +10,18 @@ log = logging.getLogger('elixir')
 
 # 平台签名地址、cookie、各类密钥一律不落盘
 _COOKIE = re.compile(r'(?i)(cookie["\']?\s*[:=]\s*)[^\r\n]*')
-_SECRET = re.compile(r'(?i)\b(token|access_token|refresh_token|client_token|vkey|musickey|qm_keyst|music_u|__csrf|sp_dc|authorization|password|secret|ticket)(["\']?\s*[=:]\s*["\']?)[^\s;&,"\'}]+')
+_AUTHORIZATION = re.compile(
+    r'(?i)(\b(?:proxy-)?authorization["\']?\s*[:=]\s*["\']?)'
+    r'(?:(?:bearer|basic)\s+)?[^\s;&,"\'}]+'
+)
+_SECRET = re.compile(r'(?i)\b(token|access_token|refresh_token|client_token|vkey|musickey|qm_keyst|music_u|__csrf|sp_dc|password|secret|ticket)(["\']?\s*[=:]\s*["\']?)[^\s;&,"\'}]+')
 _QUERY = re.compile(r'(https?://[^\s?#"\']+)\?[^\s"\']*')
 _MEDIA = re.compile(r'(/api/media/)[A-Za-z0-9_-]+')
 
 
 def redact(text: str) -> str:
     text = _COOKIE.sub(r'\1***', text)
+    text = _AUTHORIZATION.sub(r'\1***', text)
     text = _QUERY.sub(r'\1?***', text)
     text = _MEDIA.sub(r'\1***', text)
     return _SECRET.sub(lambda m: m.group(1) + m.group(2) + '***', text)

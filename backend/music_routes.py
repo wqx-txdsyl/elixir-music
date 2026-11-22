@@ -2,6 +2,8 @@
 import asyncio
 import base64
 import binascii
+import hashlib
+import json
 import re
 import time
 from collections import Counter
@@ -24,6 +26,7 @@ class SyncCloudLibrary(BaseModel):
 def install(app, get_store, get_providers, public_track, track_get, public_tracks, search_platforms):
     searches_in_flight={}
     cloud_in_flight={}
+    playlist_imports={}
 
     def cloud_view(source='all'):
         if source not in (*cloud_library.SOURCES,'all'):raise ValueError('未知音乐平台')
@@ -246,10 +249,9 @@ def install(app, get_store, get_providers, public_track, track_get, public_track
     def copy_playlist(pid:str,body:dict):
         db=get_store();data=db.playlist(pid)
         if not data: raise HTTPException(404,'歌单不存在')
-        target=db.create_playlist(str(body.get('title') or data['title']+' · 副本')[:100])
-        for t in data['tracks']:db.playlist_add(target['id'],t['id'])
-        db.playlist_update(target['id'],{'description':data['description'],'folder':data['folder']})
-        return db.playlist(target['id'])
+        title = str(body.get('title') or data['title']+' · 副本')[:100]
+        return db.create_playlist(title, track_ids=[t['id'] for t in data['tracks']],
+                                  description=data['description'], folder=data['folder'])
 
     @app.get('/api/music/trash')
     def trash(): return {'playlists':get_store().playlists(trash=True)}
@@ -268,13 +270,9 @@ def install(app, get_store, get_providers, public_track, track_get, public_track
         return {'format':'musicplatform-playlist','version':1,'title':data['title'],
                 'description':data['description'],'tracks':tracks}
 
-    @app.post('/api/music/import-playlist')
-    async def import_playlist(body:dict):
-        if body.get('format')!='musicplatform-playlist' or not isinstance(body.get('tracks'),list):
-            raise ValueError('请选择本应用导出的歌单JSON')
-        entries=body['tracks']
-        if len(entries)>10000: raise ValueError('一次最多导入10000条曲目')
-        db=get_store();target=db.create_playlist(str(body.get('title') or '导入的歌单')[:100]);failures=[]
+    async def resolve_playlist_import(db, entries, title, description):
+        track_ids = []
+        failures = []
         for index,t in enumerate(entries):
             tid=t.get('id','') if isinstance(t,dict) else ''
             if not isinstance(tid,str) or not re.fullmatch(r'[a-z]+:[A-Za-z0-9_-]{1,160}',tid) or tid.split(':',1)[0] not in {*get_providers(),'local'}:
@@ -285,19 +283,60 @@ def install(app, get_store, get_providers, public_track, track_get, public_track
                 try: await track_get(tid)
                 except Exception:
                     failures.append({'index':index,'title':t.get('title',''),'reason':'无法从原平台确认歌曲资料'});continue
-            db.playlist_add(target['id'],tid)
-        db.playlist_update(target['id'],{'description':str(body.get('description',''))[:4000]})
-        return {'playlist':db.playlist(target['id']),'failures':failures,'imported':db.playlist(target['id'])['count']}
+            track_ids.append(tid)
+        playlist = db.create_playlist(title, track_ids=track_ids, description=description)
+        return playlist['id'], failures, playlist['count']
+
+    @app.post('/api/music/import-playlist')
+    async def import_playlist(body:dict):
+        if body.get('format')!='musicplatform-playlist' or not isinstance(body.get('tracks'),list):
+            raise ValueError('请选择本应用导出的歌单JSON')
+        entries = body['tracks']
+        if len(entries)>10000: raise ValueError('一次最多导入10000条曲目')
+        db = get_store()
+        title = str(body.get('title') or '导入的歌单')[:100]
+        description = str(body.get('description', ''))[:4000]
+        loop = asyncio.get_running_loop()
+        payload = json.dumps([title, description, entries], sort_keys=True).encode()
+        key = (loop, db, hashlib.sha256(payload).digest())
+        task = playlist_imports.get(key)
+        if task is None:
+            task = asyncio.create_task(resolve_playlist_import(db, entries, title, description))
+            playlist_imports[key] = task
+
+            def import_finished(done):
+                if done.cancelled() or done.exception() is not None:
+                    playlist_imports.pop(key, None)
+                else:
+                    # The browser can time out while upstream tracks are still being resolved.
+                    # Keep the completed result briefly so a retry returns the same playlist.
+                    def expire():
+                        if playlist_imports.get(key) is done:
+                            playlist_imports.pop(key, None)
+
+                    loop.call_later(180, expire)
+
+            task.add_done_callback(import_finished)
+
+        playlist_id, failures, imported = await asyncio.shield(task)
+        playlist = db.playlist(playlist_id)
+        if playlist is None:
+            if playlist_imports.get(key) is task:
+                playlist_imports.pop(key, None)
+            raise HTTPException(409, '导入的歌单已被移除，请重新导入')
+        return {'playlist':playlist,'failures':failures,'imported':imported}
 
     @app.post('/api/music/import-remote')
     async def import_remote(body:dict):
         source=body.get('source');sid=str(body.get('source_id','')).removeprefix(str(source)+':')
         if source not in get_providers() or not re.fullmatch(r'[A-Za-z0-9_-]{1,160}',sid): raise ValueError('请选择有效的云端音乐歌单')
         result=await asyncio.to_thread(get_providers()[source].playlist,sid)
-        save_result(result);db=get_store();target=db.create_playlist(str(result.get('title') or '导入歌单')[:100])
-        for t in result.get('tracks',[]):db.playlist_add(target['id'],t['id'])
-        db.playlist_update(target['id'],{'description':f'从{source}歌单 {sid} 导入；原云端歌单保持原样'})
-        return db.playlist(target['id'])
+        save_result(result)
+        title = str(result.get('title') or '导入歌单')[:100]
+        return get_store().create_playlist(
+            title, track_ids=[t['id'] for t in result.get('tracks',[])],
+            description=f'从{source}歌单 {sid} 导入；原云端歌单保持原样',
+        )
 
     @app.delete('/api/library/{track_id}/link')
     def unlink(track_id:str):
