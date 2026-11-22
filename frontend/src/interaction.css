@@ -69,3 +69,15 @@ svg.search-badge.failed { color: var(--danger, #d14343); }
 /* 歌词校时收成一个按钮，点开才显示调整项 */
 .lyric-offset .lyric-tune-toggle { display: inline-flex; align-items: center; gap: 4px; }
 .lyric-offset .lyric-tune-toggle[aria-expanded=true] { opacity: 1; }
+
+/* 曲目行可以用键盘移动焦点：鼠标点击不显示焦点框，键盘移动时显示 */
+.track-row:focus { outline: none; }
+.track-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* 首页「上次听到」：标出听到哪里 */
+.home-resume { display: flex; align-items: center; gap: 8px; margin: 4px 0 12px; font-size: 12px; color: inherit; opacity: .78; font-variant-numeric: tabular-nums; }
+.home-resume-bar { flex: none; width: 96px; height: 3px; border-radius: 3px; background: color-mix(in srgb, currentColor 22%, transparent); overflow: hidden; }
+.home-resume-bar i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+/* QQ 音乐首页卡片右下角有圆形播放按钮，进度条缩短并给按钮让出位置 */
+.qq-feature-copy .home-resume { padding-right: 54px; margin: 6px 0 0; white-space: nowrap; color: #ffffffa6; opacity: 1; }
+.qq-feature-copy .home-resume-bar { width: 56px; }

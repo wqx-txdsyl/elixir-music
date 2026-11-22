@@ -4,6 +4,7 @@ import {ArrowSquareOut,ArrowsClockwise,CaretLeft,CaretRight,ClockCounterClockwis
 import {api,mediaUrl,formatDuration,SOURCE_NAMES} from './api';
 import {MusicArt} from './MusicWorkspace';
 import {RecordCrate,ListeningCalendar} from './Crate';
+import {usePlaybackPosition} from './usePlaybackPosition';
 import './home.css';
 import './home-netease.css';
 import './home-qqmusic.css';
@@ -25,6 +26,25 @@ const cssUrl=src=>src?`url("${mediaUrl(src).replace(/["\\]/g,'\\$&')}")`:'none';
 const reducedMotion=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 const scrollBehavior=()=>reducedMotion()?'auto':'smooth';
 
+// 上次没听完的歌：在「继续播放」旁边标出听到哪里
+function ResumeHint({track}){
+  const position=usePlaybackPosition(),total=(track?.duration_ms||0)/1000;
+  if(!total||position<5||position>total-3)return null;
+  return <span className="home-resume"><span className="home-resume-bar" aria-hidden="true"><i style={{width:Math.min(100,position/total*100)+'%'}}/></span>听到 {formatDuration(position*1000)} / {formatDuration(total*1000)}</span>;
+}
+// 从播放记录里按出现顺序取出最近听过的专辑（本地文件的「本地音乐」占位专辑不算）
+function recentAlbums(history,limit=12){
+  const seen=new Set(),out=[];
+  for(const track of history||[]){
+    const title=track.source==='local'&&track.album==='本地音乐'?'':track.album;
+    if(!title)continue;
+    const key=(track.album_id?track.source+':'+track.album_id:title+'|'+(track.artist||'')).toLowerCase();
+    if(seen.has(key))continue;
+    seen.add(key);out.push({key,track,title,artist:track.artist,cover:track.cover});
+    if(out.length>=limit)break;
+  }
+  return out;
+}
 function NowBars(){return <span className="home-now-bars" aria-hidden="true"><i/><i/><i/></span>;}
 function PlayLabel({now,playing}){return now&&playing?<><Pause size={17} weight="fill"/>暂停</>:<><Play size={17} weight="fill"/>{now?'继续播放':'播放'}</>;}
 
@@ -91,6 +111,7 @@ function HeroMain({hero,heroNow,playing,history,run,onPlay}){
       <span className="home-hero-state">{heroNow&&playing?<><NowBars/>正在播放</>:'上次听到'}</span>
       <h2>{hero.title}</h2>
       <p>{hero.artist}{hero.album&&<span>{hero.album}</span>}</p>
+      {heroNow&&!playing&&<ResumeHint track={hero}/>}
       <div className="home-hero-actions">
         <button className="button primary" onClick={onPlay}><PlayLabel now={heroNow} playing={playing}/></button>
         {history?.length>1&&<button className="button home-ghost" onClick={()=>run.play(history[0],history)}><ClockCounterClockwise size={17}/>播放最近听过的歌</button>}
@@ -138,6 +159,7 @@ function Banner({slides,history,currentId,playing,onToggle,run,onPlayHero,heroNo
         <span className="home-banner-tag">{now&&playing?<><NowBars/>正在播放</>:first?'上次听到':'最近播放'}</span>
         <h2>{slide.title}</h2>
         <p>{slide.artist}{slide.album&&<span>{slide.album}</span>}</p>
+        {first&&now&&!playing&&<ResumeHint track={slide}/>}
         <div className="home-hero-actions">
           <button className="button primary" onClick={play}><PlayLabel now={now} playing={playing}/></button>
           {history?.length>1&&<button className="button home-ghost" onClick={()=>run.play(history[0],history)}><ClockCounterClockwise size={17}/>播放最近听过的歌</button>}
@@ -239,6 +261,8 @@ export default function Home({theme,modules,actions,current,currentId,playing,li
     {key:'library',icon:FolderSimple,title:labels.library,detail:library?.local_count?library.local_count+' 首':'',go:()=>run.navigate('library')},
   ];
   const lists=(library?.playlists||[]).map(p=>({key:p.id,cover:p.cover,title:p.title,detail:(p.count??p.total??0)+' 首',go:()=>p.kind==='playlist'?run.openEntity(p):run.navigate('playlist',p.id)}));
+  const albumsHeard=recentAlbums(history);
+  const heardCards=albumsHeard.map(album=><CoverCard key={album.key} cover={album.cover} title={album.title} detail={album.artist} label={'查看专辑 '+album.title} onClick={()=>run.trackEntity(album.track,'album')}/>);
   const openArtist=artist=>artist.entity?run.openEntity({...artist.entity,cover:artist.cover}):run.search(artist.name,'all','artist');
   const common={history,currentId,playing,onToggle,run};
   const crate=title=><RecordCrate title={title} tracks={[hero,...recent,...topTracks].filter(Boolean)} currentId={currentId} playing={playing} onToggle={toggle} onOpen={track=>run.openDetail(track)}/>;
@@ -261,13 +285,14 @@ export default function Home({theme,modules,actions,current,currentId,playing,li
   if(layout==='netease'){
     // Banner carousel, a square cover grid of the listener's lists, then compact song rows.
     const slides=hero?[hero,...recent.slice(0,4)]:[];
-    const tiles=[...nav,...lists].slice(0,10);
+    const tiles=lists.slice(0,10);
     body=<>
       {greet}
       {loading?<div className="home-banner home-hero-loading" aria-label="正在读取听歌记录"/>:hero?<Banner slides={slides} heroNow={heroNow} onPlayHero={playHero} {...common}/>:<EmptyHero run={run} onImport={onImport}/>}
-      <Shelf grid title="我的歌单" className="home-netease-lists" action={musicLink}>
-        {tiles.map(item=><CoverCard key={item.key} icon={item.icon} cover={item.cover} title={item.title} badge={item.count??item.detail} label={'打开 '+item.title} onClick={item.go}/>)}
-      </Shelf>
+      {heardCards.length>0&&<Shelf title="最近听过的专辑">{heardCards}</Shelf>}
+      {tiles.length>0&&<Shelf grid title="我的歌单" className="home-netease-lists" action={musicLink}>
+        {tiles.map(item=><CoverCard key={item.key} cover={item.cover} title={item.title} badge={item.detail} label={'打开 '+item.title} onClick={item.go}/>)}
+      </Shelf>}
       {topTracks.length>0&&<section className="home-section"><div className="home-section-head"><h2>最近常听</h2>{rankingLink}</div><RankList tracks={topTracks.slice(0,10)} {...common}/></section>}
       {picks('平台推荐')}
       {artists.length>1&&<Shelf title="常听歌手">{artistCards}</Shelf>}
@@ -291,6 +316,7 @@ export default function Home({theme,modules,actions,current,currentId,playing,li
             <span className="qq-feature-state">{heroNow&&playing?<><NowBars/>正在播放</>:'接着听'}</span>
             <button className="qq-feature-title" onClick={()=>run.openDetail(hero)}>{hero.title}</button>
             <p>{hero.artist}{hero.album?' · '+hero.album:''}</p>
+            {heroNow&&!playing&&<ResumeHint track={hero}/>}
             <button className="qq-play-round" onClick={playHero} aria-label={heroNow&&playing?'暂停':'播放 '+hero.title}>{heroNow&&playing?<Pause size={20} weight="fill"/>:<Play size={20} weight="fill"/>}</button>
           </div>
         </section>:<EmptyHero run={run} onImport={onImport} className="qq-feature-main"/>}
@@ -314,7 +340,9 @@ export default function Home({theme,modules,actions,current,currentId,playing,li
     const filters=[['all','全部'],['music','音乐'],artists.length>1&&['artists','歌手'],albums.length&&['albums','专辑']].filter(Boolean);
     const shown=filters.some(([key])=>key===filter)?filter:'all',has=key=>shown==='all'||shown===key;
     const heroTile=hero&&{key:'hero',cover:hero.cover,now:heroNow,eyebrow:heroNow&&playing?'正在播放':'上次听到',title:hero.title,label:'查看《'+hero.title+'》的歌词与资料',go:()=>run.openDetail(hero),play:playHero};
-    const tiles=[heroTile,...nav,...lists].filter(Boolean).slice(0,8);
+    const albumTiles=albumsHeard.map(album=>({key:'album:'+album.key,kind:'album',cover:album.cover,title:album.title,detail:album.artist,label:'查看专辑 '+album.title,go:()=>run.trackEntity(album.track,'album')}));
+    const personal=[heroTile,...lists.slice(0,3),...albumTiles].filter(Boolean);
+    const tiles=(personal.length>=4?personal:[...personal,...nav]).slice(0,8);
     const recentCards=recent.slice(0,12).map(track=><CoverCard key={track.id} cover={track.cover} title={track.title} detail={track.artist} playable now={track.id===currentId} playing={playing} label={'播放 '+track.title} onClick={()=>toggle(track,history)}/>);
     body=<>
       <nav className="home-filters" aria-label="筛选">{filters.map(([key,label])=><button key={key} aria-pressed={shown===key} onClick={()=>setFilter(key)}>{label}</button>)}</nav>
@@ -393,6 +421,7 @@ export default function Home({theme,modules,actions,current,currentId,playing,li
           <button className="ink-session-title" onClick={()=>run.openDetail(hero)}><h2>{hero.title}</h2></button>
           <p className="ink-session-artist">{hero.artist}</p>
           {hero.album&&<p className="ink-session-album">{hero.album}</p>}
+          {heroNow&&!playing&&<ResumeHint track={hero}/>}
           <div className="home-hero-actions"><button className="button primary" onClick={playHero}><PlayLabel now={heroNow} playing={playing}/></button><button className="ink-detail-link" onClick={()=>run.openDetail(hero)}>歌词与资料<CaretRight size={15}/></button></div>
         </div>
         <button className="ink-record" onClick={()=>run.openDetail(hero)} aria-label={'查看《'+hero.title+'》的歌词与资料'}>
