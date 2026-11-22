@@ -60,6 +60,10 @@ select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .app[data-frame] .queue-panel { top: calc(var(--detail-top) + 74px); bottom: calc(var(--detail-bottom) + 10px); }
 .app[data-frame]:is([data-player=float]) .queue-panel { bottom: 104px; }
 .app[data-frame]:is([data-player=float]) .toast { bottom: 110px; }
+.toast > .toast-action { margin-left: 4px; padding: 2px 12px; border: 1px solid currentColor; border-radius: 999px; font-weight: 700; white-space: nowrap; opacity: .9; }
+.toast > .toast-action:hover, .toast > .toast-action:focus-visible { opacity: 1; background: color-mix(in srgb, currentColor 14%, transparent); }
+.toast > .toast-action + button:not(.toast-action) { margin-left: 4px; }
+.modal:focus { outline: none; }
 .app[data-frame][data-player=top] .toast { bottom: 26px; }
 .app[data-frame][data-side=right] .queue-panel { right: auto; left: calc(var(--frame-panel) + 14px); }
 /* The Spotify skin lifts its search bar out of the page; inside a custom frame it goes back in. */
