@@ -21,6 +21,10 @@ import {useSpotifyListeningHistory} from './useSpotifyListeningHistory';
 import { AudioEffects, useAudioEffects } from './AudioEffects';
 import SelectMenu from './SelectMenu';
 import Modal from './Modal';
+import ContextMenu, { menuPoint } from './ContextMenu';
+import SearchSuggest from './SearchSuggest';
+import { mergeSearchResults } from './search-merge.mjs';
+import { ArrowUp, ArrowDown, HeartBreak } from '@phosphor-icons/react';
 import {insertNext,moveItem,pinNext,pinnedNext} from './playback-queue.mjs';
 import {ownedSpotifySnapshot,spotifyClockPosition,reconcileSpotifyClock,followingTrack,spotifyHandoff} from './spotify-state.mjs';
 import { LocalFolders, TrackInformation, MusicLibrary, MusicSearchTypes, EntitySearch, EntityDetail, PlaylistTools, SearchHistory } from './MusicWorkspace';
@@ -28,7 +32,7 @@ import Home from './Home';
 import PlayerBar from './PlayerBar';
 import LyricLines from './LyricLines';
 import DesktopLyricSync from './DesktopLyricSync';
-import {IconButton,Cover,Empty,Loading,ErrorNote,Note,Tabs} from './ui';
+import {IconButton,Cover,Empty,Loading,ErrorNote,Note,Tabs,Skeleton} from './ui';
 import {playbackClock} from './playback-clock.mjs';
 import Visualizer from './Visualizer';
 import './controls.css';
@@ -68,11 +72,12 @@ import Studio from './Studio';
 import CommandPalette from './CommandPalette';
 import { LayoutEditor } from './LayoutEditor';
 import { NowPanel, Cassette, SidebarClock, IpodPlayer, PosterMark, SkinPreview, CdPlayer, CoverMosaic } from './Parts';
-import { useShortcuts, comboFromEvent, ANYWHERE } from './shortcuts';
+import { useShortcuts, comboFromEvent, comboParts, ANYWHERE } from './shortcuts';
 import ShortcutSettings from './ShortcutSettings';
 import './studio.css';
 import './workshop.css';
 import './parts.css';
+import './interaction.css';
 import './mobile.css';
 const AUDIO_FAILED = '音频加载失败，可能是播放地址失效或网络中断。';
 
@@ -89,6 +94,14 @@ function TrackListHero({ page, title, playlist, tracks, busy, onImport, tools })
   if (page === 'playlist') return playlist ? <PlaylistTools playlist={playlist} tracks={tracks} meta={meta} {...tools} /> : <PageHero kind="playlist" icon={Playlist} eyebrow="Elixir 歌单" title={title} meta={meta} />;
   if (page === 'library') return <PageHero kind="library" icon={FolderSimple} eyebrow="本地音乐" title={title} meta={meta} actions={<button className="button primary" onClick={onImport}><Plus size={18} />添加文件夹</button>} />;
   return <PageHero kind="likes" icon={Heart} eyebrow="收藏" title={title} meta={meta} />;
+}
+// 搜索平台页签上的进度：转圈、条数或失败
+function SearchBadge({ status }) {
+  if (!status) return null;
+  if (status.state === 'loading') return <CircleNotch className="spin search-badge" size={12} aria-label="加载中" />;
+  if (status.state === 'error') return <WarningCircle className="search-badge failed" size={13} aria-label="搜索失败" />;
+  if (status.state === 'skipped') return null;
+  return <small className="search-badge">{status.count}</small>;
 }
 function SourceTag({ source }) { return <span className={'source-tag source-' + source}>{source === 'netease' ? '网易云' : SOURCE_NAMES[source] || source}</span>; }
 
@@ -108,6 +121,11 @@ function App() {
   const [searchKind, setSearchKind] = useState('track');
   const [entity, setEntity] = useState(null);
   const [queueUndo, setQueueUndo] = useState(null);
+  const [contextMenu, setContextMenu] = useState(null);
+  // 各平台的搜索进度：{ 平台: { state: loading | done | error | skipped, count } }；stale 表示还在显示上一次的结果
+  const [searchStatus, setSearchStatus] = useState({});
+  const [searchStale, setSearchStale] = useState(false);
+  const [lyricTune, setLyricTune] = useState(false);
   const [lyricOffset, setLyricOffset] = useState(0);
   const [remoteWatch,setRemoteWatch] = useState(false);
   const remoteRecorded = useRef(0);
@@ -287,27 +305,50 @@ function App() {
   async function search(value = query, provider = source, kind = searchKind) {
     if (!searchableSources.includes(provider)) provider='all';
     remember({ type: 'search', value: String(value || '').trim(), provider, kind });
-    if (!value.trim()) { setPage('search'); setSearched(''); setTracks([]); setBusy(false); searchRef.current?.focus(); return; }
+    if (!value.trim()) { ++requestId.current; setPage('search'); setSearched(''); setTracks([]); setBusy(false); setSearchStatus({}); setSearchStale(false); searchRef.current?.focus(); return; }
     if(provider==='local'&&kind!=='track')kind='track';
-    const req = ++requestId.current;
-    setSearchKind(kind); setQuery(value); setSearched(value.trim()); setPage('search'); setSource(provider); setBusy(true); setErrors([]); setTracks([]); scrollRef.current?.scrollTo(0, 0);
-    if (kind !== 'track') { setBusy(false); return; }
-    try {
-      const data=await api('/api/search?q='+encodeURIComponent(value.trim())+'&source='+provider+'&limit=50',{timeout:75000});
-      if(req!==requestId.current)return;
-      const initial=data.tracks||[];
-      setTracks(initial);
-      setErrors(data.login_required?['请先登录这个音乐平台']:normalizeErrors(data.errors));
-      if(window.desktop?.platformSearch && data.web_search?.length){
-        if(initial.length)setBusy(false);
-        const results=await Promise.allSettled(data.web_search.map(name=>window.desktop.platformSearch(name,value.trim())));
-        if(req!==requestId.current)return;
-        const matches=new Map(initial.map(track=>[track.id,track]));
-        for(const result of results)if(result.status==='fulfilled')for(const track of result.value.tracks||[])if(!matches.has(track.id))matches.set(track.id,track);
-        setTracks([...matches.values()]);
+    const req = ++requestId.current, text = value.trim();
+    // 已经在看歌曲结果时，新结果回来之前先把旧结果淡化留着，免得页面闪成空白
+    const keep = page === 'search' && searchKind === 'track' && kind === 'track' && tracks.length > 0;
+    setSearchKind(kind); setQuery(value); setSearched(text); setPage('search'); setSource(provider); setBusy(true); setErrors([]); setSearchStale(keep); if (!keep) setTracks([]); scrollRef.current?.scrollTo(0, 0);
+    if (kind !== 'track') { setBusy(false); setSearchStatus({}); setSearchStale(false); return; }
+    // 「全部平台」拆成每个平台各发一次请求，哪个先回来先显示哪个；链接和歌曲 ID 仍整体交给后端识别
+    const direct = /^https?:\/\//i.test(text) || /^[a-z]+:[A-Za-z0-9_-]{1,160}$/.test(text);
+    const names = provider === 'all' && !direct ? searchableSources.filter(name => name !== 'all') : [provider];
+    const lists = names.map(name => ({ source: name, tracks: [] })), failures = {};
+    setSearchStatus(Object.fromEntries(names.map(name => [name, { state: 'loading', count: 0 }])));
+    const publish = () => {
+      if (req !== requestId.current) return;
+      const arrived = lists.filter(list => list.tracks.length);
+      if (!arrived.length && lists.some(list => !list.done)) return;
+      setTracks(names.length > 1 ? mergeSearchResults(arrived) : arrived.flatMap(list => list.tracks));
+      setSearchStale(false);
+      setErrors(Object.values(failures));
+    };
+    await Promise.all(names.map(async (name, i) => {
+      let state = 'done';
+      try {
+        const data = await api('/api/search?q=' + encodeURIComponent(text) + '&source=' + name + '&limit=50', { timeout: 75000 });
+        if (req !== requestId.current) return;
+        lists[i].tracks = data.tracks || [];
+        if (data.login_required) { if (provider === 'all') state = 'skipped'; else { failures[name] = '请先登录这个音乐平台'; state = 'error'; } }
+        else if (data.errors?.length) { failures[name] = normalizeErrors(data.errors).join('；'); state = 'error'; }
+        if (window.desktop?.platformSearch && data.web_search?.length) {
+          publish();
+          const results = await Promise.allSettled(data.web_search.map(site => window.desktop.platformSearch(site, text)));
+          if (req !== requestId.current) return;
+          const seen = new Set(lists[i].tracks.map(track => track.id));
+          for (const result of results) if (result.status === 'fulfilled') for (const track of result.value.tracks || []) if (!seen.has(track.id)) { seen.add(track.id); lists[i].tracks.push(track); }
+        }
+      } catch (e) {
+        if (req !== requestId.current) return;
+        failures[name] = names.length > 1 ? formatSourceError(name, e.message) : e.message; state = 'error';
       }
-    }
-    catch (e) { if (req === requestId.current) setErrors([e.message]); } finally { if (req === requestId.current) setBusy(false); }
+      lists[i].done = true;
+      setSearchStatus(old => ({ ...old, [name]: { state, count: lists[i].tracks.length } }));
+      publish();
+    }));
+    if (req === requestId.current) { setBusy(false); setSearchStale(false); }
   }
   async function batchTracks(action,items,playlistId){
     try{
@@ -337,6 +378,63 @@ function App() {
     try { const data = await api('/api/likes/' + encodeURIComponent(track.id), { method: 'POST' }); setLiked(previous => { const copy = new Set(previous); if (data.liked) copy.add(track.id); else copy.delete(track.id); return copy; }); if (page === 'likes' && !data.liked) setTracks(items => items.filter(item => item.id !== track.id)); }
     catch (e) { notify(e.message); }
   }
+  // 歌曲的操作：右键菜单和「…」弹窗共用同一组选项
+  function trackMenuItems(track, playlistContext) {
+    const isLiked = liked.has(track.id), album = track.source === 'local' && track.album === '本地音乐' ? '' : track.album;
+    const alternatives = track.alternatives || [];
+    return [
+      { label: '播放', icon: Play, onClick: () => play(track) },
+      currentRef.current?.id !== track.id && { label: '下一首播放', icon: SkipForward, onClick: () => batchTracks('next', [track]) },
+      { label: '加入播放队列', icon: Queue, onClick: () => batchTracks('queue', [track]) },
+      { label: '添加到歌单', icon: Plus, onClick: () => setModal({ type: 'add-playlist', track }) },
+      { label: isLiked ? '取消喜欢' : '喜欢', icon: isLiked ? HeartBreak : Heart, onClick: () => toggleLike(track) },
+      'divider',
+      { label: '查看歌词与评论', icon: MicrophoneStage, onClick: () => openDetail(track) },
+      track.artist && track.artist !== '未知歌手' && { label: '歌手：' + track.artist, icon: UserCircle, onClick: () => trackEntity(track, 'artist') },
+      album && { label: '专辑：' + album, icon: Disc, onClick: () => trackEntity(track, 'album') },
+      alternatives.length > 0 && 'divider',
+      ...alternatives.map(alt => ({ label: '改用' + (SOURCE_NAMES[alt.source] || alt.source) + '播放', icon: ArrowsClockwise, onClick: () => playAlternative(track, alt) })),
+      'divider',
+      track.source === 'local' && { label: '匹配封面、歌词与评论', icon: LinkSimple, onClick: () => findMatches(track) },
+      playlistContext && { label: playlistContext.remote_source ? '从 Elixir 副本移除' : '从当前歌单移除', icon: Trash, danger: true, onClick: () => batchTracks('playlist_remove', [track], playlistContext) },
+      track.source === 'local' && { label: '从音乐库移除', icon: Trash, danger: true, onClick: () => batchTracks('local_remove', [track]) },
+      { label: '在原平台打开', icon: ArrowSquareOut, disabled: !track.source_url, onClick: () => external(track.source_url) },
+      { label: '复制链接 / ID', icon: Copy, onClick: () => navigator.clipboard.writeText(track.source_url || track.id).then(() => notify('已复制歌曲链接 / ID')) },
+    ];
+  }
+  const menuPlaylistContext = () => page === 'playlist' ? playlist : page === 'entity' && entity?.kind === 'playlist' ? { ...entity, remote_source: entity.source } : null;
+  function openMenu(event, items, label) { event.preventDefault?.(); const { x, y } = menuPoint(event); setContextMenu({ x, y, items, label, key: Date.now() }); }
+  // 合并行里换一个平台播放：这一行（列表和队列里）改以该平台为主，原来的平台留作备选
+  function playAlternative(track, alt) {
+    const strip = ({ alternatives, ...rest }) => rest;
+    const swapped = { ...strip(alt), alternatives: [strip(track), ...(track.alternatives || []).filter(t => t.id !== alt.id).map(strip)] };
+    const replace = list => list.map(t => t.id === track.id ? swapped : t);
+    if (queueRef.current.some(t => t.id === track.id)) { const next = replace(queueRef.current); setQueue(next); queueRef.current = next; }
+    setTracks(old => old.some(t => t.id === track.id) ? replace(old) : old);
+    play(swapped);
+  }
+  function queueMenu(track, index, event) {
+    const list = queueRef.current;
+    openMenu(event, [
+      { label: currentRef.current?.id === track.id ? '从头播放' : '播放', icon: Play, onClick: () => play(track) },
+      currentRef.current?.id !== track.id && { label: '下一首播放', icon: SkipForward, onClick: () => batchTracks('next', [track]) },
+      { label: '查看歌词与评论', icon: MicrophoneStage, onClick: () => openDetail(track) },
+      { label: '添加到歌单', icon: Plus, onClick: () => setModal({ type: 'add-playlist', track }) },
+      'divider',
+      { label: '上移', icon: ArrowUp, disabled: index === 0, onClick: () => moveQueue(index, -1) },
+      { label: '下移', icon: ArrowDown, disabled: index === list.length - 1, onClick: () => moveQueue(index, 1) },
+      { label: '从队列移除', icon: X, danger: true, onClick: () => editQueue(queueRef.current.filter((_, i) => i !== index)) },
+    ], track.title);
+  }
+  function playlistMenu(id, title, event) {
+    const load = run => async () => { try { const data = await api('/api/playlists/' + encodeURIComponent(id)); const list = data.tracks || []; if (!list.length) { notify('「' + title + '」还没有歌曲'); return; } run(list); } catch (e) { notify(e.message); } };
+    openMenu(event, [
+      { label: '打开歌单', icon: Playlist, onClick: () => navigate('playlist', id) },
+      { label: '播放', icon: Play, onClick: load(list => playAll(list)) },
+      { label: '下一首播放', icon: SkipForward, onClick: load(list => batchTracks('next', list)) },
+      { label: '加入播放队列', icon: Queue, onClick: load(list => batchTracks('queue', list)) },
+    ], title);
+  }
   async function play(track, list, resume=false) {
     setSpotifyInterlude(null);
     const resumePosition=resume && currentRef.current?.id===track.id?playbackClock.get():0;
@@ -350,7 +448,20 @@ function App() {
     if (req !== playRequestId.current) return;
     await window.desktop?.platformStop?.();
     if (req !== playRequestId.current) return;
-    if (list?.length) { setQueue(list); setUpNext([]); upNextRef.current = []; } else if (!queueRef.current.some(t => t.id === track.id)) setQueue(q => [...q, track]);
+    if (list?.length) {
+      // 整批替换队列可以撤销：恢复原队列，正在播的这首插在原来播放位置之后
+      const old = queueRef.current, oldUpNext = upNextRef.current, previousId = currentRef.current?.id;
+      const replaced = old.length > 0 && (old.length !== list.length || old.some((t, i) => t.id !== list[i].id));
+      setQueue(list); setUpNext([]); upNextRef.current = [];
+      if (replaced) {
+        setQueueUndo(old);
+        notify('播放队列已换成当前列表（' + list.length + ' 首）', { actions: [{ label: '撤销', run: () => {
+          const playing = currentRef.current, at = old.findIndex(t => t.id === previousId) + 1;
+          const restored = !playing || old.some(t => t.id === playing.id) ? old : [...old.slice(0, at), playing, ...old.slice(at)];
+          setQueue(restored); queueRef.current = restored; setUpNext(oldUpNext); upNextRef.current = oldUpNext; setQueueUndo(null); notify('已恢复原来的播放队列');
+        } }] });
+      }
+    } else if (!queueRef.current.some(t => t.id === track.id)) setQueue(q => [...q, track]);
     spotifyPendingTrack.current=track.source==='spotify'?track:null;spotifyPendingSeek.current=null;spotifyQueued.current=null;spotifyLast.current=null;
     // Spotify 歌曲也立刻显示成新歌；播放器真正换歌之前，轮询拿到的上一首状态会被忽略。
     if(track.source==='spotify'){++spotifyControlGeneration.current;spotifyEngaged.current=true;spotifyPendingAt.current=performance.now();setPlaying(false);}
@@ -596,7 +707,7 @@ function App() {
   const labels = useMemo(() => skinLabels(resolved.skin), [resolved.skin]);
   // 播放整个列表：随机模式从随机一首开始，其余模式从第一首开始。
   const playAll=list=>{if(!list?.length)return;play(list[modeRef.current==='shuffle'?Math.floor(Math.random()*list.length):0],list);};
-  tableActions.current={search,openCloudPlaylist,batch:batchTracks,navigate,play,playAll,openDetail,openEntity,trackEntity,toggleLike,more:track=>setModal({type:'track',track,playlistContext:page==='playlist'?playlist:page==='entity'&&entity?.kind==='playlist'?{...entity,remote_source:entity.source}:null})};
+  tableActions.current={search,openCloudPlaylist,batch:batchTracks,navigate,play,playAll,openDetail,openEntity,trackEntity,toggleLike,more:track=>setModal({type:'track',track,playlistContext:menuPlaylistContext()}),contextMenu:(track,event)=>openMenu(event,trackMenuItems(track,menuPlaylistContext()),track.title),playlistMenu};
   const visualMode = visualizerStyle(resolved);
   const showVisualizer = !!detail && visualMode !== 'off' && current?.id === detail.id && !spotifyInterlude;
   // 副歌位置：由当前歌曲的时间轴歌词推算，进度条上标出。
@@ -689,7 +800,7 @@ function App() {
       <div className="sidebar-footer">{settings.private_session&&<button className="appearance-button private-mode-indicator" onClick={()=>navigate('history')}>私密收听已开启</button>}<ThemeMenu skin={resolved.skin} onChange={changeTheme} onStudio={() => navigate('studio')} onEdit={() => setEditing(true)} /><div className="sidebar-bottom"><button onClick={() => navigate('settings')}><GearSix size={19} /> 设置</button><button title="账号与会员" onClick={() => navigate('accounts')}><UserCircle size={20} /></button><span>{appVersion && 'v' + appVersion}</span></div></div>
     </aside>
     <div className="workspace">
-      <header className="topbar" ref={topbarRef}>{phone && <IconButton icon={MenuIcon} className="mobile-menu" title="菜单" onClick={() => setNavOpen(true)} />}<nav className="top-nav" aria-label="导航" ref={topNavRef}><button className="top-nav-brand" onClick={() => navigate('home')}><span className="top-nav-mark" aria-hidden="true" />Elixir</button>{navKeys.map(key => { const Icon = navIcons[key]; return <button key={key} title={navTitles[key]} className={'top-nav-item' + (page === key ? ' selected' : '')} aria-current={page === key ? 'page' : undefined} onClick={() => navigate(key)}><Icon size={17} weight={page === key ? 'fill' : 'regular'} />{navTitles[key]}</button>; })}</nav><div className="topbar-navigation">{theme === 'spotify' && <IconButton icon={House} title="返回首页" onClick={() => navigate('home')} />}<IconButton icon={CaretLeft} className="nav-back" title="后退 · Alt ←" disabled={!historyPos.back} onClick={() => goHistory(-1)} /><IconButton icon={CaretRight} className="nav-forward" title="前进 · Alt →" disabled={!historyPos.forward} onClick={() => goHistory(1)} /></div><form className="search-box" onSubmit={e => { e.preventDefault(); search(); }}><MagnifyingGlass size={21} /><input ref={searchRef} placeholder={theme === 'spotify' ? '想听什么？' : '搜索歌曲、歌手，或粘贴歌曲链接'} value={query} onChange={e => setQuery(e.target.value)} aria-label="搜索音乐" />{query ? <button type="button" aria-label="清空搜索" onClick={() => setQuery('')}><X size={15} /></button> : <kbd>Ctrl K</kbd>}</form><div className="topbar-account"><button onClick={() => navigate('accounts')}><UserCircle size={26} weight="light" /><span>{activeAccount?.nickname || '登录'}</span></button></div><WindowControls /></header>
+      <header className="topbar" ref={topbarRef}>{phone && <IconButton icon={MenuIcon} className="mobile-menu" title="菜单" onClick={() => setNavOpen(true)} />}<nav className="top-nav" aria-label="导航" ref={topNavRef}><button className="top-nav-brand" onClick={() => navigate('home')}><span className="top-nav-mark" aria-hidden="true" />Elixir</button>{navKeys.map(key => { const Icon = navIcons[key]; return <button key={key} title={navTitles[key]} className={'top-nav-item' + (page === key ? ' selected' : '')} aria-current={page === key ? 'page' : undefined} onClick={() => navigate(key)}><Icon size={17} weight={page === key ? 'fill' : 'regular'} />{navTitles[key]}</button>; })}</nav><div className="topbar-navigation">{theme === 'spotify' && <IconButton icon={House} title="返回首页" onClick={() => navigate('home')} />}<IconButton icon={CaretLeft} className="nav-back" title="后退 · Alt ←" disabled={!historyPos.back} onClick={() => goHistory(-1)} /><IconButton icon={CaretRight} className="nav-forward" title="前进 · Alt →" disabled={!historyPos.forward} onClick={() => goHistory(1)} /></div><SearchSuggest inputRef={searchRef} value={query} onChange={setQuery} onSearch={value => search(value)} onPlay={track => play(track)} placeholder={theme === 'spotify' ? '想听什么？' : '搜索歌曲、歌手，或粘贴歌曲链接'} kbd={comboParts(shortcuts.local.search).join(' ')} /><div className="topbar-account"><button onClick={() => navigate('accounts')}><UserCircle size={26} weight="light" /><span>{activeAccount?.nickname || '登录'}</span></button></div><WindowControls /></header>
       <main className="main-scroll" ref={scrollRef}>
         {page === 'studio' && <Studio appearance={appearance} notify={notify} onEdit={() => setEditing(true)} />}
         {page === 'home' && <Home theme={homeLayout(resolved)} modules={look.homeModules} actions={tableActions} current={current} currentId={current?.id} playing={playing} liked={liked} labels={labels} accounts={accounts} onToggle={togglePlayback} onImport={()=>importFolder()} external={external} />}
@@ -697,7 +808,7 @@ function App() {
         {page === 'entity' && entity && <>{historyPos.back&&<button className="button quiet" onClick={()=>goHistory(-1)}><CaretLeft size={17}/>返回</button>}<EntityDetail liked={liked} currentId={current?.id} playing={playing} batchActions={tableActions} item={entity} onOpen={stableEntity} onTrack={stableDetail} onPlay={stablePlay} onPlayAll={stablePlayAll} notify={notify} external={external} /></>}
         {page==='ranking'&&<ListeningRankings currentId={current?.id} playing={playing} liked={liked} actions={tableActions}/>}
         {page==='history'&&<ListeningHistory currentId={current?.id} playing={playing} liked={liked} actions={tableActions} privateSession={settings.private_session} notify={notify} onPrivacy={setPrivateListening}/>}
-        {['search', 'library', 'likes', 'playlist'].includes(page) && <>{page === 'search' ? <div className="page-heading"><div><h1>{searched ? '“' + searched + '”' : '搜索音乐'}</h1></div></div> : <TrackListHero page={page} title={page === 'playlist' ? playlist?.title || '歌单' : labels[page]} playlist={playlist} tracks={tracks} busy={busy} onImport={() => importFolder()} tools={{ onChange: data => { setPlaylist(data); setTracks(data.tracks || []); }, onExit: () => navigate('music'), onRefresh: refreshPlaylists, notify }} />}{page === 'search' && <><div className="search-filters"><MusicSearchTypes value={searchKind} local={source==='local'} onChange={kind=>{setSearchKind(kind);if(searched)search(searched,source,kind);}}/><div className="source-segment" role="group" aria-label="搜索平台">{searchableSources.map(provider => <button key={provider} aria-pressed={source === provider} onClick={() => { setSource(provider); if (searched) search(searched, provider); }}>{SOURCE_NAMES[provider]}</button>)}</div><PlatformSearchLink source={source} query={searched} connected={searchableSources.includes(source)} notify={notify} /></div>{!searched && <SearchHistory onSearch={search}/>}</>}{page === 'library' && <LocalFolders onScan={importFolder} jobStatus={job?.status} notify={notify}/>}{page === 'library' && job && <div className="job-note"><CircleNotch className={['running','pending'].includes(job.status) ? 'spin' : ''} size={18} /><span>{['completed','done'].includes(job.status) ? importSummary(job) : '正在导入 · ' + (job.done || 0) + (job.total ? '/' + job.total : '')}</span>{job.errors?.length > 0 && <span title={job.errors.map(e => e.file + '：' + e.message).join('\n')}>{job.errors.length} 个文件未导入：{job.errors.slice(0, 3).map(e => e.file).join('、')}{job.errors.length > 3 ? ' 等' : ''}</span>}<IconButton icon={X} title="关闭提示" onClick={() => setJob(null)} /></div>}{errors.map((error, i) => <ErrorNote key={i}>{error}</ErrorNote>)}{page === 'search' && searchKind !== 'track' ? <EntitySearch query={searched} kind={searchKind} source={source} onOpen={openEntity}/> : busy ? <Loading text={page === 'search' ? '正在查询平台资料…' : '正在加载音乐…'} /> : tracks.length ? <PlaybackTrackTable controls filterable={page !== 'search'} viewKey={page+(page==='search'?':'+source:page==='playlist'?':'+playlist?.id:'')} key={page+':'+(playlist?.id||'')} playlistId={page==='playlist'&&!playlist?.remote_source?playlist?.id:undefined} playlistContext={page==='playlist'?playlist:undefined} items={tracks} currentId={current?.id} playing={playing} liked={liked} actions={tableActions} /> : <Empty icon={page === 'library' ? FolderSimple : page === 'likes' ? Heart : MagnifyingGlass} title={page === 'search' ? searched ? '没有找到匹配的歌曲' : '从一首喜欢的歌开始' : page === 'library' ? '把你的音乐带进来' : '这里还没有歌曲'} text={page === 'search' ? '' : page === 'library' ? 'MP3、FLAC、M4A、WAV' : ''} action={page === 'library' ? <button className="button primary" onClick={() => importFolder()}><Plus size={18} />选择音乐文件夹</button> : undefined} />}</>}
+        {['search', 'library', 'likes', 'playlist'].includes(page) && <>{page === 'search' ? !searched && <div className="page-heading"><div><h1>搜索音乐</h1></div></div> : <TrackListHero page={page} title={page === 'playlist' ? playlist?.title || '歌单' : labels[page]} playlist={playlist} tracks={tracks} busy={busy} onImport={() => importFolder()} tools={{ onChange: data => { setPlaylist(data); setTracks(data.tracks || []); }, onExit: () => navigate('music'), onRefresh: refreshPlaylists, notify }} />}{page === 'search' && <><div className="search-filters"><MusicSearchTypes value={searchKind} local={source==='local'} onChange={kind=>{setSearchKind(kind);if(searched)search(searched,source,kind);}}/><div className="source-segment" role="group" aria-label="搜索平台">{searchableSources.map(provider => <button key={provider} aria-pressed={source === provider} onClick={() => { setSource(provider); if (searched) search(searched, provider); }}>{SOURCE_NAMES[provider]}{searched && searchKind === 'track' && <SearchBadge status={provider === source && provider !== 'all' ? searchStatus[provider] : source === 'all' ? (provider === 'all' ? (busy ? { state: 'loading' } : { state: 'done', count: tracks.length }) : searchStatus[provider]) : undefined} />}</button>)}</div><PlatformSearchLink source={source} query={searched} connected={searchableSources.includes(source)} notify={notify} /></div>{!searched && <SearchHistory onSearch={search}/>}</>}{page === 'library' && <LocalFolders onScan={importFolder} jobStatus={job?.status} notify={notify}/>}{page === 'library' && job && <div className="job-note"><CircleNotch className={['running','pending'].includes(job.status) ? 'spin' : ''} size={18} /><span>{['completed','done'].includes(job.status) ? importSummary(job) : '正在导入 · ' + (job.done || 0) + (job.total ? '/' + job.total : '')}</span>{job.errors?.length > 0 && <span title={job.errors.map(e => e.file + '：' + e.message).join('\n')}>{job.errors.length} 个文件未导入：{job.errors.slice(0, 3).map(e => e.file).join('、')}{job.errors.length > 3 ? ' 等' : ''}</span>}<IconButton icon={X} title="关闭提示" onClick={() => setJob(null)} /></div>}{errors.map((error, i) => <ErrorNote key={i}>{error}</ErrorNote>)}{page === 'search' && searchKind !== 'track' ? <EntitySearch query={searched} kind={searchKind} source={source} onOpen={openEntity}/> : busy && page === 'search' && !tracks.length ? <Skeleton count={7} className="skeleton-rows" label="正在搜索" /> : busy && page !== 'search' ? <Loading text="正在加载音乐…" /> : tracks.length ? <div className={'track-results' + (page === 'search' && searchStale ? ' stale' : '')} aria-busy={page === 'search' && busy}>{page === 'search' && busy && <Loading compact className="search-waiting" text={searchStale ? '正在搜索…' : '还在等待 ' + Object.entries(searchStatus).filter(([, s]) => s.state === 'loading').map(([name]) => SOURCE_NAMES[name] || name).join('、') + '…'} />}<PlaybackTrackTable stickyHeader={page === 'search'} controls filterable={page !== 'search'} viewKey={page+(page==='search'?':'+source:page==='playlist'?':'+playlist?.id:'')} key={page+':'+(playlist?.id||'')} playlistId={page==='playlist'&&!playlist?.remote_source?playlist?.id:undefined} playlistContext={page==='playlist'?playlist:undefined} items={tracks} currentId={current?.id} playing={playing} liked={liked} actions={tableActions} /></div> : <Empty icon={page === 'library' ? FolderSimple : page === 'likes' ? Heart : MagnifyingGlass} title={page === 'search' ? searched ? '没有找到匹配的歌曲' : '从一首喜欢的歌开始' : page === 'library' ? '把你的音乐带进来' : '这里还没有歌曲'} text={page === 'search' ? '' : page === 'library' ? 'MP3、FLAC、M4A、WAV' : ''} action={page === 'library' ? <button className="button primary" onClick={() => importFolder()}><Plus size={18} />选择音乐文件夹</button> : undefined} />}</>}
         {page === 'accounts' && <div className="accounts-page"><PageHero compact kind="accounts" icon={UserCircle} title="账号与会员" meta={'已连接 ' + connectedCount(accounts) + ' / 3 · 会员与播放权限以平台为准'} actions={<button className="button quiet" onClick={()=>refreshAccounts(true)}><ArrowsClockwise size={18} />刷新状态</button>} />
           <AccountCenter accounts={accounts} onLogin={login} onLogout={logout} onCloud={loadCloudPlaylists} />
           <details className="account-help"><summary>登录与会员说明</summary><div><p>账号信息只保存在本机。会员与播放权限由各平台提供。</p></div></details></div>}
@@ -709,10 +820,10 @@ function App() {
     {phone && <nav className="mobile-tabs" aria-label="主导航">{[['home', labels.home, House], ['search', '搜索', MagnifyingGlass], ['music', labels.music || '我的音乐', Disc], ['likes', labels.likes, Heart]].map(([key, title, Icon]) => <button key={key} aria-current={page === key && !detail ? 'page' : undefined} onClick={() => { navigate(key); if (key === 'search') setTimeout(() => searchRef.current?.focus(), 50); }}><Icon size={23} weight={page === key && !detail ? 'fill' : 'regular'} /><span>{title}</span></button>)}<button aria-expanded={navOpen} onClick={() => { setDetail(null); setNavOpen(true); }}><DotsThree size={23} weight="bold" /><span>更多</span></button></nav>}
     <DesktopLyricSync current={current} lyric={playerLyric} interlude={spotifyInterlude} playing={playing} buffering={buffering} speed={speed} duration={duration} lyricOffset={lyricOffset} />
     {phone && queueOpen && <div className="mobile-scrim queue-scrim" aria-hidden="true" onClick={() => setQueueOpen(false)} />}
-    {queueOpen && <aside className="queue-panel"><div className="queue-heading"><div><h2>播放队列</h2><p>{queue.length} 首歌曲{queue.length > 1 ? '，可拖动调整顺序' : ''}</p></div><button className="text-button" disabled={!queueUndo} onClick={()=>{setQueue(queueUndo);setQueueUndo(null);}}>撤销修改</button><IconButton icon={Trash} title="清空队列" onClick={() => editQueue([])} /><IconButton icon={X} title="关闭队列" onClick={() => setQueueOpen(false)} /></div><div className="queue-items">{queue.length ? queue.map((track, index) => <div className={'queue-item' + (dragOver === index ? ' drop-target' : '')} aria-current={current?.id === track.id ? 'true' : undefined} key={track.id + ':' + index} draggable onDragStart={e => { dragFrom.current = index; e.dataTransfer.effectAllowed = 'move'; }} onDragOver={e => { if (dragFrom.current === null) return; e.preventDefault(); setDragOver(index); }} onDragLeave={() => setDragOver(old => old === index ? null : old)} onDrop={e => { e.preventDefault(); moveQueueTo(dragFrom.current, index); dragFrom.current = null; setDragOver(null); }} onDragEnd={() => { dragFrom.current = null; setDragOver(null); }}><button onClick={() => play(track)}><Cover src={track.cover} /><span><strong>{track.title}{upNext.includes(track.id) && current?.id !== track.id && <em className="queue-next-tag">{upNext[0] === track.id ? '下一首' : '稍后'}</em>}</strong><small>{track.artist}</small></span></button>{current?.id !== track.id && <IconButton icon={SkipForward} className="queue-play-next" title={'下一首播放 ' + track.title} onClick={() => batchTracks('next', [track])} />}<button className="icon-button queue-move" aria-label={'队列上移 '+track.title} disabled={index===0} onClick={()=>moveQueue(index,-1)}>↑</button><button className="icon-button queue-move" aria-label={'队列下移 '+track.title} disabled={index===queue.length-1} onClick={()=>moveQueue(index,1)}>↓</button><IconButton icon={X} title="从队列移除" onClick={() => editQueue(queue.filter((_, i) => i !== index))} /></div>) : <Empty icon={Queue} title="队列是空的" text="" />}</div></aside>}
-    {detail && <section className={'detail-view np-' + npStyle + (npStyle === 'immersive' && frameData['data-np'] ? ' np-fullscreen' : '')} style={{ '--detail-cover': detail.cover ? `url("${mediaUrl(detail.cover).replace(/["\\]/g, '\\$&')}")` : 'none' }}><div className="detail-backdrop" aria-hidden="true" /><div className="detail-toolbar"><button className="button quiet detail-close" onClick={() => setDetail(null)}><CaretDown size={19} />收起</button>{phone && npStyle !== 'karaoke' && <Tabs className="np-pager" label="播放页" value={npPage} onChange={i => npLayoutRef.current?.scrollTo({ left: i * npLayoutRef.current.clientWidth, behavior: 'smooth' })} items={['歌曲', '歌词'].map((title, i) => [i, title])} />}<div><SourceTag source={detail.source} /><button className="text-button" onClick={() => external(detail.source_url)} disabled={!detail.source_url}>在原平台打开<ArrowSquareOut size={15} /></button></div></div><div className="detail-layout" ref={npLayoutRef} onScroll={phone ? e => { const el = e.currentTarget; setNpPage(Math.round(el.scrollLeft / Math.max(1, el.clientWidth))); } : undefined}><aside className="detail-art">{npStyle === 'poster' && <PosterMark track={detail} playing={detailSpinning} />}<div className={'detail-cover-stage' + (showVisualizer && visualMode === 'ring' && !['ipod', 'cassette', 'cd'].includes(npStyle) ? ' has-ring' : '')}>{npStage}{showVisualizer && visualMode === 'ring' && !['ipod', 'cassette', 'cd'].includes(npStyle) && <Visualizer key={theme} {...visualizerProps} className="visualizer-ring" shape={npStyle === 'vinyl' ? 'circle' : 'auto'} />}</div>{showVisualizer && visualMode !== 'ring' && <Visualizer key={theme + visualMode} {...visualizerProps} className="visualizer-strip" />}{showVisualizer && visualizerProps.simulated && <p>Spotify 音频受版权保护，此处为模拟音浪</p>}<h1>{detail.title}</h1><ListeningBadge id={detail.id}/><button className="artist-name" onClick={() => trackEntity(detail,'artist')}>{detail.artist}</button><button className="text-button" onClick={()=>trackEntity(detail,'album')} disabled={!detail.album}>{detail.album}</button><div className="detail-actions"><button className="button primary" onClick={() => play(detail)}><Play size={18} weight="fill" />播放</button><IconButton icon={Heart} title="喜欢" active={liked.has(detail.id)} onClick={() => toggleLike(detail)} /><IconButton icon={Plus} title="添加到歌单" onClick={() => setModal({ type: 'add-playlist', track: detail })} /></div></aside><div className="detail-content"><Tabs className="detail-tabs" label="歌曲详情" value={detailTab} onChange={setDetailTab} items={[['lyrics', '歌词'], ['comments', '评论', comments?.trackId === detail.id && comments.total ? <small>{comments.total.toLocaleString()}</small> : null], ['info', '歌曲资料']]} />{detailTab === 'lyrics' && <div className="lyrics-scroll"><div className="lyric-offset">{lyricTranslations.length > 0 && <button className="lyric-translate" aria-pressed={showTranslation} title={showTranslation ? '隐藏翻译' : '显示翻译'} onClick={() => setShowTranslation(value => !value)}>译</button>}<span>歌词校时 {lyricOffset>0?'+':''}{lyricOffset.toFixed(1)}秒</span>{[-0.5,0,0.5].map(delta=><button key={delta} onClick={()=>{const next=delta===0?0:Math.round((lyricOffset+delta)*10)/10;setLyricOffset(next);localStorage.setItem('lyric-offset:'+detail.id,String(next));}}>{delta===0?'重置':delta>0?'延后0.5秒':'提前0.5秒'}</button>)}</div>{detailErrors[detail.id + ':lyrics'] ? <Empty icon={MicrophoneStage} title="暂时无法获取歌词" text={detailErrors[detail.id + ':lyrics']} /> : lyrics?.trackId !== detail.id ? <Loading text="正在获取歌词…" /> : lyricLines.length ? <LyricLines lines={lyricLines} active={current?.id===detail.id} playing={playing} onSeek={line=>{if(current?.id===detail.id){if(current.source==='spotify')spotifyControl('seek',Math.round(line.time*1000));else if(audioRef.current.src){audioRef.current.currentTime=line.time;setPosition(line.time);}}}}>{(lyrics.attribution || lyrics.source || lyrics.reason) && <div className="lyric-attribution">{lyrics.attribution || (lyrics.source === 'lrclib' ? 'LRCLIB 社区歌词库' : SOURCE_NAMES[lyrics.source]) || ''}{lyrics.reason && <span>{lyrics.reason}</span>}</div>}{lyrics.warning && <ErrorNote>{lyrics.warning}</ErrorNote>}</LyricLines> : lyrics.original ? <div>{lyrics.source&&<div className="lyric-attribution">{lyrics.attribution || [SOURCE_NAMES[lyrics.source] || lyrics.source,lyrics.provider_display_name || lyrics.provider].filter(Boolean).join(' · ')}</div>}<pre className="plain-lyrics">{lyrics.original}</pre></div> : <Empty icon={MicrophoneStage} title="暂无歌词" text={lyrics.reason || '平台没有返回该歌曲的歌词，可稍后重试。'} />}{lyrics?.trackId === detail.id && lyrics.translated && !lyricTranslations.length && <details className="translated-lyrics"><summary>查看翻译歌词</summary><pre>{lyrics.translated}</pre></details>}</div>}{detailTab === 'comments' && <div className="comments-scroll">{detailErrors[detail.id + ':comments'] ? <Empty icon={ListBullets} title="暂时无法获取评论" text={detailErrors[detail.id + ':comments']} /> : comments?.trackId !== detail.id ? <Loading text="正在读取平台评论…" /> : comments.items?.length ? <>{comments.warning && <ErrorNote>{comments.warning}</ErrorNote>}<p className="comments-description">来自 {SOURCE_NAMES[comments.source || detail.source]} 的评论 · {comments.total?.toLocaleString() || comments.items.length} 条</p>{comments.items.map((comment, index) => <article className="comment" key={comment.id || index}><div className="comment-avatar">{comment.avatar ? <img src={comment.avatar} alt="" /> : <UserCircle size={31} />}</div><div className="comment-body"><header><strong>{comment.user || '音乐听众'}</strong><span>{comment.likes || 0} 赞</span></header><p>{comment.text}</p><time>{formatCommentTime(comment.time)}</time></div></article>)}{comments.has_more && <button className="button quiet more-comments" disabled={modalBusy} onClick={moreComments}>{modalBusy ? '加载中…' : '加载更多评论'}</button>}</> : <Empty icon={ListBullets} title="平台暂无返回评论" text={comments.reason || '评论是否保留取决于原平台，歌曲下架不一定意味着资料已删除。'} />}</div>}{detailTab === 'info' && <TrackInformation track={detail} onEntity={trackEntity} onMatch={findMatches} onUnlink={async(track)=>{try{await api('/api/library/'+encodeURIComponent(track.id)+'/link',{method:'DELETE'});openDetail(await api(trackPath(track.id)), 'info');notify('已取消资料关联，原音频与标签保持原样');}catch(e){notify(e.message);}}}/>}</div></div></section>}
+    {queueOpen && <aside className="queue-panel"><div className="queue-heading"><div><h2>播放队列</h2><p>{queue.length} 首歌曲{queue.length > 1 ? '，可拖动调整顺序' : ''}</p></div><button className="text-button" disabled={!queueUndo} onClick={()=>{setQueue(queueUndo);setQueueUndo(null);}}>撤销修改</button><IconButton icon={Trash} title="清空队列" onClick={() => editQueue([])} /><IconButton icon={X} title="关闭队列" onClick={() => setQueueOpen(false)} /></div><div className="queue-items">{queue.length ? queue.map((track, index) => <div className={'queue-item' + (dragOver === index ? ' drop-target' : '')} aria-current={current?.id === track.id ? 'true' : undefined} key={track.id + ':' + index} onContextMenu={e => queueMenu(track, index, e)} draggable onDragStart={e => { dragFrom.current = index; e.dataTransfer.effectAllowed = 'move'; }} onDragOver={e => { if (dragFrom.current === null) return; e.preventDefault(); setDragOver(index); }} onDragLeave={() => setDragOver(old => old === index ? null : old)} onDrop={e => { e.preventDefault(); moveQueueTo(dragFrom.current, index); dragFrom.current = null; setDragOver(null); }} onDragEnd={() => { dragFrom.current = null; setDragOver(null); }}><button onClick={() => play(track)}><Cover src={track.cover} /><span><strong>{track.title}{upNext.includes(track.id) && current?.id !== track.id && <em className="queue-next-tag">{upNext[0] === track.id ? '下一首' : '稍后'}</em>}</strong><small>{track.artist}</small></span></button>{current?.id !== track.id && <IconButton icon={SkipForward} className="queue-play-next" title={'下一首播放 ' + track.title} onClick={() => batchTracks('next', [track])} />}<button className="icon-button queue-move" aria-label={'队列上移 '+track.title} disabled={index===0} onClick={()=>moveQueue(index,-1)}>↑</button><button className="icon-button queue-move" aria-label={'队列下移 '+track.title} disabled={index===queue.length-1} onClick={()=>moveQueue(index,1)}>↓</button><IconButton icon={X} title="从队列移除" onClick={() => editQueue(queue.filter((_, i) => i !== index))} /></div>) : <Empty icon={Queue} title="队列是空的" text="" />}</div></aside>}
+    {detail && <section className={'detail-view np-' + npStyle + (npStyle === 'immersive' && frameData['data-np'] ? ' np-fullscreen' : '')} style={{ '--detail-cover': detail.cover ? `url("${mediaUrl(detail.cover).replace(/["\\]/g, '\\$&')}")` : 'none' }}><div className="detail-backdrop" aria-hidden="true" /><div className="detail-toolbar"><button className="button quiet detail-close" onClick={() => setDetail(null)}><CaretDown size={19} />收起</button>{phone && npStyle !== 'karaoke' && <Tabs className="np-pager" label="播放页" value={npPage} onChange={i => npLayoutRef.current?.scrollTo({ left: i * npLayoutRef.current.clientWidth, behavior: 'smooth' })} items={['歌曲', '歌词'].map((title, i) => [i, title])} />}<div><SourceTag source={detail.source} /><button className="text-button" onClick={() => external(detail.source_url)} disabled={!detail.source_url}>在原平台打开<ArrowSquareOut size={15} /></button></div></div><div className="detail-layout" ref={npLayoutRef} onScroll={phone ? e => { const el = e.currentTarget; setNpPage(Math.round(el.scrollLeft / Math.max(1, el.clientWidth))); } : undefined}><aside className="detail-art">{npStyle === 'poster' && <PosterMark track={detail} playing={detailSpinning} />}<div className={'detail-cover-stage' + (showVisualizer && visualMode === 'ring' && !['ipod', 'cassette', 'cd'].includes(npStyle) ? ' has-ring' : '')}>{npStage}{showVisualizer && visualMode === 'ring' && !['ipod', 'cassette', 'cd'].includes(npStyle) && <Visualizer key={theme} {...visualizerProps} className="visualizer-ring" shape={npStyle === 'vinyl' ? 'circle' : 'auto'} />}</div>{showVisualizer && visualMode !== 'ring' && <Visualizer key={theme + visualMode} {...visualizerProps} className="visualizer-strip" />}{showVisualizer && visualizerProps.simulated && <p>Spotify 音频受版权保护，此处为模拟音浪</p>}<h1>{detail.title}</h1><ListeningBadge id={detail.id}/><button className="artist-name" onClick={() => trackEntity(detail,'artist')}>{detail.artist}</button><button className="text-button" onClick={()=>trackEntity(detail,'album')} disabled={!detail.album}>{detail.album}</button><div className="detail-actions"><button className="button primary" onClick={() => play(detail)}><Play size={18} weight="fill" />播放</button><IconButton icon={Heart} title="喜欢" active={liked.has(detail.id)} onClick={() => toggleLike(detail)} /><IconButton icon={Plus} title="添加到歌单" onClick={() => setModal({ type: 'add-playlist', track: detail })} /></div></aside><div className="detail-content"><Tabs className="detail-tabs" label="歌曲详情" value={detailTab} onChange={setDetailTab} items={[['lyrics', '歌词'], ['comments', '评论', comments?.trackId === detail.id && comments.total ? <small>{comments.total.toLocaleString()}</small> : null], ['info', '歌曲资料']]} />{detailTab === 'lyrics' && <div className="lyrics-scroll">{lyricLines.length > 0 && <div className={'lyric-offset' + (lyricTune ? ' open' : '')}>{lyricTranslations.length > 0 && <button className="lyric-translate" aria-pressed={showTranslation} title={showTranslation ? '隐藏翻译' : '显示翻译'} onClick={() => setShowTranslation(value => !value)}>译</button>}<button className="lyric-tune-toggle" aria-expanded={lyricTune} title="歌词和声音对不上时，在这里提前或延后歌词" onClick={() => setLyricTune(open => !open)}><Timer size={14} />{lyricOffset ? '校时 ' + (lyricOffset > 0 ? '+' : '') + lyricOffset.toFixed(1) + '秒' : '校时'}</button>{lyricTune && <>{[-0.5,0,0.5].map(delta=><button key={delta} disabled={delta===0&&!lyricOffset} onClick={()=>{const next=delta===0?0:Math.round((lyricOffset+delta)*10)/10;setLyricOffset(next);localStorage.setItem('lyric-offset:'+detail.id,String(next));}}>{delta===0?'重置':delta>0?'延后 0.5 秒':'提前 0.5 秒'}</button>)}</>}</div>}{detailErrors[detail.id + ':lyrics'] ? <Empty icon={MicrophoneStage} title="暂时无法获取歌词" text={detailErrors[detail.id + ':lyrics']} /> : lyrics?.trackId !== detail.id ? <Loading text="正在获取歌词…" /> : lyricLines.length ? <LyricLines lines={lyricLines} active={current?.id===detail.id} playing={playing} onSeek={line=>{if(current?.id===detail.id){if(current.source==='spotify')spotifyControl('seek',Math.round(line.time*1000));else if(audioRef.current.src){audioRef.current.currentTime=line.time;setPosition(line.time);}}}}>{(lyrics.attribution || lyrics.source || lyrics.reason) && <div className="lyric-attribution">{lyrics.attribution || (lyrics.source === 'lrclib' ? 'LRCLIB 社区歌词库' : SOURCE_NAMES[lyrics.source]) || ''}{lyrics.reason && <span>{lyrics.reason}</span>}</div>}{lyrics.warning && <ErrorNote>{lyrics.warning}</ErrorNote>}</LyricLines> : lyrics.original ? <div>{lyrics.source&&<div className="lyric-attribution">{lyrics.attribution || [SOURCE_NAMES[lyrics.source] || lyrics.source,lyrics.provider_display_name || lyrics.provider].filter(Boolean).join(' · ')}</div>}<pre className="plain-lyrics">{lyrics.original}</pre></div> : <Empty icon={MicrophoneStage} title="暂无歌词" text={lyrics.reason || '平台没有返回该歌曲的歌词，可稍后重试。'} />}{lyrics?.trackId === detail.id && lyrics.translated && !lyricTranslations.length && <details className="translated-lyrics"><summary>查看翻译歌词</summary><pre>{lyrics.translated}</pre></details>}</div>}{detailTab === 'comments' && <div className="comments-scroll">{detailErrors[detail.id + ':comments'] ? <Empty icon={ListBullets} title="暂时无法获取评论" text={detailErrors[detail.id + ':comments']} /> : comments?.trackId !== detail.id ? <Loading text="正在读取平台评论…" /> : comments.items?.length ? <>{comments.warning && <ErrorNote>{comments.warning}</ErrorNote>}<p className="comments-description">来自 {SOURCE_NAMES[comments.source || detail.source]} 的评论 · {comments.total?.toLocaleString() || comments.items.length} 条</p>{comments.items.map((comment, index) => <article className="comment" key={comment.id || index}><div className="comment-avatar">{comment.avatar ? <img src={comment.avatar} alt="" /> : <UserCircle size={31} />}</div><div className="comment-body"><header><strong>{comment.user || '音乐听众'}</strong><span>{comment.likes || 0} 赞</span></header><p>{comment.text}</p><time>{formatCommentTime(comment.time)}</time></div></article>)}{comments.has_more && <button className="button quiet more-comments" disabled={modalBusy} onClick={moreComments}>{modalBusy ? '加载中…' : '加载更多评论'}</button>}</> : <Empty icon={ListBullets} title="平台暂无返回评论" text={comments.reason || '评论是否保留取决于原平台，歌曲下架不一定意味着资料已删除。'} />}</div>}{detailTab === 'info' && <TrackInformation track={detail} onEntity={trackEntity} onMatch={findMatches} onUnlink={async(track)=>{try{await api('/api/library/'+encodeURIComponent(track.id)+'/link',{method:'DELETE'});openDetail(await api(trackPath(track.id)), 'info');notify('已取消资料关联，原音频与标签保持原样');}catch(e){notify(e.message);}}}/>}</div></div></section>}
     {modal && <Modal key={modal.type} title={modalTitle(modal)} wide={modal.type === 'match' || modal.type === 'mv'} onClose={() => { if (!modalBusy) {setModalInput('');setModal(null);} }}>
-      {modal.type === 'track' && <><div className="modal-track"><Cover src={modal.track.cover} /><div><strong>{modal.track.title}</strong><p>{modal.track.artist}</p></div></div><div className="action-menu"><button onClick={() => { play(modal.track); setModal(null); }}><Play size={19} />播放</button><button onClick={() => { setQueue(q => [...q, modal.track]); setModal(null); notify('已加入播放队列'); }}><Queue size={19} />加入播放队列</button><button onClick={()=>{batchTracks('next',[modal.track]);setModal(null);}}><SkipForward size={19}/>下一首播放</button><button onClick={() => { const track = modal.track; setModal(null); openDetail(track); }}><MicrophoneStage size={19} />查看歌词与评论</button><button onClick={() => setModal({ type: 'add-playlist', track: modal.track })}><Plus size={19} />添加到歌单</button>{modal.track.source === 'local' && <button onClick={()=>{batchTracks('local_remove',[modal.track]);setModal(null);}}><Trash size={19}/>从音乐库移除</button>}{modal.track.source === 'local' && <button onClick={() => findMatches(modal.track)}><LinkSimple size={19} />匹配封面、歌词与评论</button>}{modal.playlistContext&&<button onClick={()=>{batchTracks('playlist_remove',[modal.track],modal.playlistContext);setModal(null);}}><Trash size={19}/>{modal.playlistContext.remote_source?'从 Elixir 副本移除':'从当前歌单移除'}</button>}<button disabled={!modal.track.source_url} onClick={() => external(modal.track.source_url)}><ArrowSquareOut size={19} />在原平台打开</button><button onClick={() => { navigator.clipboard.writeText(modal.track.source_url || modal.track.id).then(() => notify('已复制歌曲链接 / ID')); }}><Copy size={19} />复制链接 / ID</button></div></>}
+      {modal.type === 'track' && <><div className="modal-track"><Cover src={modal.track.cover} /><div><strong>{modal.track.title}</strong><p>{modal.track.artist}</p></div></div><div className="action-menu">{trackMenuItems(modal.track, modal.playlistContext).filter(item => item && item !== 'divider').map(item => <button key={item.label} className={item.danger ? 'danger' : undefined} disabled={item.disabled} onClick={() => { setModal(null); item.onClick(); }}><item.icon size={19} />{item.label}</button>)}</div></>}
       {modal.type === 'create-playlist' && <form onSubmit={e => { e.preventDefault(); createPlaylist(); }}><label className="field-label">歌单名称<input autoFocus value={modalInput} maxLength={80} onChange={e => setModalInput(e.target.value)} placeholder="给这段音乐一个名字" /></label><div className="modal-footer"><button type="button" className="button quiet" onClick={() => setModal(null)}>取消</button><button className="button primary" disabled={!modalInput.trim() || modalBusy}>创建歌单</button></div></form>}
       {modal.type === 'mv' && <MvPlayer key={modal.item.id} item={modal.item} external={external} />}
       {modal.type === 'add-playlist' && <div className="playlist-picker">{playlists.length ? playlists.map(item => <button key={item.id} onClick={() => addToPlaylist(item)}><Playlist size={24} /><span>{item.title || item.name}</span><Plus size={18} /></button>) : <Empty icon={Playlist} title="还没有歌单" text="先创建歌单" />}</div>}
@@ -727,6 +838,7 @@ function App() {
     </Modal>}
     {editing && <LayoutEditor look={look} resolved={resolved} appearance={appearance} notify={notify} onDone={closeEditor} />}
     {palette && <CommandPalette commands={commands} onSearch={value => search(value)} onClose={() => setPalette(false)} />}
+    {contextMenu && <ContextMenu key={contextMenu.key} x={contextMenu.x} y={contextMenu.y} items={contextMenu.items} label={contextMenu.label} onClose={() => setContextMenu(null)} />}
     {toast && <div className="toast" role={toast.sticky ? 'alert' : 'status'}><Info size={18} /><span>{toast.text}</span>{toast.actions.map(action => <button key={action.label} className="toast-action" onClick={() => { setToast(null); action.run(); }}>{action.label}</button>)}<button aria-label="关闭提示" onClick={() => setToast(null)}><X size={14} /></button></div>}
   </div>;
 }

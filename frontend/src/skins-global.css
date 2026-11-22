@@ -99,7 +99,7 @@
 :root[data-skin=tidal] .nav-item:hover{background:#ffffff0a;color:#fff}
 :root[data-skin=tidal] .nav-item.selected{background:#1c1c1c;color:#fff;font-weight:700;box-shadow:inset 2px 0 0 #fff}
 :root[data-skin=tidal] .nav-item.selected svg{color:#fff}
-:root[data-skin=tidal] :is(.library-heading,.playlist-heading){text-transform:uppercase;letter-spacing:1.6px;font-size:10px;font-weight:700;color:#8a8a8a}
+:root[data-skin=tidal] :is(.library-heading,.playlist-heading){text-transform:uppercase;letter-spacing:1.6px;font-size:11px;font-weight:700;color:#8a8a8a}
 :root[data-skin=tidal] .library-heading:first-of-type{font-size:11px;color:#fff}
 :root[data-skin=tidal] .playlist-navigation .nav-item svg{background:#1c1c1c;border-radius:0}
 :root[data-skin=tidal] .playlist-navigation .nav-item.selected svg{background:#2a2a2a;color:#fff}
@@ -244,7 +244,7 @@
 :root[data-skin=soundcloud] .track-name .cover{border-radius:0}
 :root[data-skin=soundcloud] .song-title{font-weight:500}
 :root[data-skin=soundcloud] .row-number{color:#999}
-:root[data-skin=soundcloud] .table-header{text-transform:uppercase;font-size:10px;font-weight:600;letter-spacing:.6px;color:#999}
+:root[data-skin=soundcloud] .table-header{text-transform:uppercase;font-size:11px;font-weight:600;letter-spacing:.6px;color:#999}
 :root[data-skin=soundcloud] .source-tag{border-radius:2px}
 :root[data-skin=soundcloud] :is(.track-filter,.select-trigger){border-radius:3px;border-color:#e5e5e5;background:#fff}
 :root[data-skin=soundcloud] .page-hero{padding:26px;margin-top:4px;border-radius:0;background:linear-gradient(315deg,#b3a89c 0,#6b625b 45%,#2f2a28 100%);color:#fff;--hero-pad:26px}

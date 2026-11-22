@@ -143,7 +143,7 @@
 .theme-choice strong{font-size:13px;font-weight:500;color:var(--text)}
 .theme-choice small{font-size:11px;color:var(--muted);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .theme-popover button[aria-checked=true] .theme-choice strong{color:var(--accent);font-weight:600}
-.queue-next-tag { display: inline-block; margin-left: 6px; padding: 1px 5px; border-radius: 4px; font-size: 9px; font-style: normal; font-weight: 600; vertical-align: 1px; color: var(--accent); background: var(--accent-tint); }
+.queue-next-tag { display: inline-block; margin-left: 6px; padding: 1px 5px; border-radius: 4px; font-size:11px; font-style: normal; font-weight: 600; vertical-align: 1px; color: var(--accent); background: var(--accent-tint); }
 .queue-item .queue-play-next:hover { color: var(--accent); }
 
 /* 进度条上的副歌标记：副歌区间直接画在轨道里（与轨道同高同圆角的一段强调色），起点一个小圆点，点击跳到副歌。

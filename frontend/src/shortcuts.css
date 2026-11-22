@@ -16,7 +16,7 @@
 .shortcut-key:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .shortcut-hint { font-size: 11px; color: var(--muted); padding: 0 6px; }
 .shortcut-key.empty .shortcut-hint { opacity: .7; }
-.shortcut-warn { font-style: normal; font-size: 10px; color: #d64545; background: #d6454518; padding: 1px 6px; border-radius: 999px; }
+.shortcut-warn { font-style: normal; font-size:11px; color: #d64545; background: #d6454518; padding: 1px 6px; border-radius: 999px; }
 .shortcut-note { font-size: 11px; color: var(--muted); margin: 10px 0 0; line-height: 1.6; }
 .shortcut-fixed { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 12px 0 2px; font-size: 11px; color: var(--muted); }
 .shortcut-fixed span { display: inline-flex; align-items: center; gap: 5px; }

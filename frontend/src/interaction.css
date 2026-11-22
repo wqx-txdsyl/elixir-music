@@ -1,0 +1,71 @@
+/* 交互细节：进度条可点区域、来源列、右键菜单、搜索建议、搜索进度与粘顶表头。 */
+
+/* 进度条：滑条只有几像素高，轨道上下各留 7px 可点区域；悬停时加粗并浮出该位置的时间。
+   波形、歌词刻度两种进度条本身已有高度，不再加留白。 */
+.app:not([data-progress=wave]):not([data-progress=lyric]) .progress-row .progress-track { padding-block: 7px; margin-block: -7px; }
+.progress-row .progress-track { position: relative; cursor: pointer; touch-action: none; }
+.progress-row input[type=range] { transition: height .12s ease; }
+.app:not([data-progress=wave]):not([data-progress=edge]):not([data-progress=thick]):not([data-player=mini]) .progress-row .progress-track:hover input[type=range]:not(:disabled) { height: 5px; }
+.progress-row .progress-track:hover input[type=range]:not(:disabled)::-webkit-slider-thumb { opacity: 1; }
+.progress-hover { position: absolute; bottom: calc(50% + 5px); transform: translateX(-50%); padding: 1px 6px; border-radius: 5px; background: linear-gradient(var(--panel-solid, var(--panel)), var(--panel-solid, var(--panel))), var(--bg); color: var(--text); border: 1px solid var(--line); font-size: 11px; line-height: 1.3; font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 8px #0002; z-index: 8; }
+
+/* 皮肤菜单顶部注明当前皮肤 */
+.theme-popover-current { display: flex; align-items: center; gap: 8px; padding: 8px 11px 6px; font-size: 12px; color: var(--subtle); border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.theme-popover-current .theme-dot { margin-left: 0; flex: none; }
+.theme-popover-current strong { color: var(--text); font-weight: 600; }
+
+/* 曲目表：占位歌手淡化；来源相同时收起来源列，合并行加宽来源列 */
+.artist-name.unknown { opacity: .55; }
+.source-tags { display: flex; align-items: center; gap: 4px; min-width: 0; overflow: hidden; }
+.source-tags .source-tag { flex: none; }
+.track-table.one-source { --source-col: 0px; }
+.track-table.one-source :is(.table-header > .source-column, .track-row > .source-tags) { visibility: hidden; overflow: hidden; min-width: 0; }
+.track-table.multi-source { --source-col: 132px; }
+
+/* 右键菜单：沿用「更多」弹出菜单的样子，改成跟着鼠标定位 */
+.more-menu-popover.context-menu { position: fixed; right: auto; z-index: 150; max-width: min(320px, calc(100vw - 16px)); max-height: calc(100vh - 16px); overflow: auto; }
+.context-menu > button > span { overflow: hidden; text-overflow: ellipsis; }
+.context-menu > button:focus { background: var(--hover); outline: none; }
+
+/* 顶栏搜索建议。部分皮肤的面板色是半透明的，先垫一层页面底色，保证看得清 */
+.search-box { position: relative; }
+/* 下拉展开时顶栏要压在页面内容之上（有的皮肤顶栏是相对定位、页面卡片自带层级） */
+.topbar:has(.search-box.suggest-open) { z-index: 60; }
+.search-suggest { position: absolute; left: -1px; top: calc(100% + 6px); width: max(100%, 340px); max-height: min(460px, 70vh); overflow: auto; padding: 6px; background: linear-gradient(var(--panel-solid, var(--panel)), var(--panel-solid, var(--panel))), var(--bg); backdrop-filter: blur(18px); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 14px 40px #0000002e; z-index: 70; color: var(--text); text-align: left; cursor: default; }
+.search-suggest-group { padding: 8px 10px 4px; font-size: 11px; font-weight: 600; color: var(--muted); }
+.search-suggest-option { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 6px 10px; border-radius: 8px; font-size: 13px; cursor: pointer; }
+.search-suggest-option[aria-selected=true] { background: var(--hover); }
+.search-suggest-option > svg { flex: none; color: var(--subtle); }
+.search-suggest-option .cover { width: 34px; height: 34px; flex: none; border-radius: 5px; overflow: hidden; display: grid; place-items: center; background: var(--hover); }
+.search-suggest-option .cover img { width: 100%; height: 100%; object-fit: cover; }
+.search-suggest-option .cover svg { width: 18px; height: 18px; }
+.search-suggest-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.search-suggest-text strong { font-weight: 600; }
+.kind-track .search-suggest-text { display: flex; flex-direction: column; line-height: 1.35; }
+.kind-track .search-suggest-text :is(strong, small) { overflow: hidden; text-overflow: ellipsis; }
+.kind-track .search-suggest-text small { font-size: 11px; color: var(--muted); }
+.search-suggest-tag { display: inline-flex; align-items: center; gap: 3px; flex: none; font-size: 11px; color: var(--muted); }
+.search-suggest-option.kind-all { margin-top: 4px; }
+.search-suggest-group + .search-suggest-option.kind-all, .search-suggest-option + .search-suggest-option.kind-all { border-top: 1px solid var(--line); border-radius: 0 0 8px 8px; }
+.search-suggest kbd { font: inherit; font-size: 11px; color: var(--muted); opacity: 1; }
+
+/* 搜索页：两组页签合成一行；平台页签上显示进度 */
+.search-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 18px; margin: 2px 0 4px; }
+.search-filters .music-type-tabs { flex: 0 1 auto; }
+.search-filters .source-segment { margin-bottom: 0; }
+.source-segment button { display: inline-flex; align-items: center; gap: 5px; }
+.search-badge { font-size: 11px; font-weight: 500; color: var(--muted); font-variant-numeric: tabular-nums; }
+svg.search-badge { flex: none; }
+svg.search-badge.failed { color: var(--danger, #d14343); }
+.skeleton.skeleton-rows { grid-template-columns: 1fr; gap: 8px; padding: 18px 0; }
+.skeleton.skeleton-rows i { aspect-ratio: auto; height: 52px; border-radius: 8px; }
+.track-results.stale :is(.track-toolbar, .track-table, .track-total) { opacity: .45; pointer-events: none; transition: opacity .15s; }
+.track-results > .search-waiting { justify-content: flex-start; padding: 8px 0 0; min-height: 0; }
+
+/* 搜索结果滚动时，工具栏和表头停在顶部 */
+.track-toolbar.sticky { position: sticky; z-index: 6; margin-top: 6px; padding-block: 6px; background: color-mix(in srgb, var(--bg) 94%, transparent); backdrop-filter: blur(14px); }
+.track-table.sticky-head .table-header { position: sticky; z-index: 5; background: color-mix(in srgb, var(--bg) 94%, transparent); backdrop-filter: blur(14px); }
+
+/* 歌词校时收成一个按钮，点开才显示调整项 */
+.lyric-offset .lyric-tune-toggle { display: inline-flex; align-items: center; gap: 4px; }
+.lyric-offset .lyric-tune-toggle[aria-expanded=true] { opacity: 1; }

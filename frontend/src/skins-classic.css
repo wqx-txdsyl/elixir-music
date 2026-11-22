@@ -36,7 +36,7 @@
 :root[data-skin=winamp] .nav-item.selected{background:#1818b4;color:#fff;font-weight:400;box-shadow:inset 0 0 0 1px #5a5aff}
 :root[data-skin=winamp] .nav-item.selected svg{color:#fff}
 :root[data-skin=winamp] .nav-item small{color:inherit;background:none}
-:root[data-skin=winamp] :is(.library-heading,.playlist-heading){margin-top:16px;padding:2px 4px;background:var(--wa-title) 0 50%/100% 7px no-repeat,#30304a;box-shadow:0 0 0 1px #000;text-transform:uppercase;letter-spacing:2px;font-size:10px;font-weight:700;color:#e8dfa8}
+:root[data-skin=winamp] :is(.library-heading,.playlist-heading){margin-top:16px;padding:2px 4px;background:var(--wa-title) 0 50%/100% 7px no-repeat,#30304a;box-shadow:0 0 0 1px #000;text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:700;color:#e8dfa8}
 :root[data-skin=winamp] :is(.library-heading,.playlist-heading)>span{background:#30304a;padding:0 6px}
 :root[data-skin=winamp] :is(.library-heading,.playlist-heading) .icon-button{background:#30304a;color:#e8dfa8;border-radius:0}
 :root[data-skin=winamp] .playlist-navigation .nav-item svg{background:#10141a;border-radius:0}
@@ -359,7 +359,7 @@
 :root[data-skin=itunes] .now-cover{width:52px;height:52px}
 :root[data-skin=itunes] .now-title{padding:0 12px 19px}
 :root[data-skin=itunes] .progress-row{height:54px;padding:0 92px 6px 110px;color:#3a3a3a}
-:root[data-skin=itunes] .progress-row span,:root[data-skin=itunes] .player:has(.now-playing:hover,.progress-row:hover) .progress-row span{opacity:1;bottom:3px;color:#3a3a3a;font-size:10px;font-variant-numeric:tabular-nums}
+:root[data-skin=itunes] .progress-row span,:root[data-skin=itunes] .player:has(.now-playing:hover,.progress-row:hover) .progress-row span{opacity:1;bottom:3px;color:#3a3a3a;font-size:11px;font-variant-numeric:tabular-nums}
 :root[data-skin=itunes] .progress-row span:first-child{left:66px}
 :root[data-skin=itunes] .progress-row span:last-child{right:54px}
 /* 换成组件播放器（顶部或底栏）时，LCD 改由歌名块承担 */

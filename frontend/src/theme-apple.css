@@ -58,7 +58,7 @@
 /* The progress row overlays the LCD box; only the slider itself takes clicks so title and heart stay usable. */
 .theme-apple .progress-row {
   grid-area: lcd; align-self: center; z-index: 1; gap: 0; position: relative;
-  height: 46px; align-items: flex-end; padding: 0 1px 1px 47px; font-size: 9px; pointer-events: none;
+  height: 46px; align-items: flex-end; padding: 0 1px 1px 47px; font-size:11px; pointer-events: none;
 }
 .theme-apple .progress-row input { pointer-events: auto; }
 .theme-apple .progress-row span { position: absolute; bottom: 8px; opacity: 0; transition: opacity .15s; pointer-events: none; }

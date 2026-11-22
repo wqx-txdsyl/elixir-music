@@ -40,7 +40,7 @@
 .variant-art { position: relative; display: block; margin-bottom: 5px; border-radius: 8px; overflow: hidden; }
 .variant-check { position: absolute; top: 5px; right: 5px; width: 20px; height: 20px; padding: 3px; border-radius: 50%; background: var(--accent); color: var(--accent-text, #fff); box-shadow: 0 2px 6px #0003; }
 .variant-card strong { padding: 0 3px; font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.variant-card small { padding: 0 3px; font-size: 10.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.variant-card small { padding: 0 3px; font-size:11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .variant-card.removed strong { color: var(--subtle); }
 .variant-grid.compact .variant-card { padding: 5px 5px 7px; border-radius: 10px; }
 .variant-grid.compact .variant-card strong { font-size: 12px; }
@@ -63,7 +63,7 @@
 .studio-tabs button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 9px; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; transition: background .15s, color .15s; }
 .studio-tabs button:hover { color: var(--text); background: var(--hover); }
 .studio-tabs button[aria-selected=true] { background: var(--accent); color: var(--accent-text, #fff); }
-.studio-tabs em { font-style: normal; font-size: 10px; min-width: 18px; padding: 1px 6px; border-radius: 9px; text-align: center; background: color-mix(in srgb, currentColor 18%, transparent); }
+.studio-tabs em { font-style: normal; font-size:11px; min-width: 18px; padding: 1px 6px; border-radius: 9px; text-align: center; background: color-mix(in srgb, currentColor 18%, transparent); }
 .studio-pane { display: grid; gap: 16px; animation: studio-fade .2s ease-out; }
 @keyframes studio-fade { from { opacity: 0; transform: translateY(4px); } }
 .studio-lead { margin: 0; font-size: 13px; color: var(--muted); }
@@ -121,7 +121,7 @@
 .studio-chips button:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: var(--hover); }
 .studio-chips button[aria-checked=true] { border-color: var(--accent); background: var(--accent-tint); color: var(--accent); }
 .studio-chips strong { font-size: 12px; font-weight: 600; }
-.studio-chips small { font-size: 10px; color: var(--muted); line-height: 1.4; }
+.studio-chips small { font-size:11px; color: var(--muted); line-height: 1.4; }
 .studio-row-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
 .studio-accents { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
 .accent-option { width: 28px; height: 28px; border-radius: 50%; background: var(--swatch); box-shadow: inset 0 0 0 1px #0000001f; }

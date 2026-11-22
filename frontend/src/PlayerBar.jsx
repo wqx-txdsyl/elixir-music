@@ -53,15 +53,31 @@ function PlaybackProgress({duration,disabled,onSeek,onSeekEnd,trackId,marks,chor
   const position=draft??clock,done=duration?position/duration:0;
   const commit=value=>{dragging.current=false;setDraft(null);onSeekEnd(value);};
   const release=e=>{if(dragging.current)commit(Number(e.currentTarget.value));};
+  // 滑条本身只有几像素高：轨道上下留出可点区域，点在滑条外也能跳转、拖动；鼠标悬停时浮出该位置的时间。
+  const input=useRef(null),[hover,setHover]=useState(null);
+  useEffect(()=>setHover(null),[trackId,disabled]);
+  const valueAt=e=>{const r=input.current.getBoundingClientRect();return Math.min(1,Math.max(0,(e.clientX-r.left)/(r.width||1)))*duration;};
+  const trackDown=e=>{
+    if(disabled||!duration||e.button!==0||e.target===input.current||e.target.closest('button'))return;
+    e.preventDefault();const value=valueAt(e);dragging.current='track';e.currentTarget.setPointerCapture?.(e.pointerId);setDraft(value);onSeek(value);
+  };
+  const trackMove=e=>{
+    if(disabled||!duration)return;
+    const value=valueAt(e);
+    if(dragging.current==='track'){setDraft(value);onSeek(value);}
+    if(e.pointerType==='mouse'){const box=e.currentTarget.getBoundingClientRect(),r=input.current.getBoundingClientRect();setHover({x:r.left-box.left+value/duration*r.width,time:value});}
+  };
+  const trackUp=e=>{if(dragging.current==='track')commit(valueAt(e));};
   return <div className="progress-row"><span>{formatDuration(position*1000)}</span>
-    <div className="progress-track">
+    <div className="progress-track" onPointerDown={trackDown} onPointerMove={trackMove} onPointerUp={trackUp} onPointerCancel={trackUp} onLostPointerCapture={trackUp} onPointerLeave={()=>setHover(null)}>
+      {hover&&<span className="progress-hover" aria-hidden="true" style={{left:hover.x}}>{formatDuration(hover.time*1000)}</span>}
       {chorus&&duration>0&&chorus.start<duration&&<div className="chorus-marks">
         <i className="chorus-range" style={{left:chorus.start/duration*100+'%',width:(Math.min(chorus.end,duration)-chorus.start)/duration*100+'%'}}/>
         <button type="button" className={'chorus-dot'+(position>=chorus.start?' passed':'')} style={{left:chorus.start/duration*100+'%'}} disabled={disabled} title={'副歌 '+formatDuration(chorus.start*1000)+'，点击跳转'} aria-label="跳到副歌" onClick={()=>{onSeek(chorus.start);onSeekEnd(chorus.start);}}/>
       </div>}
       {ticks.length>0&&<div className="lyric-marks" aria-hidden="true">{ticks.map((m,i)=><i key={i} className={(m.chorus?'chorus':'')+(m.time<=position?' passed':'')} style={{left:m.at+'%'}}/>)}</div>}
       <div className="waveform" aria-hidden="true">{shape.map((h,i)=><i key={i} className={i/shape.length<done?'played':undefined} style={{'--h':h}}/>)}</div>
-      <input type="range" aria-label="播放进度" min="0" max={duration||1} step="0.1" value={Math.min(position,duration||1)} disabled={disabled}
+      <input ref={input} type="range" aria-label="播放进度" min="0" max={duration||1} step="0.1" value={Math.min(position,duration||1)} disabled={disabled}
         onPointerDown={e=>{dragging.current=true;e.currentTarget.setPointerCapture?.(e.pointerId);}}
         onChange={e=>{const value=Number(e.target.value);setDraft(value);onSeek(value);if(!dragging.current)commit(value);}}
         onPointerUp={release} onPointerCancel={release} onLostPointerCapture={release} style={{'--range':done*100+'%'}}/>

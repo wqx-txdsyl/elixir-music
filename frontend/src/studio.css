@@ -32,7 +32,7 @@
 .theme-popover { width: 290px; padding: 0; display: flex; flex-direction: column; max-height: min(560px, 72vh); overflow: hidden; }
 .theme-popover-list { overflow: auto; padding: 6px; scrollbar-width: thin; }
 .theme-group + .theme-group { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); }
-.theme-group-title { display: block; padding: 6px 11px 4px; font-size: 10px; letter-spacing: 1px; color: var(--muted); }
+.theme-group-title { display: block; padding: 6px 11px 4px; font-size:11px; letter-spacing: 1px; color: var(--muted); }
 .theme-popover-foot { display: flex; gap: 4px; padding: 6px; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--hover) 60%, transparent); }
 .theme-popover .theme-popover-foot button { flex: 1; justify-content: center; gap: 6px; font-size: 12px; }
 .theme-popover .theme-popover-foot button svg { margin: 0; }
@@ -51,12 +51,12 @@
 .palette-input { display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 58px; border-bottom: 1px solid var(--line); color: var(--muted); }
 .palette-input input { flex: 1; border: 0; background: none; font-size: 16px; color: var(--text); box-shadow: none !important; }
 .palette-list { overflow: auto; padding: 6px; scrollbar-width: thin; }
-.palette-group { padding: 10px 12px 4px; font-size: 10px; letter-spacing: 1px; color: var(--muted); }
+.palette-group { padding: 10px 12px 4px; font-size:11px; letter-spacing: 1px; color: var(--muted); }
 .palette-list > button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 9px 12px; border-radius: 9px; text-align: left; font-size: 13px; color: var(--text); }
 .palette-list > button > svg:first-child { color: var(--muted); }
 .palette-list > button > span { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 10px; }
 .palette-list > button small { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.palette-list > button em { font-style: normal; font-size: 10px; padding: 1px 6px; border-radius: 4px; color: var(--accent); background: var(--accent-tint); }
+.palette-list > button em { font-style: normal; font-size:11px; padding: 1px 6px; border-radius: 4px; color: var(--accent); background: var(--accent-tint); }
 .palette-list > button[aria-selected=true] { background: var(--accent-tint); }
 .palette-list > button[aria-selected=true] > svg { color: var(--accent); }
 .palette-foot { display: flex; gap: 18px; padding: 9px 16px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); }

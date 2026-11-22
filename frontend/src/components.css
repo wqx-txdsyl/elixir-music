@@ -211,7 +211,7 @@ select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .app[data-player=float] .now-cover { width: 54px; height: 54px; }
 .app[data-player=float] .now-cover .cover { border-radius: 50%; overflow: hidden; }
 .app[data-player=float] .player-controls { height: 34px; gap: 12px; }
-.app[data-player=float] .progress-row span { font-size: 9px; }
+.app[data-player=float] .progress-row span { font-size:11px; }
 .app[data-player=float] :is(.volume-slider, .player-divider, .quality-menu) { display: none; }
 .app[data-player=float] .main-scroll { padding-bottom: 120px; }
 .app[data-player=float].detail-open .player { background: #00000059; border-color: #ffffff1f; color: #fff; --text: #fff; --muted: #ffffff8c; --subtle: #ffffffb8; --line: #ffffff26; --hover: #ffffff17; }

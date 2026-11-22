@@ -209,7 +209,7 @@
 :root[data-skin=qobuz] .home-card-play { background: var(--accent); color: var(--accent-text); }
 :root[data-skin=qobuz] .button { border-radius: 3px; }
 :root[data-skin=qobuz] .button.primary { text-transform: uppercase; letter-spacing: .8px; font-size: 11px; }
-:root[data-skin=qobuz] .table-header { text-transform: uppercase; letter-spacing: 1.2px; font-size: 10px; }
+:root[data-skin=qobuz] .table-header { text-transform: uppercase; letter-spacing: 1.2px; font-size:11px; }
 :root[data-skin=qobuz] .track-row { border-radius: 2px; border-bottom: 1px solid #ffffff09; }
 :root[data-skin=qobuz] .track-row.current { background: linear-gradient(90deg, var(--accent-tint), transparent 60%); }
 :root[data-skin=qobuz] .row-number span { font-variant-numeric: tabular-nums; color: var(--muted); }
