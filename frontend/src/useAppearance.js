@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { loadProfile, saveProfile, normalizeLook, normalizeProfile, resolveLook, lookOf, lookForRef, schedulePeriod, accentFromPixels, contrastText, mix, defaultLook, swatchCss } from './appearance.mjs';
+import { loadProfile, saveProfile, normalizeLook, normalizeProfile, resolveLook, lookOf, lookForRef, schedulePeriod, accentFromPixels, contrastText, mix, defaultLook, swatchCss, isDark } from './appearance.mjs';
 import { SKIN_MAP } from './skins.mjs';
 import { mediaUrl } from './api';
 
@@ -36,7 +36,8 @@ function useCoverAccent(cover, enabled, dark) {
       } catch { if (alive) setAccent(''); }
     };
     img.onerror = () => { if (alive) setAccent(''); };
-    img.src = mediaUrl(cover);
+    // Remote covers go through the backend as a tiny same-origin thumbnail; most CDNs send no CORS headers.
+    img.src = /^https?:/.test(cover) ? mediaUrl('/api/cover-thumb?url=' + encodeURIComponent(cover)) : mediaUrl(cover);
     return () => { alive = false; };
   }, [cover, enabled, dark]);
   return accent;
@@ -108,8 +109,9 @@ export function useAppearance(cover) {
 
   const look = useMemo(() => lookOf(profile), [profile]);
   const resolved = useMemo(() => resolveLook(look), [look]);
-  const dark = resolved.skin.scheme === 'dark' || (resolved.skin.scheme === 'system' && systemDark);
-  const coverAccent = useCoverAccent(cover, profile.tuning.accent === 'cover', dark);
+  const dark = isDark(resolved.skin, profile.tuning.scheme, systemDark);
+  // Always read: the accent may follow the cover, and skins tint their now-playing page with it (`--cover-tint`).
+  const coverAccent = useCoverAccent(cover, true, dark);
   const accent = profile.tuning.accent === 'cover' ? coverAccent : profile.tuning.accent === 'skin' ? '' : profile.tuning.accent;
 
   useEffect(() => {
@@ -147,6 +149,11 @@ export function useAppearance(cover) {
     style.setProperty('--accent-hover', mix(accent, dark ? '#ffffff' : '#000000', .12));
     style.setProperty('--accent-text', contrastText(accent));
   }, [accent, dark]);
+
+  useEffect(() => {
+    const style = document.documentElement.style;
+    if (coverAccent) style.setProperty('--cover-tint', coverAccent); else style.removeProperty('--cover-tint');
+  }, [coverAccent]);
 
   useEffect(() => {
     const scale = resolved.tuning.scale / 100;

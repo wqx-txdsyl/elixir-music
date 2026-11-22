@@ -1,0 +1,407 @@
+/* 网易云音乐皮肤：按 Windows 客户端 3.1 的首页截图还原侧栏、顶栏、首页卡片和播放栏。
+   只作用于网易云音乐皮肤本身，酷狗、酷我、咪咕等同底座的皮肤不受影响。 */
+@layer skins {
+/* 深色：照网易云客户端的深色模式，深灰蓝底、略亮的红色；只换颜色，版式和浅色一样。 */
+:root[data-skin=netease][data-scheme=dark] {
+  --bg: #16161d; --sidebar: #1b1b23; --panel: #212129; --panel-solid: #212129;
+  --text: #e6e7eb; --muted: #8b8d98; --subtle: #b3b5be; --line: #ffffff12; --hover: #ffffff0d; --chip: #ffffff12;
+  --accent: #ff4e5b; --accent-hover: #ff6470; --accent-tint: #ff4e5b24;
+  --ne-icon: #9497a3; --ne-control: #c3c5cd; --ne-line: #ffffff14;
+  --ne-ink: #f2f3f5; --ne-text: #dcdde2; --ne-text-2: #a9abb5; --ne-muted: #8b8d98; --ne-faint: #6f717c;
+  --ne-hover: #ffffff12; --ne-fill: #ffffff14; --ne-fill-hover: #ffffff1f; --ne-card: #25252e; --ne-row-hover: #ffffff0d;
+  --ne-search-a: #ffffff12; --ne-search-b: #ffffff0d;
+  color-scheme: dark;
+}
+:root[data-skin=netease][data-scheme=dark] .app { background: var(--bg); color: var(--text); }
+@media (min-width: 900px) {
+  :root[data-skin=netease] {
+    --side-width: 200px;
+    --player-height: 82px;
+    --accent: #e84e55;
+    --accent-tint: #e84e551a;
+    --sidebar: #f0f3f6;
+    --bg: #f7f9fc;
+    --ne-icon: #7a808d;
+    --ne-control: #555b6b;
+    --ne-line: #e3e7ec;
+    --ne-ink: #262b33;
+    --ne-text: #333a46;
+    --ne-text-2: #555c69;
+    --ne-muted: #8d929c;
+    --ne-faint: #a0a6b1;
+    --ne-hover: #e4e8ee;
+    --ne-fill: #eceef2;
+    --ne-fill-hover: #e3e6eb;
+    --ne-card: #fff;
+    --ne-row-hover: #f3f4f6;
+    --ne-search-a: #ecf0fa;
+    --ne-search-b: #f6eff6;
+  }
+
+  /* 侧栏：亮红实底的当前项，入口、个人曲库、自建歌单三组之间用细线分开。 */
+  :root[data-skin=netease] .app:not([data-sidebar]) > .sidebar { padding: 0 16px 0 22px; }
+  :root[data-skin=netease] .app:not([data-sidebar]) > .sidebar > .brand { height: 76px; }
+  :root[data-skin=netease] .app:not([data-sidebar]) > .sidebar > nav { gap: 0; }
+  :root[data-skin=netease] .app:not([data-sidebar]) > .sidebar .nav-item {
+    height: 40px;
+    min-height: 0;
+    padding: 0 10px;
+    gap: 10px;
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--ne-text);
+  }
+  :root[data-skin=netease] .app:not([data-sidebar]) > .sidebar .nav-item > svg { width: 20px; height: 20px; color: var(--ne-icon); }
+  :root[data-skin=netease] .app:not([data-sidebar]) > .sidebar .nav-item:hover:not(.selected) { background: var(--ne-hover); }
+  :root[data-skin=netease] .app:not([data-sidebar]) > .sidebar .nav-item.selected {
+    color: #fff;
+    font-weight: 600;
+    background: linear-gradient(90deg, #e84e5f, #e84f50);
+  }
+  :root[data-skin=netease] .app:not([data-sidebar]) > .sidebar .nav-item.selected > svg { color: #fff; }
+  :root[data-skin=netease] .app:not([data-sidebar]) > .sidebar .nav-item > small { color: var(--ne-faint); }
+  :root[data-skin=netease] .app:not([data-sidebar]) > .sidebar > nav > .nav-item:nth-child(3) { position: relative; margin-top: 25px; }
+  :root[data-skin=netease] .app:not([data-sidebar]) > .sidebar > nav > .nav-item:nth-child(3)::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: -13px;
+    border-top: 1px solid var(--ne-line);
+    pointer-events: none;
+  }
+  :root[data-skin=netease] .app:not([data-sidebar]) > .sidebar > .playlist-heading {
+    margin: 12px 8px 0;
+    padding: 13px 2px 6px;
+    border-top: 1px solid var(--ne-line);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ne-text-2);
+  }
+
+  /* 顶栏：描边的返回键，冷蓝到浅粉渐变的搜索框。 */
+  :root[data-skin=netease] .topbar { height: 72px; }
+  :root[data-skin=netease] .topbar-navigation .icon-button {
+    width: 28px;
+    height: 34px;
+    border: 1px solid var(--ne-line);
+    border-radius: 8px;
+    color: var(--ne-muted);
+    background: transparent;
+  }
+  :root[data-skin=netease] .topbar .search-box {
+    width: 258px;
+    height: 34px;
+    border: 1px solid var(--ne-line);
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--ne-search-a), var(--ne-search-b));
+  }
+  :root[data-skin=netease] .topbar .search-box:focus-within { border-color: #e84e5566; }
+  :root[data-skin=netease] .topbar .search-box input::placeholder { color: var(--ne-faint); }
+  :root[data-skin=netease] .topbar .search-box kbd { display: none; }
+
+  /* 首页：区块标题收小，专辑和歌单卡把标题压在封面底部的模糊色带上。 */
+  :root[data-skin=netease] .home-netease .home-section-head h2 { font-size: 19px; font-weight: 700; color: var(--ne-ink); }
+  :root[data-skin=netease] .home-netease .home-card:not(.round):not(.icon) {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    isolation: isolate;
+  }
+  :root[data-skin=netease] .home-netease .home-card:not(.round):not(.icon) .music-art { border-radius: 8px; }
+  :root[data-skin=netease] .home-netease .home-card:not(.round):not(.icon)::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 50px;
+    z-index: 1;
+    background: #26282e59;
+    backdrop-filter: blur(16px) saturate(1.3);
+    pointer-events: none;
+  }
+  :root[data-skin=netease] .home-netease .home-card:not(.round):not(.icon) > strong,
+  :root[data-skin=netease] .home-netease .home-card:not(.round):not(.icon) > small {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    z-index: 2;
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #fff;
+    text-shadow: 0 1px 2px #0004;
+  }
+  :root[data-skin=netease] .home-netease .home-card:not(.round):not(.icon) > strong { bottom: 26px; font-size: 13px; font-weight: 500; line-height: 18px; }
+  :root[data-skin=netease] .home-netease .home-card:not(.round):not(.icon) > small { bottom: 8px; font-size: 12px; line-height: 16px; opacity: .82; }
+
+  /* 播放栏：白底，进度线贴在上沿，左边是黑胶唱片里的圆形封面，中间红色圆形播放键。 */
+  :root[data-skin=netease] .player { background: var(--ne-card); border-top-color: var(--ne-line); }
+  :root[data-skin=netease] .player .now-cover {
+    width: 56px;
+    height: 56px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle, #1b1b1b 0 1px, #111 1px 3px);
+    box-shadow: 0 0 0 1px #0000000d;
+  }
+  :root[data-skin=netease] .player .now-cover .cover { width: 40px; height: 40px; border-radius: 50%; }
+  :root[data-skin=netease] .player .now-title button { font-size: 16px; color: var(--ne-text); }
+  :root[data-skin=netease] .player .now-title span { font-size: 13px; color: var(--ne-faint); }
+  :root[data-skin=netease] .player .icon-button { color: var(--ne-control); }
+  :root[data-skin=netease] .player .icon-button:hover:not(:disabled) { color: var(--ne-ink); }
+  :root[data-skin=netease] .player .icon-button.active { color: var(--accent); }
+  :root[data-skin=netease] .player .player-controls { gap: 16px; }
+  :root[data-skin=netease] .player .play-main { width: 38px; height: 38px; color: #fff; background: var(--accent); }
+  :root[data-skin=netease] .player .play-main:hover { background: #d9434b; }
+  /* 进度线贴边后，副歌区间只留淡色提示，免得被看成已播放的进度。 */
+  :root[data-skin=netease] .player .chorus-range { background: #e84e5526; }
+  :root[data-skin=netease] .player .chorus-dot { opacity: 0; transition: opacity .12s; }
+  :root[data-skin=netease] .player .progress-row:hover .chorus-dot,
+  :root[data-skin=netease] .player .chorus-dot:focus-visible { opacity: 1; }
+
+  /* 歌单和列表页：头图 168 方形小圆角，标题收小贴顶；曲目行不分斑马纹，悬停是白色圆角底，当前曲标题和歌手变红。 */
+  :root[data-skin=netease] .page-hero { align-items: flex-start; gap: 24px; }
+  :root[data-skin=netease] .page-hero-art { width: 168px; height: 168px; border-radius: 8px; box-shadow: none; }
+  :root[data-skin=netease] .page-hero-copy { align-self: stretch; display: flex; flex-direction: column; padding-top: 4px; }
+  /* 歌单的操作按钮和官方一样压在头图底边。 */
+  :root[data-skin=netease] .page-hero-actions { margin-top: auto; gap: 10px; }
+  :root[data-skin=netease] .page-hero-actions :is(.button, .more-menu > button) { height: 36px; border: 0; border-radius: 8px; background: var(--ne-fill); color: var(--ne-text); font-size: 13px; }
+  :root[data-skin=netease] .page-hero-actions :is(.button, .more-menu > button):hover:not(:disabled) { background: var(--ne-fill-hover); }
+  :root[data-skin=netease] .page-hero-eyebrow { display: none; }
+  :root[data-skin=netease] .page-hero-copy > h1 { font-size: 21px; font-weight: 700; line-height: 30px; color: var(--ne-ink); }
+  :root[data-skin=netease] .page-hero-meta { margin-top: 6px; font-size: 13px; color: var(--ne-muted); }
+  :root[data-skin=netease] .main-scroll .button { height: 36px; border-radius: 8px; font-size: 13px; }
+  :root[data-skin=netease] .main-scroll .button.quiet { border-color: transparent; background: var(--ne-fill); color: var(--ne-text); }
+  :root[data-skin=netease] .main-scroll .button.quiet:hover:not(:disabled) { background: var(--ne-fill-hover); }
+  :root[data-skin=netease] .main-scroll .button.primary:hover:not(:disabled) { background: #d9434b; }
+  :root[data-skin=netease] .main-scroll :is(.track-filter, .select-trigger) { border-color: transparent; background: var(--ne-fill); border-radius: 8px; }
+  :root[data-skin=netease] .table-header { height: 40px; font-size: 13px; color: var(--ne-muted); border-bottom-color: var(--ne-line); }
+  :root[data-skin=netease] .track-table .track-row { height: 56px; border-radius: 8px; background: none; }
+  :root[data-skin=netease] .track-table .track-row:hover,
+  :root[data-skin=netease] .track-table .track-row:focus-within { background: var(--ne-card); }
+  :root[data-skin=netease] .track-table .track-row.row-selected { background: #e84e5514; }
+  :root[data-skin=netease] .track-row .row-number { font-size: 12px; color: var(--ne-faint); }
+  :root[data-skin=netease] .track-table .track-row:not(.current):hover .row-number { color: var(--ne-text-2); }
+  :root[data-skin=netease] .track-row .track-name .cover { width: 36px; height: 36px; border-radius: 4px; }
+  :root[data-skin=netease] .track-row .song-title { font-size: 15px; color: var(--ne-text); }
+  :root[data-skin=netease] .track-row .artist-name { font-size: 13px; color: var(--ne-muted); }
+  :root[data-skin=netease] .track-row :is(.album-cell, .duration-cell) { font-size: 13px; color: var(--ne-text-2); }
+  :root[data-skin=netease] .track-row.current :is(.song-title, .artist-name),
+  :root[data-skin=netease] .track-row.current .row-number { color: var(--accent); }
+
+  /* 搜索和分类标签：选中项是黑色粗体，下面一小段红色短横，不再整段红线。 */
+  :root[data-skin=netease] .music-type-tabs button[role=tab] { position: relative; font-size: 15px; color: var(--ne-text-2); border-bottom-color: transparent; box-shadow: none; }
+  :root[data-skin=netease] .music-type-tabs button[role=tab]:hover { color: var(--ne-ink); }
+  :root[data-skin=netease] .music-type-tabs button[role=tab][aria-selected=true] { color: var(--ne-ink); font-weight: 700; border-bottom-color: transparent; box-shadow: none; }
+  :root[data-skin=netease] .music-type-tabs button[role=tab][aria-selected=true]::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 18px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--accent);
+    transform: translateX(-50%);
+  }
+
+  /* 播放队列：贴右边的白色面板，左侧圆角；行高 64、封面 48，当前曲标题和歌手变红。 */
+  :root[data-skin=netease] .queue-panel {
+    top: 83px;
+    right: 0;
+    bottom: calc(var(--player-height) + 16px);
+    width: 385px;
+    border: 0;
+    border-radius: 10px 0 0 10px;
+    background: var(--ne-card);
+    box-shadow: -6px 8px 32px #0000001f;
+  }
+  :root[data-skin=netease] .queue-heading { padding: 18px 20px 10px; border-bottom: 0; }
+  :root[data-skin=netease] .queue-heading h2 { font-size: 18px; font-weight: 700; color: var(--ne-ink); }
+  :root[data-skin=netease] .queue-heading p { font-size: 12px; color: var(--ne-faint); }
+  :root[data-skin=netease] .queue-items { padding: 0 0 8px; }
+  :root[data-skin=netease] .queue-item { min-height: 64px; margin: 0; padding: 0 12px 0 20px; border-radius: 0; }
+  :root[data-skin=netease] .queue-item:hover { background: var(--ne-row-hover); }
+  :root[data-skin=netease] .queue-item .cover { width: 48px; height: 48px; border-radius: 4px; }
+  :root[data-skin=netease] .queue-item strong { font-size: 15px; font-weight: 400; line-height: 20px; color: var(--ne-text); }
+  :root[data-skin=netease] .queue-item small { font-size: 12px; line-height: 18px; color: var(--ne-muted); }
+  :root[data-skin=netease] .queue-item[aria-current=true] :is(strong, small) { color: var(--accent); }
+
+  /* 播放界面：整窗深色，盖住侧栏。左边黑胶和白色唱臂，右边歌名、专辑歌手来源、胶囊标签和歌词。 */
+  :root[data-skin=netease] .app:not([data-np]) .detail-view.np-vinyl {
+    position: fixed;
+    inset: 0;
+    z-index: 44;
+    overflow: hidden;
+    color: #fff;
+    background: #1d1818;
+    --text: #fff;
+    --muted: #ffffff80;
+    --subtle: #ffffffb3;
+    --line: #ffffff1a;
+    --hover: #ffffff12;
+    --panel: #ffffff12;
+    --chip: #ffffff1a;
+    --ne-disc: clamp(240px, 46vh, 520px);
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-backdrop { display: block; position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-backdrop::before {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    background: var(--detail-cover) center / cover, #2a2222;
+    filter: blur(90px) saturate(.9);
+    opacity: .32;
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-backdrop::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, #1d1818b3, #1d1818e6); }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl :is(.detail-toolbar, .detail-layout) { position: relative; z-index: 1; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-toolbar { height: 72px; padding: 0 160px 0 32px; -webkit-app-region: no-drag; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-close { border: 0; background: none; color: #ffffffd9; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-close:hover { color: #fff; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .source-tag { color: #ffffffb3; border-color: #ffffff40; background: none; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .text-button { color: #ffffff99; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .text-button:hover:not(:disabled) { color: #fff; }
+
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 51%) auto auto auto minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 0;
+    padding: 0 40px var(--player-height) 0;
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-art { display: contents; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-cover-stage {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    align-self: start;
+    justify-self: center;
+    width: var(--ne-disc);
+    height: var(--ne-disc);
+    margin-top: calc(18vh - 2px);
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-cover-stage.has-ring {
+    --ne-disc: clamp(180px, min(46vh, calc(82vh - var(--player-height) - 184px)), 520px);
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-art:has(> .visualizer-strip) > .detail-cover-stage {
+    --ne-disc: clamp(160px, min(46vh, calc(82vh - var(--player-height) - 211px)), 520px);
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-art > .visualizer-strip {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: end;
+    justify-self: center;
+    width: min(80%, 320px);
+    height: clamp(24px, 6vh, 44px);
+    margin: 0 0 78px;
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-art > p {
+    grid-column: 5;
+    grid-row: 2;
+    align-self: center;
+    min-width: 0;
+    margin: 8px 0 0;
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .vinyl-deck { width: var(--ne-disc); height: var(--ne-disc); max-width: none; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .vinyl-cover {
+    width: var(--ne-disc);
+    height: var(--ne-disc);
+    padding: calc(var(--ne-disc) * .18);
+    border: 0;
+    background: radial-gradient(circle, transparent 0 63%, #ffffff08 63.5% 64%, transparent 64.5%), repeating-radial-gradient(#0c0c0c 0 1px, #161616 1.5px 3px);
+    box-shadow: 0 0 0 12px #ffffff12, 0 0 0 13px #ffffff0a, 0 18px 50px #0007;
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .vinyl-cover > .cover { border: 0; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .vinyl-cover::after { display: none; }
+  /* 唱臂支点在唱片正上方，停放时唱头搭在唱片右上沿外，播放时落到纹路上。 */
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .tonearm {
+    top: -21%;
+    right: auto;
+    left: 46%;
+    width: 8%;
+    background: radial-gradient(circle, #c9c9c9 0 22%, #fff 26%);
+    box-shadow: 0 2px 8px #0006;
+    transform: rotate(-66deg);
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .tonearm.engaged { transform: rotate(-38deg); }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .tonearm::before { width: 18%; background: #f2f2f2; box-shadow: 0 2px 6px #0005; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .tonearm::after { width: 70%; height: 80%; border-radius: 3px; background: linear-gradient(90deg, #ddd, #fff 50%, #d6d6d6); }
+
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-art > h1 {
+    grid-column: 2 / -1;
+    grid-row: 1;
+    margin: 28px 0 0;
+    font-size: 26px;
+    font-weight: 500;
+    line-height: 36px;
+    text-align: left;
+    color: #fff;
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-art > :is(.text-button, .artist-name, .listening-badge) {
+    grid-row: 2;
+    align-self: center;
+    justify-content: flex-start;
+    margin: 8px 26px 0 0;
+    padding: 0;
+    font-size: 14px;
+    white-space: nowrap;
+    color: #ffffff80;
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-art > .text-button { grid-column: 2; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-art > .artist-name { grid-column: 3; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-art > .listening-badge { grid-column: 4; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-art > .text-button::before { content: '专辑：'; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-art > .artist-name::before { content: '歌手：'; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-art > :is(.text-button, .artist-name):hover { color: #fff; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-actions {
+    grid-column: 1;
+    grid-row: 3;
+    align-self: end;
+    justify-self: center;
+    margin: 0 0 34px;
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-actions .button.primary { height: 34px; border-radius: 17px; background: #ffffff1f; color: #fff; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-actions .button.primary:hover { background: #ffffff2e; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-actions .icon-button { color: #ffffffb3; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-actions .icon-button.active { color: var(--accent); }
+
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-content { grid-column: 2 / -1; grid-row: 3; min-height: 0; padding-top: 22px; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-tabs {
+    width: fit-content;
+    height: 34px;
+    gap: 0;
+    padding: 3px;
+    border: 0;
+    border-radius: 17px;
+    background: #ffffff12;
+  }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-tabs button { height: 28px; padding: 0 12px; border-radius: 14px; font-size: 14px; color: #ffffffb3; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-tabs button:hover { color: #fff; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-tabs button[aria-selected=true] { color: #fff; font-weight: 600; background: #ffffff1f; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .detail-tabs button::after { display: none; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .lyrics-scroll { scrollbar-width: none; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .lyric-lines { gap: 22px; padding: 20vh 0 36vh; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .lyric-lines button { font-size: 18px; font-weight: 400; line-height: 1.4; color: #ffffff5c; filter: none; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .lyric-lines button:hover { color: #ffffffa6; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .lyric-lines button.current { font-size: 21px; font-weight: 600; color: #fff; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .lyric-lines button.current.has-words { color: #ffffff5c; --lyric-unsung: #ffffff5c; --lyric-sung: #fff; }
+  :root[data-skin=netease] .app:not([data-np]) .np-vinyl .lyric-offset { opacity: .7; }
+
+  /* 播放界面打开时播放栏跟着变深，播放键换成浅灰圆底，进度线收成白色细线。 */
+  :root[data-skin=netease] .app.detail-open:not([data-np]) .player { color: #fff; background: #1b1717; border-top-color: transparent; --text: #fff; --muted: #ffffff80; --line: #ffffff1a; }
+  :root[data-skin=netease] .app.detail-open:not([data-np]) .player .now-title button { color: #fff; }
+  :root[data-skin=netease] .app.detail-open:not([data-np]) .player .now-title span { color: #ffffff80; }
+  :root[data-skin=netease] .app.detail-open:not([data-np]) .player .now-cover { display: none; }
+  :root[data-skin=netease] .app.detail-open:not([data-np]) .player .icon-button { color: #ffffffcc; }
+  :root[data-skin=netease] .app.detail-open:not([data-np]) .player .icon-button:hover:not(:disabled) { color: #fff; }
+  :root[data-skin=netease] .app.detail-open:not([data-np]) .player .icon-button.active { color: var(--accent); }
+  :root[data-skin=netease] .app.detail-open:not([data-np]) .player .play-main { color: #1b1717; background: #ffffffd9; }
+  :root[data-skin=netease] .app.detail-open:not([data-np]) .player .play-main:hover { background: #fff; }
+  :root[data-skin=netease] .app.detail-open:not([data-np]) .player .progress-row input { background: linear-gradient(to right, #ffffff59 var(--range), #ffffff14 var(--range)); }
+  :root[data-skin=netease] .app.detail-open:not([data-np]) .player .chorus-range { background: #ffffff1f; }
+}
+}

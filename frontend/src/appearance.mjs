@@ -34,6 +34,7 @@ export function normalizeLook(raw = {}) {
     scale: Math.min(120, Math.max(85, Math.round((Number(t.scale) || 100) / 5) * 5)),
     motion: pick(t.motion, ['full', 'reduced'], 'full'),
     contrast: pick(t.contrast, ['normal', 'high'], 'normal'),
+    scheme: pick(t.scheme, ['native', 'light', 'dark', 'system'], 'native'),
   };
   const known = NAV_ITEMS.map(([key]) => key);
   const order = [...new Set([...(Array.isArray(raw.nav?.order) ? raw.nav.order : []).filter(k => known.includes(k)), ...known])];
@@ -100,7 +101,15 @@ export function nowPlayingStyle(resolved) {
 export function visualizerStyle(resolved) {
   const v = resolved.parts.visualizer;
   if (v !== 'native') return v;
-  return { netease: 'ring', qqmusic: 'bars', spotify: 'wave', aurora: 'ring', ink: 'wave', apple: 'off' }[resolved.skin.base] || 'bars';
+  return { netease: 'ring', qqmusic: 'wave', spotify: 'wave', aurora: 'ring', ink: 'wave', apple: 'off' }[resolved.skin.base] || 'bars';
+}
+
+// Light or dark. A skin that has both palettes (`flip: true`) follows the listener's choice;
+// every other skin keeps the one it was drawn in.
+export const canFlip = skin => !!skin?.flip;
+export function isDark(skin, scheme = 'native', systemDark = false) {
+  const mode = canFlip(skin) && scheme !== 'native' ? scheme : skin.scheme;
+  return mode === 'dark' || (mode === 'system' && !!systemDark);
 }
 
 // ---- schedule (day / night looks) ----

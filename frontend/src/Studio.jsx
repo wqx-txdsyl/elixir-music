@@ -5,7 +5,7 @@ import ConfirmDialog from './ConfirmDialog';
 import { Note, Tabs } from './ui';
 import { SKINS, SKIN_GROUPS } from './skins.mjs';
 import { SLOTS, SLOT_MAP, SLOT_GROUPS, TUNING, ACCENT_PRESETS, LAYOUT_PRESETS, NAV_ITEMS, HOME_MODULES, COMPONENT_DEFAULTS, randomParts } from './components.mjs';
-import { shareCode, parseShared, exportFile } from './appearance.mjs';
+import { shareCode, parseShared, exportFile, canFlip } from './appearance.mjs';
 import { SkinPreview } from './Parts';
 import { PartArt, WindowDiagram, effectivePart } from './PartArt';
 import { SlotPanel, currentName } from './PartPicker';
@@ -136,6 +136,9 @@ export default function Studio({ appearance, notify, onEdit }) {
         {TUNING.map(t => <Row key={t.key} title={t.title}><Chips label={t.title} value={look.tuning[t.key]} variants={t.variants} onChange={value => appearance.setTuning(t.key, value)} /></Row>)}
         <Row title="界面缩放" note={look.tuning.scale + '%'}>
           <div className="studio-scale"><span>A</span><input type="range" min="85" max="120" step="5" value={look.tuning.scale} style={{ '--range': (look.tuning.scale - 85) / 35 * 100 + '%' }} onChange={e => appearance.setTuning('scale', Number(e.target.value))} aria-label="界面缩放" /><span className="big">A</span>{look.tuning.scale !== 100 && <button className="text-button" onClick={() => appearance.setTuning('scale', 100)}>还原</button>}</div>
+        </Row>
+        <Row title="深浅色" note={canFlip(skin) ? '这套皮肤有浅色和深色两套配色' : '这套皮肤只有一种配色'}>
+          <Chips label="深浅色" value={canFlip(skin) ? look.tuning.scheme : 'native'} variants={canFlip(skin) ? [['native', '跟随皮肤'], ['light', '浅色'], ['dark', '深色'], ['system', '跟随系统']] : [['native', skin.scheme === 'dark' ? '深色' : skin.scheme === 'system' ? '跟随系统' : '浅色']]} onChange={value => appearance.setTuning('scheme', value)} />
         </Row>
         <Row title="高对比度" note="加深次要文字和分隔线">
           <Chips label="高对比度" value={look.tuning.contrast} variants={[['normal', '标准'], ['high', '高对比']]} onChange={value => appearance.setTuning('contrast', value)} />

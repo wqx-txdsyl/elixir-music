@@ -34,6 +34,9 @@ select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 /* QQ 音乐原样的侧栏通到窗口底，播放栏只在内容区下面；播放栏没换时保持这样。 */
 .app[data-frame].theme-qqmusic:not([data-player]) { --row-player: "side player player"; }
 .app[data-frame][data-side=right].theme-qqmusic:not([data-player]) { --row-player: "player player side"; }
+/* 但 QQ 原样的播放页铺满整窗、播放栏透明浮在上面：打开播放页时播放栏占满整行，播放页一直铺到窗口底，不露侧栏底部。 */
+.app[data-frame].theme-qqmusic.detail-open:not([data-player], [data-np]) { --detail-bottom: 0px; --row-player: "player player player"; }
+.app[data-frame].theme-qqmusic.detail-open:not([data-player], [data-np]) > .player { position: relative; z-index: 45; margin: 0; border-radius: 0; box-shadow: none; background: transparent; }
 .app[data-frame][data-panel=on] { --frame-panel: clamp(280px, 24vw, 340px); }
 .app[data-frame][data-sidebar=rail] { --frame-side: 78px; }
 .app[data-frame][data-sidebar=hidden] { --frame-side: 0px; }
@@ -119,6 +122,8 @@ select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 :where(.app:not([data-sidebar=rail])) > .sidebar > .playlist-navigation { min-height: 46px; }
 @media (max-height: 820px) {
   :where(.app:not([data-sidebar=rail])) > .sidebar > nav .nav-item { max-height: 42px; min-height: 0; }
+/* 窗口矮时导航自己滚动，底部的外观和设置不再被播放栏挡住。留出一圈内边距，选中项的光晕和焦点框不被裁掉。 */
+:where(.app:not([data-sidebar=rail], [data-sidebar=dock])) > .sidebar > nav { flex: 0 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; padding: 6px 10px; margin: -6px -10px; }
 }
 /* 矮窗口里窄侧栏的导航项压矮一些，尽量不用滚动就全部看得到。 */
 @media (max-height: 860px) {
@@ -286,8 +291,37 @@ select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .app[data-np=cover] .detail-cover-stage { width: 100%; }
 .app[data-np=cover] .large-cover { width: min(340px, 34vh, 80%); height: auto; aspect-ratio: 1; border-radius: 12px; overflow: hidden; box-shadow: 0 18px 46px #0000002e; }
 .app[data-np=cover].detail-open .player, .app[data-np=vinyl].detail-open .player, .app[data-np=cassette].detail-open .player, .app[data-np=cd].detail-open .player { --text: inherit; }
-.app[data-np=vinyl] .detail-art { overflow-x: hidden; }
+.app[data-np=vinyl] .detail-art { min-height: 0; overflow: hidden auto; }
 .app[data-np=vinyl] .vinyl-deck { margin-top: 18px; }
+
+/* Keep playback controls in reach when the record or cover column is short. */
+@media (max-height: 720px) {
+  :is(.app[data-np=vinyl], .app.theme-spotify:not([data-np])) .detail-art {
+    --compact-art: clamp(112px, calc(100vh - var(--player-height) - 397px), 250px);
+    min-height: 0;
+    overflow: hidden auto;
+    padding-block: 10px 12px;
+  }
+  .app[data-np=vinyl] .detail-art .vinyl-deck { width: var(--compact-art); }
+  .app[data-np=vinyl] .detail-art .vinyl-deck > .vinyl-cover {
+    width: 100%;
+    height: auto;
+    padding: 16%;
+  }
+  .app.theme-spotify:not([data-np]) .detail-art .detail-cover-stage > .large-cover {
+    width: var(--compact-art);
+    height: auto;
+  }
+  :is(.app[data-np=vinyl], .app.theme-spotify:not([data-np])) .detail-art > h1 { margin-block: 14px 4px; }
+  :is(.app[data-np=vinyl], .app.theme-spotify:not([data-np])) .detail-art > .visualizer-strip {
+    height: 30px;
+    margin-top: 10px;
+  }
+  :is(.app[data-np=vinyl], .app.theme-spotify:not([data-np])) .detail-art > .detail-actions {
+    flex-shrink: 0;
+    margin-top: 12px;
+  }
+}
 
 /* Immersive: the page covers the window and the artwork is blurred into it. */
 .app[data-np=immersive] .detail-view {
@@ -307,9 +341,9 @@ select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .app[data-np=immersive] .detail-view .icon-button { color: #ffffffcc; }
 .app[data-np=immersive] .detail-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); grid-template-areas: none; grid-template-rows: none; gap: 5vw; padding: 0 6vw calc(var(--player-height) + 2vh); }
 .app[data-np=immersive][data-player=float] .detail-layout { padding-bottom: 110px; }
-.app[data-np=immersive] .detail-art { flex-direction: column; align-items: center; justify-content: center; overflow: visible; padding: 0 0 4vh; }
-.app[data-np=immersive] .detail-art > :not(.detail-cover-stage) { width: min(46vh, 30vw, 430px); max-width: 100%; text-align: left; }
-.app[data-np=immersive] .large-cover { width: min(46vh, 30vw, 430px); height: auto; aspect-ratio: 1; max-width: none; border-radius: 14px; overflow: hidden; box-shadow: 0 30px 70px #00000073; }
+.app[data-np=immersive] .detail-art { --imm-art: max(150px, min(46vh, 30vw, 430px, calc(100vh - var(--player-height) - 6vh - 340px))); flex-direction: column; align-items: center; justify-content: center; overflow: visible; padding: 0 0 4vh; }
+.app[data-np=immersive] .detail-art > :not(.detail-cover-stage) { width: var(--imm-art); max-width: 100%; text-align: left; }
+.app[data-np=immersive] .large-cover { width: var(--imm-art); height: auto; aspect-ratio: 1; max-width: none; border-radius: 14px; overflow: hidden; box-shadow: 0 30px 70px #00000073; }
 .app[data-np=immersive] .large-cover > .cover { border-radius: 14px; }
 .app[data-np=immersive] .detail-art > h1 { margin: 24px 0 2px; font-size: 22px; font-weight: 700; }
 .app[data-np=immersive] .detail-art > .artist-name { justify-content: flex-start; padding: 0; font-size: 15px; color: #ffffffb3; }

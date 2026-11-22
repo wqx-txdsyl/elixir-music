@@ -58,7 +58,7 @@ export const SLOTS = [
   ] },
   { key: 'lyrics', group: 'play', title: '歌词排版', variants: [
     ['native', '跟随皮肤'],
-    ['center', '居中渐隐', '网易云 · QQ音乐'],
+    ['center', '居中渐隐', '网易云'],
     ['left', '左对齐大字', 'Apple Music'],
     ['block', '整块色底', 'Spotify'],
     ['vertical', '竖排', 'Elixir · 古籍竖排'],
@@ -94,7 +94,7 @@ export const SLOTS = [
     ['mosaic', '封面墙', 'Elixir · 用播放队列的封面拼成'],
     ['image', '自定义图片', 'Elixir'],
   ] },
-  { key: 'panel', group: 'extra', title: '右侧正在播放栏', removable: 'off', variants: [
+  { key: 'panel', group: 'extra', title: '右侧面板', removable: 'off', variants: [
     ['off', '拆下'],
     ['on', '正在播放', 'Spotify'],
     ['agent', '音乐 Agent', 'Elixir'],
@@ -120,7 +120,7 @@ export const TUNING = [
   { key: 'density', title: '列表密度', variants: [['native', '跟随皮肤'], ['compact', '紧凑', 'foobar2000 · iTunes'], ['comfy', '宽松', 'Elixir']] },
   { key: 'motion', title: '动效', variants: [['full', '完整'], ['reduced', '减少动效']] },
 ];
-export const TUNING_DEFAULTS = { accent: 'skin', radius: 'native', font: 'native', density: 'native', scale: 100, motion: 'full', contrast: 'normal' };
+export const TUNING_DEFAULTS = { accent: 'skin', radius: 'native', font: 'native', density: 'native', scale: 100, motion: 'full', contrast: 'normal', scheme: 'native' };
 export const ACCENT_PRESETS = ['#ef4655', '#31c27c', '#1ed760', '#fa2d48', '#1f9cff', '#ffd21f', '#ff5500', '#a238ff', '#25d1da', '#6a6cf6', '#ec2f6d', '#3668ff', '#d7f53a', '#ff7a45', '#13c2c2', '#c4382d'];
 
 // One-click arrangements of several parts at once. Only the parts listed change.

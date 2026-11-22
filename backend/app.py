@@ -12,8 +12,8 @@ import time
 from pathlib import Path
 from urllib.parse import quote, urlparse
 import httpx
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from .compat import Field, ItemsField
@@ -432,6 +432,62 @@ def artwork(filename:str):
     path=ART/filename
     if not path.is_file(): raise HTTPException(404)
     return FileResponse(path)
+
+# 封面缩略图：平台图床大多不给跨域头，前端画布读不到像素；这里取回后缩成 28×28 的同源小图，供皮肤从封面取色。
+COVER_HOSTS=('gtimg.cn','qpic.cn','music.126.net','scdn.co','spotifycdn.com','kugou.com','kuwo.cn','migu.cn','douyinpic.com','mzstatic.com')
+COVER_LIMIT=8*1024*1024
+COVER_FETCH_TIMEOUT=5
+cover_thumbs={}
+
+def cover_thumbnail(data):
+    from PIL import Image
+    from io import BytesIO
+    with Image.open(BytesIO(data)) as im:
+        # 先看尺寸再解码，PNG 等格式不支持 draft 缩小。
+        if max(im.size)>4096 or im.size[0]*im.size[1]>16_000_000: raise ValueError('too large')
+        im.draft('RGB',(64,64))
+        out=BytesIO()
+        im.convert('RGB').resize((28,28),Image.Resampling.BILINEAR).save(out,'PNG')
+        return out.getvalue()
+
+async def fetch_cover(url, proxy):
+    body=bytearray()
+    headers={'User-Agent':'Mozilla/5.0','Accept-Encoding':'identity'}
+    async with media_client(proxy).stream(
+        'GET',url,headers=headers,follow_redirects=False,timeout=httpx.Timeout(COVER_FETCH_TIMEOUT),
+    ) as response:
+        if response.status_code!=200: raise HTTPException(502,'封面获取失败')
+        if response.headers.get('content-encoding','identity').strip().lower()!='identity':
+            raise HTTPException(502,'不支持的封面传输编码')
+        if int(response.headers.get('content-length') or 0)>COVER_LIMIT:
+            raise HTTPException(413,'封面太大')
+        async for chunk in response.aiter_raw(chunk_size=64*1024):
+            if len(body)+len(chunk)>COVER_LIMIT: raise HTTPException(413,'封面太大')
+            body.extend(chunk)
+    return bytes(body)
+
+@app.get('/api/cover-thumb')
+async def cover_thumb(url:str=Query(max_length=2048)):
+    try:
+        p=urlparse(url); host=(p.hostname or '').lower()
+        ok=p.scheme in {'http','https'} and p.username is None and p.password is None and p.port in {None,80,443} and any(host==s or host.endswith('.'+s) for s in COVER_HOSTS)
+    except (TypeError,ValueError): ok=False
+    if not ok: raise HTTPException(400,'不支持的封面地址')
+    # 查询参数可能决定图片内容，只忽略不会发送给服务器的 fragment。
+    key=p._replace(fragment='').geturl()
+    hit=cover_thumbs.get(key)
+    if hit and time.monotonic()-hit[0]<86400: data=hit[1]
+    else:
+        proxy=store.settings().get('proxy') if host.endswith(('scdn.co','spotifycdn.com')) else None
+        try: body=await asyncio.wait_for(fetch_cover(key,proxy),timeout=COVER_FETCH_TIMEOUT)
+        except HTTPException: raise
+        except Exception: raise HTTPException(502,'封面获取失败')
+        try: data=await asyncio.to_thread(cover_thumbnail,body)
+        except Exception: raise HTTPException(422,'封面无法解析')
+        cover_thumbs.pop(key,None)
+        if len(cover_thumbs)>=512: cover_thumbs.pop(next(iter(cover_thumbs)))
+        cover_thumbs[key]=(time.monotonic(),data)
+    return Response(data,media_type='image/png',headers={'Cache-Control':'private, max-age=86400'})
 
 class ImportRequest(BaseModel): path:str=Field(min_length=1,max_length=32760); restore:bool=True
 class TrackRequest(BaseModel): track_id:str
