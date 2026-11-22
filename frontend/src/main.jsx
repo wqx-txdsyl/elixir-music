@@ -63,6 +63,7 @@ import './skins-elixir-eink.css';
 import './skins-elixir-pixel.css';
 import './skins-elixir-vapor.css';
 import './skins-elixir-constructivist.css';
+import './skin-spotify.css';
 import './tuning.css';
 import { useAppearance } from './useAppearance';
 import { skinLabels, SKINS } from './skins.mjs';
