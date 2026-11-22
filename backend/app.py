@@ -18,6 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from .compat import Field, ItemsField
 from .store import Store, DATA
+from .logs import log, setup as setup_logging, attach as attach_log
 from .library import read_track, iter_music, local_lyrics, match_score, ART
 from .lyrics_db import lookup as lyrics_lookup
 from .providers.netease import NeteaseProvider
@@ -27,12 +28,15 @@ from .providers.public_music import KINDS, PLATFORMS, PublicMusicProvider, publi
 from .providers.linked_music import CATALOG_AUTH, SOURCES as LINKED_SOURCES, LinkedMusicProvider, link_identity, observed_track, safe_url, short_track_link
 
 VERSION='2.0.0'
+setup_logging()
 TOKEN=os.environ.get('MUSICPLATFORM_TOKEN') or secrets.token_urlsafe(32)
 store=Store()
 
 def saved_cookie(source):
     try: return store.secret(source)
-    except Exception: return ''
+    except Exception as exc:
+        # 解密失败等同于掉登录，至少留下记录便于排查
+        log.warning('读取 %s 登录凭据失败：%s',source,type(exc).__name__); return ''
 
 providers={'netease':NeteaseProvider(saved_cookie('netease')),'qqmusic':QQMusicProvider(saved_cookie('qqmusic')),'spotify':SpotifyProvider(store)}
 # A renewed QQ Music key replaces the stored cookie, so the login survives restarts without another scan.
@@ -69,13 +73,16 @@ async def local_only(request:Request,call_next):
 async def value_error(request,exc): return JSONResponse({'detail':str(exc)},status_code=400)
 
 @app.exception_handler(RuntimeError)
-async def runtime_error(request,exc): return JSONResponse({'detail':str(exc),'code':getattr(exc,'code','')},status_code=502)
+async def runtime_error(request,exc):
+    log.warning('%s %s 失败：%s %s',request.method,request.url.path,type(exc).__name__,exc)
+    return JSONResponse({'detail':str(exc),'code':getattr(exc,'code','')},status_code=502)
 
 @app.exception_handler(NotImplementedError)
 async def unimplemented(request,exc):return JSONResponse({'detail':str(exc)},status_code=501)
 
 @app.exception_handler(Exception)
 async def unexpected_error(request,exc):
+    log.error('%s %s 未处理的异常',request.method,request.url.path,exc_info=exc)
     # Network exception strings may contain signed URLs/cookies; do not expose them.
     return JSONResponse({'detail':'请求未完成，请检查网络后重试','error_type':type(exc).__name__},status_code=502)
 
@@ -124,8 +131,9 @@ async def cached_remote(key,fn,*args,max_age=3600):
         if isinstance(data,dict): data=dict(data,fetched_at=time.time())
         store.cache_put(key,data)
         return data
-    except Exception:
+    except Exception as exc:
         prior=store.cache_get(key)
+        log.info('请求 %s 失败（%s），%s',key.split(':',1)[0],type(exc).__name__,'改用旧缓存' if prior is not None else '无缓存可用')
         if prior is not None:
             return dict(prior,cached=True,stale=True,warning='当前平台请求失败，正在展示之前保存的资料') if isinstance(prior,dict) else prior
         raise
@@ -250,13 +258,15 @@ async def lyrics(track_id:str):
             else:
                 data=await asyncio.to_thread(providers[source].lyrics,sid)
                 if data.get('original'):store.cache_put(key,data)
-        except Exception: data={'original':'','translated':'','reason':'原平台歌词请求失败'}
+        except Exception as exc:
+            log.info('%s 歌词请求失败：%s',source,type(exc).__name__)
+            data={'original':'','translated':'','reason':'原平台歌词请求失败'}
     if data.get('original'): return data
     track=await track_get(lookup_id)
     try:
         fallback=await cached_remote('lrclib:'+lookup_id,lyrics_lookup,track,store.settings().get('proxy',''),max_age=86400)
         if fallback: return fallback
-    except Exception: pass
+    except Exception as exc: log.info('LRCLIB 歌词请求失败：%s',type(exc).__name__)
     return data
 
 @app.get('/api/tracks/{track_id}/comments')
@@ -277,8 +287,43 @@ async def stream(track_id:str,quality:str='standard'):
         path=store.path(track_id)
         if not path or not Path(path).is_file(): raise HTTPException(404,'文件已移动或不存在，请重新导入')
         return {'url':f'/api/local/{quote(track_id)}/audio?token={TOKEN}','quality':'original','trial':False,'reason':''}
-    result=await asyncio.to_thread(providers[source].stream,sid,quality)
+    try:
+        result=await asyncio.to_thread(providers[source].stream,sid,quality)
+    except Exception as exc:
+        log.warning('%s 播放地址获取失败：%s',source,type(exc).__name__)
+        if alternative:=await fallback_stream(track_id,source,quality): return alternative
+        raise
+    if result.get('transport')!='official-web' and (not result.get('url') or result.get('trial')):
+        # 无授权或只有试听片段时，到其他可直接播放的平台找同一首歌
+        if alternative:=await fallback_stream(track_id,source,quality): return alternative
     return ticket_media(result,source)
+
+FALLBACK_SOURCES={'qqmusic':'QQ 音乐','netease':'网易云音乐','bodian':'波点音乐'}
+
+async def fallback_stream(track_id,source,quality):
+    try:
+        original=await track_get(track_id)
+        names=[name for name in search_platforms('all') if name in FALLBACK_SOURCES and name!=source]
+        if not names: return None
+        artist='' if original.get('artist') in ('','未知歌手') else original.get('artist','')
+        query=(original['title']+' '+artist).strip()
+        found=await asyncio.gather(*(search_sources(query,name,8) for name in names),return_exceptions=True)
+        candidates=[t for r in found if not isinstance(r,BaseException) for t in r[0] if t.get('id')!=track_id]
+        ranked=sorted(((match_score(original,t),t) for t in candidates),key=lambda x:x[0],reverse=True)
+    except Exception as exc:
+        log.info('换源搜索失败：%s',type(exc).__name__); return None
+    for score,candidate in [x for x in ranked if x[0]>=0.85][:3]:
+        try:
+            alt_source,alt_sid=source_of(candidate['id'])
+            result=await asyncio.to_thread(providers[alt_source].stream,alt_sid,quality)
+        except Exception as exc:
+            log.info('换源 %s 失败：%s',candidate.get('id','').split(':')[0],type(exc).__name__); continue
+        if result.get('url') and not result.get('trial'):
+            log.info('%s 改用 %s 播放（匹配度 %.2f）',source,alt_source,score)
+            label=FALLBACK_SOURCES.get(source) or source
+            reason=f'{label}暂时无法播放整首，已改用{FALLBACK_SOURCES[alt_source]}的同一首歌'
+            return ticket_media(dict(result,reason=reason,fallback={'track_id':candidate['id'],'source':alt_source,'title':candidate.get('title',''),'artist':candidate.get('artist','')}),alt_source)
+    return None
 
 def ticket_media(result,source):
     if result.get('url'):
@@ -320,6 +365,17 @@ def allowed_media(url,source=None):
         return p.scheme in {'http','https'} and not p.username and not p.password and p.port in {None,80,443} and any(host==s or host.endswith('.'+s) for s in suffixes)
     except (TypeError,ValueError):return False
 
+media_clients={}
+
+def media_client(proxy):
+    # 按代理复用连接，拖动进度条时不必每次重新握手
+    key=proxy or ''
+    client=media_clients.get(key)
+    if client is None or client.is_closed:
+        client=media_clients[key]=httpx.AsyncClient(timeout=httpx.Timeout(25,read=90),proxy=proxy or None,
+                                                    limits=httpx.Limits(max_connections=32,max_keepalive_connections=8,keepalive_expiry=60))
+    return client
+
 @app.get('/api/media/{ticket}')
 async def media(ticket:str,request:Request):
     item=media_tickets.get(ticket)
@@ -330,7 +386,7 @@ async def media(ticket:str,request:Request):
     headers={'User-Agent':'Mozilla/5.0','Referer':referer}
     if request.headers.get('range'): headers['Range']=request.headers['range']
     proxy=store.settings().get('proxy') if item['source']=='spotify' else None
-    client=httpx.AsyncClient(timeout=httpx.Timeout(25,read=90),proxy=proxy or None)
+    client=media_client(proxy)
     try:
         for _ in range(5):
             if not allowed_media(url,item['source']): raise HTTPException(400,'平台返回了未识别的媒体地址')
@@ -341,14 +397,16 @@ async def media(ticket:str,request:Request):
             break
         else: raise HTTPException(502,'媒体地址重定向过多')
         if response.status_code not in (200,206):
+            log.warning('%s 媒体服务返回 %s',item['source'],response.status_code)
             await response.aclose(); raise HTTPException(502,'媒体服务拒绝了播放请求')
-    except Exception:
-        await client.aclose(); raise
+    except HTTPException: raise
+    except Exception as exc:
+        log.warning('%s 媒体连接失败：%s',item['source'],type(exc).__name__); raise
     async def chunks():
         try:
             async for chunk in response.aiter_bytes(): yield chunk
         finally:
-            await response.aclose(); await client.aclose()
+            await response.aclose()
     kept={k:v for k,v in response.headers.items() if k.lower() in {'content-length','content-range','accept-ranges'}}
     return StreamingResponse(chunks(),status_code=response.status_code,media_type=response.headers.get('content-type','audio/mpeg'),headers=kept)
 
@@ -418,6 +476,7 @@ async def import_worker(job_id,path,restore=True):
         job['status']='completed'
         if Path(path).is_dir():store.folder_update(str(Path(path).resolve()),scanned=True)
     except Exception as e:
+        log.warning('导入任务失败：%s',type(e).__name__,exc_info=not isinstance(e,(FileNotFoundError,ValueError)))
         job.update(status='failed',message=str(e) if isinstance(e,(FileNotFoundError,ValueError)) else '导入失败')
 
 @app.post('/api/library/import')
@@ -462,10 +521,28 @@ async def watch_music_folders():
                     result=await import_folder(ImportRequest(path=folder['path'],restore=False));jobs[result['job_id']]['path']=folder['path']
     app.state.folder_monitor=asyncio.create_task(monitor())
 
+@app.on_event('startup')
+async def housekeeping():
+    attach_log('uvicorn.error')
+    log.info('后端已启动，版本 %s',VERSION)
+    async def loop():
+        while True:
+            try:
+                removed=await asyncio.to_thread(store.cache_prune)
+                if removed: log.info('已清理过期缓存 %d 条',removed)
+            except Exception: log.exception('清理缓存失败')
+            now=time.time()
+            for key in [k for k,v in list(media_tickets.items()) if now-v['time']>3600]: media_tickets.pop(key,None)
+            await asyncio.sleep(6*3600)
+    app.state.housekeeping=asyncio.create_task(loop())
+
 @app.on_event('shutdown')
 async def stop_folder_monitor():
-    task=getattr(app.state,'folder_monitor',None)
-    if task:task.cancel()
+    for name in ('folder_monitor','housekeeping'):
+        task=getattr(app.state,name,None)
+        if task:task.cancel()
+    for client in list(media_clients.values()): await client.aclose()
+    media_clients.clear()
 
 @app.post('/api/library/{track_id}/match')
 async def match_local(track_id:str):

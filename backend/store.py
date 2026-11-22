@@ -83,6 +83,7 @@ class Store:
         CREATE TABLE IF NOT EXISTS playlist_tracks(playlist_id TEXT REFERENCES playlists(id) ON DELETE CASCADE,track_id TEXT REFERENCES tracks(id), position INTEGER, PRIMARY KEY(playlist_id,track_id));
         CREATE INDEX IF NOT EXISTS playlist_position ON playlist_tracks(playlist_id,position);
         CREATE TABLE IF NOT EXISTS cache(key TEXT PRIMARY KEY,payload TEXT NOT NULL,updated REAL NOT NULL);
+        CREATE INDEX IF NOT EXISTS cache_updated ON cache(updated);
         CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY,value TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS secrets(key TEXT PRIMARY KEY,value TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS links(local_id TEXT PRIMARY KEY REFERENCES tracks(id),remote_id TEXT REFERENCES tracks(id));
@@ -159,6 +160,23 @@ class Store:
     def cache_put(self, key, value):
         with self.lock, self.db:
             self.db.execute('INSERT OR REPLACE INTO cache VALUES(?,?,?)',(key,json.dumps(value,ensure_ascii=False),time.time()))
+
+    # 只清理可随时重新获取的临时缓存；云端曲库快照、实体资料等兜底数据不动。
+    CACHE_RETENTION = {'search:': 7, 'comments:': 7, 'entity-search:': 7, 'lyrics:': 30, 'lrclib:': 30}
+
+    def cache_prune(self, now=None):
+        now = time.time() if now is None else now
+        removed = 0
+        with self.lock, self.db:
+            for prefix, days in self.CACHE_RETENTION.items():
+                # key 在 [prefix, prefix 末位 +1) 区间内即以 prefix 开头，可走主键索引
+                upper = prefix[:-1] + chr(ord(prefix[-1]) + 1)
+                removed += self.db.execute('DELETE FROM cache WHERE key>=? AND key<? AND updated<?',
+                                           (prefix, upper, now - days * 86400)).rowcount
+        if removed:
+            with self.lock:
+                self.db.execute('PRAGMA optimize')
+        return removed
 
     def settings(self):
         defaults = {'theme':'netease','quality':'standard','proxy':system_proxy(),'spotify_client_id':'','auto_match':False,'private_session':False}
