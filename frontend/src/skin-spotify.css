@@ -1,4 +1,4 @@
-/* Spotify 皮肤：按 Spotify 桌面端还原顶栏、「音乐库」侧栏、首页渐变和播放栏。
+/* Spotify 皮肤：按 Spotify 桌面端还原顶栏、首页渐变和播放栏。
    只作用于 Spotify 皮肤本身，波点音乐等同底座的皮肤不受影响。 */
 @layer skins {
 @media (min-width: 900px) {
@@ -44,65 +44,6 @@
   :root[data-skin=spotify] .topbar .search-box kbd { display: none; }
   :root[data-skin=spotify] .topbar-account,
   :root[data-skin=spotify] .caption-spacer { order: 5; }
-
-  /* 侧栏：做成「你的音乐库」面板，每一项是 48px 方块加两行文字。 */
-  :root[data-skin=spotify] .sidebar { padding: 12px 8px 8px; }
-  :root[data-skin=spotify] .sidebar > nav::before {
-    content: "你的音乐库";
-    display: block;
-    padding: 4px 8px 12px;
-    font-size: 16px;
-    font-weight: 700;
-    color: #fff;
-  }
-  :root[data-skin=spotify] .sidebar > nav,
-  :root[data-skin=spotify] .sidebar .playlist-navigation { gap: 0; }
-  :root[data-skin=spotify] .sidebar .nav-item {
-    display: grid;
-    grid-template-columns: 48px minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    align-content: center;
-    column-gap: 12px;
-    height: 64px;
-    padding: 8px;
-    border-radius: 6px;
-    font-size: 15px;
-    font-weight: 400;
-    color: #fff;
-    background: transparent;
-  }
-  :root[data-skin=spotify] .sidebar .nav-item:hover { background: #ffffff12; }
-  :root[data-skin=spotify] .sidebar .nav-item.selected { background: #ffffff1a; color: #fff; }
-  :root[data-skin=spotify] .sidebar .nav-item.selected > span { color: var(--accent); }
-  :root[data-skin=spotify] .sidebar .nav-item > svg {
-    grid-row: 1 / 3;
-    box-sizing: border-box;
-    width: 48px;
-    height: 48px;
-    padding: 13px;
-    border-radius: 4px;
-    color: #b3b3b3;
-    background: #282828;
-  }
-  :root[data-skin=spotify] .sidebar .nav-item > span { grid-column: 2; align-self: end; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-  :root[data-skin=spotify] .sidebar .nav-item > span:only-of-type { grid-row: 1 / 3; align-self: center; }
-  :root[data-skin=spotify] .sidebar .nav-item > small {
-    grid-column: 2;
-    align-self: start;
-    margin: 2px 0 0;
-    font-size: 13px;
-    color: #b3b3b3;
-    background: none;
-  }
-  :root[data-skin=spotify] .sidebar .nav-item > small::before { content: "歌单 • "; }
-  :root[data-skin=spotify] .sidebar .nav-item > small::after { content: " 首歌曲"; }
-  :root[data-skin=spotify] .sidebar .nav-item:has(> small) > span:only-of-type { grid-row: 1; align-self: end; }
-  /* 「已点赞的歌曲」用官方的紫色渐变方块。 */
-  :root[data-skin=spotify] .sidebar nav .nav-item:nth-child(3) > svg { color: #fff; background: linear-gradient(135deg, #450af5, #8e8ee5 60%, #c4efd9); }
-  :root[data-skin=spotify] .sidebar .playlist-navigation .nav-item > svg { padding: 12px; }
-  :root[data-skin=spotify] .sidebar .library-heading { padding: 12px 8px 4px; }
-  :root[data-skin=spotify] .sidebar .library-heading span { font-size: 13px; font-weight: 700; color: #b3b3b3; }
-  :root[data-skin=spotify] .sidebar .appearance-button { border-radius: 500px; background: #1f1f1f; }
 
   /* 首页：顶部一层由灰过渡到底色的渐变，快捷磁贴 48px 高。 */
   :root[data-skin=spotify] .main-scroll:has(.home-spotify) {
