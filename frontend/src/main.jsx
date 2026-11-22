@@ -234,6 +234,11 @@ function App() {
   const spotifyUpdate=useRef(null),spotifyQueued=useRef(null),spotifyLast=useRef(null),spotifyTransport=useRef('web');
   const queueRef = useRef(queue); queueRef.current = queue;
   const upNextRef = useRef(upNext); upNextRef.current = upNext;
+  // 临时播放（音乐 Agent 候选）：这首不进队列，播完从 from 这首在队列里的位置接着往下走。
+  const [tempPlay, setTempPlayState] = useState(() => { try { const t = JSON.parse(localStorage.getItem('musicplatform-temp-play') || 'null'); return t?.id ? t : null; } catch { return null; } });
+  const tempPlayRef = useRef(tempPlay);
+  const setTempPlay = value => { if (tempPlayRef.current === value) return; tempPlayRef.current = value; setTempPlayState(value); if (value) localStorage.setItem('musicplatform-temp-play', JSON.stringify(value)); else localStorage.removeItem('musicplatform-temp-play'); };
+  const queueAnchorId = (id = spotifyPendingTrack.current?.id || currentRef.current?.id) => { const t = tempPlayRef.current; return t && t.id === id ? t.from : id; };
   useEffect(() => { localStorage.setItem('musicplatform-play-mode', playMode); }, [playMode]);
   // A play-next request is used up once that song starts, and dropped when it leaves the queue.
   useEffect(() => { setUpNext(old => { const next = old.filter(id => id !== current?.id && queue.some(t => t.id === id)); return next.length === old.length ? old : next; }); }, [current?.id, queue]);
@@ -374,7 +379,7 @@ function App() {
   async function batchTracks(action,items,playlistId){
     try{
       if(action==='play'){await play(items[0],items);return;}
-      if(action==='next'){const next=insertNext(queueRef.current,currentRef.current?.id,items);upNextRef.current=pinNext(upNextRef.current,items,currentRef.current?.id);setUpNext(upNextRef.current);editQueue(next);queueRef.current=next;notify(items.length>1?'已将 '+items.length+' 首设为接下来播放':'已设为下一首播放');return;}
+      if(action==='next'){const next=insertNext(queueRef.current,queueAnchorId(currentRef.current?.id),items);upNextRef.current=pinNext(upNextRef.current,items,queueAnchorId(currentRef.current?.id));setUpNext(upNextRef.current);editQueue(next);queueRef.current=next;notify(items.length>1?'已将 '+items.length+' 首设为接下来播放':'已设为下一首播放');return;}
       if(action==='queue'){editQueue([...queueRef.current,...items.filter(t=>!queueRef.current.some(q=>q.id===t.id))]);notify('已加入队列');return;}
       if(action==='playlist'){setModal({type:'add-playlist',tracks:items});return;}
       if(action==='playlist_remove'&&playlistId?.remote_source){
@@ -456,7 +461,7 @@ function App() {
       { label: '加入播放队列', icon: Queue, onClick: load(list => batchTracks('queue', list)) },
     ], title);
   }
-  async function play(track, list, resume=false, auto=false) {
+  async function play(track, list, resume=false, auto=false, temp=false) {
     if(auto&&spotifyBlocked.current)return;
     spotifyBlocked.current=false;
     setSpotifyInterlude(null);playAuto.current=auto;if(!auto)autoSkips.current=0;++fadeToken.current;fadingOut.current=false;
@@ -471,6 +476,8 @@ function App() {
     if (req !== playRequestId.current) return;
     await window.desktop?.platformStop?.();
     if (req !== playRequestId.current) return;
+    const prevId = currentRef.current?.id, isTemp = !list?.length && (temp || (tempPlayRef.current?.id === track.id && prevId === track.id));
+    setTempPlay(!isTemp ? null : temp && prevId !== track.id ? { id: track.id, from: queueAnchorId(prevId) || null } : tempPlayRef.current);
     if (list?.length) {
       // 整批替换队列可以撤销：恢复原队列，正在播的这首插在原来播放位置之后
       const old = queueRef.current, oldUpNext = upNextRef.current, previousId = currentRef.current?.id;
@@ -484,7 +491,7 @@ function App() {
           setQueue(restored); queueRef.current = restored; setUpNext(oldUpNext); upNextRef.current = oldUpNext; setQueueUndo(null); notify('已恢复原来的播放队列');
         } }] });
       }
-    } else if (!queueRef.current.some(t => t.id === track.id)) setQueue(q => [...q, track]);
+    } else if (!isTemp && !queueRef.current.some(t => t.id === track.id)) setQueue(q => [...q, track]);
     spotifyPendingTrack.current=track.source==='spotify'?track:null;spotifyPendingSeek.current=null;
     spotifyResumeAt.current=track.source==='spotify'&&resumePosition>0?{id:track.id,position_ms:Math.round(resumePosition*1000)}:null;spotifyQueued.current=null;spotifyLast.current=null;
     // Spotify 歌曲也立刻显示成新歌；播放器真正换歌之前，轮询拿到的上一首状态会被忽略。
@@ -586,10 +593,12 @@ function App() {
     }
     playFailedSkip.current = false;
     const items = queueRef.current; if (!items.length) return;
-    const pinned = direction > 0 ? pinnedNext(items, upNextRef.current, spotifyPendingTrack.current?.id || currentRef.current?.id) : null;
+    const temp = tempPlayRef.current, back = direction < 0 && temp?.id === (spotifyPendingTrack.current?.id || currentRef.current?.id) && items.find(t => t.id === temp.from);
+    if (back) { play(back); return; }
+    const pinned = direction > 0 ? pinnedNext(items, upNextRef.current, queueAnchorId()) : null;
     if (pinned) { play(pinned, undefined, false, automatic); return; }
     if (modeRef.current === 'single' && automatic) { if (currentRef.current?.source === 'spotify') { play(currentRef.current); return; } const audio = audioRef.current; audio.currentTime = 0; audio.play().catch(e => notify(e.message)); return; }
-    const index = items.findIndex(t => t.id === (spotifyPendingTrack.current?.id||currentRef.current?.id));
+    const index = items.findIndex(t => t.id === queueAnchorId());
     if (automatic && modeRef.current === 'once' && index === items.length - 1) { if (currentRef.current?.source === 'spotify') spotifyControl('pause'); setPlaying(false); return; }
     let nextIndex = (index + direction + items.length) % items.length;
     if (modeRef.current === 'shuffle' && items.length > 1) { do { nextIndex = Math.floor(Math.random() * items.length); } while (nextIndex === index); }
@@ -633,7 +642,7 @@ function App() {
       const clockPosition=spotifyClockPosition(spotifyClock.current,performance.now());
       if(matches&&snapshot.track)spotifyLast.current={id:snapshot.track.id,position_ms:clockPosition,duration_ms:snapshot.duration_ms,playing:snapshot.playing,at:performance.now()};else if(!matches)spotifyLast.current=null;
       // Near the end, hand Spotify the next Elixir song so it starts without a new play command.
-      const upcoming=matches&&snapshot.playing&&snapshot.track&&!spotifyPendingTrack.current&&snapshot.duration_ms-clockPosition<20000?(pinnedNext(queueRef.current,upNextRef.current,snapshot.track.id)||followingTrack(queueRef.current,snapshot.track.id,modeRef.current)):null;
+      const upcoming=matches&&snapshot.playing&&snapshot.track&&!spotifyPendingTrack.current&&snapshot.duration_ms-clockPosition<20000?(pinnedNext(queueRef.current,upNextRef.current,queueAnchorId(snapshot.track.id))||followingTrack(queueRef.current,queueAnchorId(snapshot.track.id),modeRef.current)):null;
       if(upcoming?.source==='spotify'&&upcoming.id!==snapshot.track.id&&!sleepAfterTrackRef.current&&spotifyQueued.current?.after!==snapshot.track.id&&window.desktop?.spotifyQueue){spotifyQueued.current={after:snapshot.track.id,id:upcoming.id};window.desktop.spotifyQueue(upcoming.source_id).catch(()=>{spotifyQueued.current=null;});}
       setPlaying(snapshot.playing);setPosition(spotifyClockPosition(spotifyClock.current,performance.now())/1000);
       if(matches&&snapshot.duration_ms)setDuration(snapshot.duration_ms/1000);
@@ -918,8 +927,8 @@ function App() {
       </main>
     </div>
     <PlayerBar current={current} interlude={spotifyInterlude} playHint={playHint} liked={liked} playing={playing} buffering={buffering} playMode={playMode} queueLength={queue.length} queueOpen={queueOpen} duration={duration} volume={volume} quality={settings.quality} onOpenDetail={openDetail} onToggleLike={toggleLike} onPlayMode={setPlayMode} onSkip={next} onToggle={togglePlayback} onSeek={value=>{if(current?.source!=='spotify')audioRef.current.currentTime=value;setPosition(value);}} onSeekEnd={value=>{if(current?.source==='spotify')spotifyControl('seek',Math.round(value*1000));}} onQualityChange={changeQuality} desktopLyrics={desktopLyrics} onDesktopLyrics={window.desktop?.openLyrics ? toggleDesktopLyrics : undefined} onVolume={setVolume} onVolumeEnd={value=>{if(current?.source==='spotify')spotifyControl('volume',Math.round(value*100));}} onQueue={()=>setQueueOpen(!queueOpen)} lyric={parts.lyricBar === 'on' ? playerLyric : null} marks={parts.progress === 'lyric' ? playerLyric : null} chorus={chorus} />
-    {parts.panel === 'on' && !phone && <NowPanel current={current} queue={queue} upNext={upNext} liked={liked} lyric={playerLyric} onOpenDetail={openDetail} onToggleLike={toggleLike} onPlay={play} onQueue={() => setQueueOpen(!queueOpen)} />}
-      {parts.panel === 'agent' && !phone && <AgentPanel current={current} queue={queue} upNext={upNext} onAdd={batchTracks} />}
+    {parts.panel === 'on' && !phone && <NowPanel current={current} queue={queue} upNext={upNext} liked={liked} lyric={playerLyric} onOpenDetail={openDetail} onToggleLike={toggleLike} onPlay={play} />}
+      {parts.panel === 'agent' && !phone && <AgentPanel current={current} queue={queue} upNext={upNext} tempPlay={tempPlay?.id === current?.id ? tempPlay : null} onAdd={batchTracks} onPlay={track => play(track, undefined, false, false, true)} />}
     {phone && <nav className="mobile-tabs" aria-label="主导航">{[['home', labels.home, House], ['search', '搜索', MagnifyingGlass], ['music', labels.music || '我的音乐', Disc], ['likes', labels.likes, Heart]].map(([key, title, Icon]) => <button key={key} aria-current={page === key && !detail ? 'page' : undefined} onClick={() => { navigate(key); if (key === 'search') setTimeout(() => searchRef.current?.focus(), 50); }}><Icon size={23} weight={page === key && !detail ? 'fill' : 'regular'} /><span>{title}</span></button>)}<button aria-expanded={navOpen} onClick={() => { setDetail(null); setNavOpen(true); }}><DotsThree size={23} weight="bold" /><span>更多</span></button></nav>}
     <DesktopLyricSync current={current} lyric={playerLyric} interlude={spotifyInterlude} playing={playing} buffering={buffering} speed={speed} duration={duration} lyricOffset={lyricOffset} />
     {phone && queueOpen && <div className="mobile-scrim queue-scrim" aria-hidden="true" onClick={() => setQueueOpen(false)} />}

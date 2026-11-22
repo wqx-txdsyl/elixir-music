@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowsClockwise, CaretDown, CaretUp, ClockCounterClockwise, Shuffle, Sparkle, SkipForward, X } from '@phosphor-icons/react';
+import { ArrowsClockwise, CaretDown, CaretUp, ClockCounterClockwise, Play, Shuffle, Sparkle, SkipForward, SpeakerHigh, X } from '@phosphor-icons/react';
 import { api } from './api';
 import { Cover, Note } from './ui';
 
@@ -19,7 +19,7 @@ function upcomingIds(queue, upNext, currentId) {
 
 // 右侧栏的音乐 Agent：按当前歌曲、点赞、歌单和播放记录，从本地曲库排一段候选。
 // 候选可以删、可以调顺序，点按钮才进播放队列，正在播的歌不受影响。
-export function AgentPanel({ current, queue, upNext, onAdd }) {
+export function AgentPanel({ current, queue, upNext, tempPlay, onAdd, onPlay }) {
   const [mode, setMode] = useState(() => MODES.some(m => m.id === localStorage.getItem(MODE_KEY)) ? localStorage.getItem(MODE_KEY) : 'continue');
   const [items, setItems] = useState([]);
   const [status, setStatus] = useState('loading');
@@ -28,18 +28,18 @@ export function AgentPanel({ current, queue, upNext, onAdd }) {
   const [basisId, setBasisId] = useState(current?.id);
   const [added, setAdded] = useState(0);
   const request = useRef(null);
-  const latest = useRef({ current, queue, upNext });
-  latest.current = { current, queue, upNext };
+  const latest = useRef({ current, queue, upNext, tempPlay });
+  latest.current = { current, queue, upNext, tempPlay };
 
   const load = useCallback(async (nextMode, skip = []) => {
     request.current?.abort();
     const controller = new AbortController(); request.current = controller;
-    const { current, queue, upNext } = latest.current;
+    const { current, queue, upNext, tempPlay } = latest.current;
     setStatus('loading'); setError(''); setAdded(0);
     try {
       const data = await api('/api/music-agent/suggest', { method: 'POST', signal: controller.signal, body: {
         mode: nextMode, current_track_id: current?.id || null, limit: LIMIT,
-        exclude_track_ids: [...new Set([...upcomingIds(queue, upNext, current?.id), ...skip])].slice(0, 1000),
+        exclude_track_ids: [...new Set([...upcomingIds(queue, upNext, tempPlay ? tempPlay.from : current?.id), ...skip])].slice(0, 1000),
       } });
       if (controller.signal.aborted) return;
       setItems(data.candidates || []); setEdited(false); setBasisId(current?.id); setStatus('done');
@@ -53,7 +53,8 @@ export function AgentPanel({ current, queue, upNext, onAdd }) {
   useEffect(() => () => request.current?.abort(), []);
   // 「接着听」跟着当前歌曲走：没动过候选就自动重排，动过就只提示，不冲掉手上的编辑。
   useEffect(() => {
-    if (mode !== 'continue' || current?.id === basisId || status === 'loading') return;
+    // 临时试听候选不算换歌，不然点一下列表就被重排掉。
+    if (mode !== 'continue' || current?.id === basisId || tempPlay || status === 'loading') return;
     if (!edited && !added) load(mode);
   }, [current?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -69,7 +70,7 @@ export function AgentPanel({ current, queue, upNext, onAdd }) {
   };
 
   const active = MODES.find(m => m.id === mode);
-  const stale = mode === 'continue' && status === 'done' && items.length > 0 && current?.id !== basisId;
+  const stale = mode === 'continue' && status === 'done' && items.length > 0 && current?.id !== basisId && !tempPlay;
   return <aside className="now-panel agent-panel" aria-label="音乐 Agent">
     <div className="now-panel-head"><span className="agent-title"><Sparkle size={16} weight="fill" />音乐 Agent</span></div>
     <div className="agent-modes" role="radiogroup" aria-label="怎么排">
@@ -84,9 +85,11 @@ export function AgentPanel({ current, queue, upNext, onAdd }) {
       {status === 'done' && !items.length && (added
         ? <Note className="tight">已加入 {added} 首。<button type="button" className="text-button" onClick={() => load(mode)}>再排一批</button></Note>
         : <Note className="tight">{edited ? '这一批都移走了。' : '曲库里暂时没有合适的歌。'}<button type="button" className="text-button" onClick={() => load(mode)}>换一批</button></Note>)}
-      {items.map((item, i) => <div className="agent-row" key={item.track.id}>
-        <Cover src={item.track.cover} title={item.track.title} />
-        <span className="agent-row-text"><strong title={item.track.title}>{item.track.title}</strong><small title={item.track.artist}>{item.track.artist}</small><em>{item.reason}</em></span>
+      {items.map((item, i) => <div className={'agent-row' + (current?.id === item.track.id ? ' playing' : '')} key={item.track.id}>
+        <button type="button" className="agent-row-play" title="试听这首，不改播放队列，播完接回原来的队列" aria-label={'试听《' + item.track.title + '》'} aria-current={current?.id === item.track.id ? 'true' : undefined} onClick={() => onPlay(item.track)}>
+          <span className="agent-row-cover"><Cover src={item.track.cover} title={item.track.title} />{current?.id === item.track.id ? <SpeakerHigh size={18} weight="fill" /> : <Play size={18} weight="fill" />}</span>
+          <span className="agent-row-text"><strong title={item.track.title}>{item.track.title}</strong><small title={item.track.artist}>{item.track.artist}</small><em>{item.reason}</em></span>
+        </button>
         <span className="agent-row-tools">
           <button type="button" title="往前挪" aria-label={'把《' + item.track.title + '》往前挪'} disabled={i === 0} onClick={() => move(i, -1)}><CaretUp size={14} /></button>
           <button type="button" title="往后挪" aria-label={'把《' + item.track.title + '》往后挪'} disabled={i === items.length - 1} onClick={() => move(i, 1)}><CaretDown size={14} /></button>

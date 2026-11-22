@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Heart, Queue, MicrophoneStage } from '@phosphor-icons/react';
+import { Heart, MicrophoneStage } from '@phosphor-icons/react';
 import { api, mediaUrl } from './api';
 import { Cover, IconButton, Note } from './ui';
 import { usePlaybackPosition } from './usePlaybackPosition';
@@ -17,12 +17,12 @@ export function SkinPreview({ skin, className = '' }) {
 }
 
 // Spotify's right-hand "now playing" view: artwork, the current lyric and what plays next.
-export function NowPanel({ current, queue, upNext, liked, lyric, onOpenDetail, onToggleLike, onPlay, onQueue, onClose }) {
+export function NowPanel({ current, queue, upNext, liked, lyric, onOpenDetail, onToggleLike, onPlay, onClose }) {
   const index = queue.findIndex(t => t.id === current?.id);
   const pinned = upNext.map(id => queue.find(t => t.id === id)).filter(Boolean);
   const following = [...pinned, ...queue.slice(index + 1).filter(t => !upNext.includes(t.id)), ...(index > 0 ? queue.slice(0, index) : [])].slice(0, 6);
   return <aside className="now-panel" aria-label="正在播放">
-    <div className="now-panel-head"><span>正在播放</span><IconButton icon={Queue} title="打开播放队列" onClick={onQueue} /></div>
+    <div className="now-panel-head"><span>正在播放</span></div>
     {current ? <>
       <button className="now-panel-art" onClick={() => onOpenDetail(current)} aria-label={'查看《' + current.title + '》的歌词与资料'}><Cover src={current.cover} title={current.title} /></button>
       <div className="now-panel-title"><div><strong>{current.title}</strong><span>{[current.artist, current.album].filter(Boolean).join(' · ')}</span></div><IconButton icon={Heart} title="喜欢" active={liked.has(current.id)} onClick={() => onToggleLike(current)} /></div>

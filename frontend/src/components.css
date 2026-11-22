@@ -517,3 +517,12 @@ select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .agent-actions .text-button { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; }
 @media (prefers-reduced-motion: reduce) { .agent-skeleton i { animation: none; } }
 }
+@layer components {
+.agent-row-play { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; padding: 0; text-align: left; cursor: pointer; }
+.agent-row-cover { position: relative; flex: none; }
+.agent-row-cover > svg { position: absolute; inset: 0; margin: auto; color: #fff; opacity: 0; filter: drop-shadow(0 1px 2px #0008); transition: opacity .12s; }
+.agent-row-cover::after { content: ''; position: absolute; inset: 0; border-radius: 6px; background: #0000; transition: background .12s; pointer-events: none; }
+.agent-row-play:hover .agent-row-cover > svg, .agent-row-play:focus-visible .agent-row-cover > svg, .agent-row.playing .agent-row-cover > svg { opacity: 1; z-index: 1; }
+.agent-row-play:hover .agent-row-cover::after, .agent-row-play:focus-visible .agent-row-cover::after, .agent-row.playing .agent-row-cover::after { background: #0006; }
+.agent-row.playing .agent-row-text strong { color: var(--accent); }
+}
